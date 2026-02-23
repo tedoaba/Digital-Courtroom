@@ -11,6 +11,8 @@ PROJECT_DESCRIPTION.md
 
 # Folders
 ignored/
+.agent/
+memory/
 
 # Distribution / packaging
 .Python
