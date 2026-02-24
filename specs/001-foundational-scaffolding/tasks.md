@@ -56,10 +56,11 @@
 ### Implementation for User Story 2
 
 - [ ] T012 [P] [US2] Create `.env.example` following the `SystemSettings` schema in `specs/001-foundational-scaffolding/data-model.md`
-- [ ] T013 [US2] Implement `SystemSettings` Pydantic model in `src/config.py` using `pydantic-settings`
-- [ ] T014 [US2] Implement fail-fast loader in `src/config.py` that raises a descriptive error on missing mandatory keys
-- [ ] T015 [US2] Create `src/state.py` containing the initial `AppState` model as defined in `data-model.md`
-- [ ] T016 [US2] Create `tests/test_config.py` to verify that the config loader correctly identifies and reports missing mandatory environment variables
+- [ ] T013 [US2] Create `tests/test_config.py` to verify that the config loader correctly identifies and reports missing mandatory environment variables (Red Phase)
+- [ ] T014 [US2] Implement `SystemSettings` Pydantic model in `src/config.py` using `pydantic-settings` (Green Phase)
+- [ ] T015 [US2] Implement fail-fast loader in `src/config.py` that raises a descriptive error on missing mandatory keys (Green Phase)
+- [ ] T016 [US2] Implement regex-based secret scanner in `src/config.py` to detect hardcoded keys during validation (FR-008)
+- [ ] T017 [US2] Create `src/state.py` containing the initial `AppState` model as defined in `data-model.md`
 
 **Checkpoint**: Configuration system is robust and secure - subsequent nodes can now safely access settings.
 
@@ -73,9 +74,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T017 [US3] Create `tests/conftest.py` with shared fixtures for configuration mocking during tests
-- [ ] T018 [US3] Implement `tests/test_scaffolding.py` to verify that the file system structure matches the architectural requirements in `plan.md`
-- [ ] T019 [US3] Verify `ruff` configuration by running `uv run ruff check .` across the newly created foundation
+- [ ] T018 [US3] Create `tests/conftest.py` with shared fixtures for configuration mocking during tests
+- [ ] T019 [US3] Implement `tests/test_scaffolding.py` to verify that the file system structure matches the architectural requirements in `plan.md`
+- [ ] T020 [US3] Verify `ruff` configuration by running `uv run ruff check .` across the newly created foundation
 
 ---
 
@@ -83,9 +84,11 @@
 
 **Purpose**: Final quality checks and documentation validation.
 
-- [ ] T020 Run `uv run ruff format .` to ensure all generated code meets project standards
-- [ ] T021 [P] Validate `quickstart.md` instructions against the actual implemented CLI commands
-- [ ] T022 Final audit of `src/` structure against Appendix A of Architecture Notes
+- [ ] T021 Run `uv run ruff format .` to ensure all generated code meets project standards
+- [ ] T022 [P] Validate `quickstart.md` instructions against the actual implemented CLI commands
+- [ ] T023 [P] Verify SC-001: Measure environment sync time (Target: < 15s)
+- [ ] T024 [P] Verify SC-004: Measure config failure response time (Target: < 1s)
+- [ ] T025 Final audit of `src/` structure against Appendix A of Architecture Notes
 
 ---
 

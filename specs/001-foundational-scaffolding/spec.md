@@ -79,7 +79,7 @@ As a developer, I want a pre-integrated testing framework so that I can write an
 
 ### Key Entities _(include if feature involves data)_
 
-- **Configuration Manifest**: The set of validated parameters (API keys, project settings, flags) required for system operation.
+- **SystemSettings (Configuration Manifest)**: The set of validated parameters (API keys, project settings, flags) required for system operation.
 - **Environment Context**: The combination of local files and system variables that define the current execution environment.
 
 ## Success Criteria _(mandatory)_
