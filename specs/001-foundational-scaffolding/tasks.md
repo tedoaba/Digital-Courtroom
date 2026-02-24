@@ -11,10 +11,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize repository with `uv init` and project metadata in `pyproject.toml`
-- [ ] T002 Create root directory structure: `src/`, `tests/`, `rubric/`, `audit/`
-- [ ] T003 [P] Create `.gitignore` with Python and environment variable exclusions
-- [ ] T004 [P] Create `.python-version` file specifying Python 3.12+
+- [x] T001 Initialize repository with `uv init` and project metadata in `pyproject.toml`
+- [x] T002 Create root directory structure: `src/`, `tests/`, `rubric/`, `audit/`
+- [x] T003 [P] Create `.gitignore` with Python and environment variable exclusions
+- [x] T004 [P] Create `.python-version` file specifying Python 3.12+
 
 ---
 
@@ -24,9 +24,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Configure `ruff` for linting and formatting in `pyproject.toml`
-- [ ] T006 [P] Configure `pytest` and `pytest-asyncio` in `pyproject.toml`
-- [ ] T007 Initialize `src/__init__.py` and `tests/__init__.py` to mark package boundaries
+- [x] T005 [P] Configure `ruff` for linting and formatting in `pyproject.toml`
+- [x] T006 [P] Configure `pytest` and `pytest-asyncio` in `pyproject.toml`
+- [x] T007 Initialize `src/__init__.py` and `tests/__init__.py` to mark package boundaries
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -40,10 +40,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Add primary dependencies to `pyproject.toml` (`langgraph`, `langchain`, `pydantic`, `python-dotenv`, `pydantic-settings`)
-- [ ] T009 [US1] Add development dependencies to `pyproject.toml` (`pytest`, `pytest-asyncio`, `ruff`)
-- [ ] T010 [US1] Create placeholder nodes and tools directories with `src/nodes/.placeholder` and `src/tools/.placeholder`
-- [ ] T011 [US1] Create initial `src/graph.py` as a placeholder for the StateGraph
+- [x] T008 [US1] Add primary dependencies to `pyproject.toml` (`langgraph`, `langchain`, `pydantic`, `python-dotenv`, `pydantic-settings`)
+- [x] T009 [US1] Add development dependencies to `pyproject.toml` (`pytest`, `pytest-asyncio`, `ruff`)
+- [x] T010 [US1] Create placeholder nodes and tools directories with `src/nodes/.placeholder` and `src/tools/.placeholder`
+- [x] T011 [US1] Create initial `src/graph.py` as a placeholder for the StateGraph
 
 ---
 
@@ -55,12 +55,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T012 [P] [US2] Create `.env.example` following the `SystemSettings` schema in `specs/001-foundational-scaffolding/data-model.md`
-- [ ] T013 [US2] Create `tests/test_config.py` to verify that the config loader correctly identifies and reports missing mandatory environment variables (Red Phase)
-- [ ] T014 [US2] Implement `SystemSettings` Pydantic model in `src/config.py` using `pydantic-settings` (Green Phase)
-- [ ] T015 [US2] Implement fail-fast loader in `src/config.py` that raises a descriptive error on missing mandatory keys (Green Phase)
-- [ ] T016 [US2] Implement regex-based secret scanner in `src/config.py` to detect hardcoded keys during validation (FR-008)
-- [ ] T017 [US2] Create `src/state.py` containing the initial `AppState` model as defined in `data-model.md`
+- [x] T012 [P] [US2] Create `.env.example` following the `SystemSettings` schema in `specs/001-foundational-scaffolding/data-model.md`
+- [x] T013 [US2] Create `tests/test_config.py` to verify that the config loader correctly identifies and reports missing mandatory environment variables (Red Phase)
+- [x] T014 [US2] Implement `SystemSettings` Pydantic model in `src/config.py` using `pydantic-settings` (Green Phase)
+- [x] T015 [US2] Implement fail-fast loader in `src/config.py` that raises a descriptive error on missing mandatory keys (Green Phase)
+- [x] T016 [US2] Implement regex-based secret scanner in `src/config.py` to detect hardcoded keys during validation (FR-008)
+- [x] T017 [US2] Create `src/state.py` containing the initial `AppState` model as defined in `data-model.md`
 
 **Checkpoint**: Configuration system is robust and secure - subsequent nodes can now safely access settings.
 
@@ -74,9 +74,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Create `tests/conftest.py` with shared fixtures for configuration mocking during tests
-- [ ] T019 [US3] Implement `tests/test_scaffolding.py` to verify that the file system structure matches the architectural requirements in `plan.md`
-- [ ] T020 [US3] Verify `ruff` configuration by running `uv run ruff check .` across the newly created foundation
+- [x] T018 [US3] Create `tests/conftest.py` with shared fixtures for configuration mocking during tests
+- [x] T019 [US3] Implement `tests/test_scaffolding.py` to verify that the file system structure matches the architectural requirements in `plan.md`
+- [x] T020 [US3] Verify `ruff` configuration by running `uv run ruff check .` across the newly created foundation
 
 ---
 
@@ -84,11 +84,11 @@
 
 **Purpose**: Final quality checks and documentation validation.
 
-- [ ] T021 Run `uv run ruff format .` to ensure all generated code meets project standards
-- [ ] T022 [P] Validate `quickstart.md` instructions against the actual implemented CLI commands
-- [ ] T023 [P] Verify SC-001: Measure environment sync time (Target: < 15s)
-- [ ] T024 [P] Verify SC-004: Measure config failure response time (Target: < 1s)
-- [ ] T025 Final audit of `src/` structure against Appendix A of Architecture Notes
+- [x] T021 Run `uv run ruff format .` to ensure all generated code meets project standards
+- [x] T022 [P] Validate `quickstart.md` instructions against the actual implemented CLI commands
+- [x] T023 [P] Verify SC-001: Measure environment sync time (Target: < 15s)
+- [x] T024 [P] Verify SC-004: Measure config failure response time (Target: < 1s)
+- [x] T025 Final audit of `src/` structure against Appendix A of Architecture Notes
 
 ---
 
