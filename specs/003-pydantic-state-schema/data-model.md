@@ -47,6 +47,8 @@ The final aggregated output.
 - **`summary`** (`str`): High-level analysis.
 - **`global_score`** (`float`): Weighted average based on **Constitution XI**, rounded to 1 decimal place.
   - **Weights**: Architecture: 1.5, Security: 2.0, Performance: 1.2, Documentation: 1.0.
+  - **Security Override**: If `security_violation_found` is `True`, the score contributes max `3` to the weighted average.
+  - **Empty Results**: If `results` is empty, `global_score` defaults to `0.0`.
 
 ## Agent State (`TypedDict`)
 

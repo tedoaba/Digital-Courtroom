@@ -36,7 +36,7 @@ As a system developer, I want all collected evidence to be validated against a s
 
 **Acceptance Scenarios**:
 
-1. **Given** a confidence score of 1.5, **When** creating an `Evidence` model, **Then** a `ValidationError` is raised.
+1. **Given** a confidence score of 1.5, **When** creating an `Evidence` model, **Then** a `ValidationError` is raised and the error indicates the `relevance_confidence` field is out of range.
 2. **Given** a confidence score of 0.8, **When** creating an `Evidence` model, **Then** the model is successfully created.
 
 ---
@@ -52,7 +52,7 @@ As a system engineer, I want state updates from parallel agents to merge correct
 **Acceptance Scenarios**:
 
 1. **Given** an existing state with results for 'Criterion A', **When** a new update with results for 'Criterion B' is applied via `merge_criterion_results`, **Then** the state contains results for both 'Criterion A' and 'Criterion B'.
-2. **Given** an existing dict of `evidences`, **When** a new dict is applied via `merge_evidences`, **Then** the unique items are merged into the lists.
+2. **Given** an existing dict of `evidences`, **When** a new dict is applied via `merge_evidences`, **Then** the unique items are merged into the lists based on content hashing.
 
 ---
 
@@ -80,16 +80,18 @@ As a legal auditor, I want scores assigned to judicial criteria to be strictly w
 
 ### Functional Requirements
 
-- **FR-001**: System MUST define a schema for `Evidence` with fields: `source_ref`, `content`, and `relevance_confidence`.
-- **FR-002**: System MUST enforce confidence bounds of [0.0, 1.0].
-- **FR-003**: System MUST define a schema for `JudicialOpinion` to hold the source text and basic identifiers including `case_id` and `court_name` (optional with defaults).
-- **FR-004**: System MUST define a `CriterionResult` schema with fields: `criterion_id`, `numeric_score`, `reasoning`, and a `security_violation_found` boolean flag.
-- **FR-005**: System MUST enforce score bounds of [1, 5].
-- **FR-006**: System MUST define an `AuditReport` schema as an aggregation of `CriterionResult` entries, a comprehensive text summary, and a derived global audit score calculated using a weighted average (per Constitution XI) and rounded to one decimal place.
-- **FR-007**: System MUST define a central `State` definition that maintains a snapshot of the most recent validated results.
-- **FR-008**: System MUST implement a merge strategy for `evidences` (dict of lists) that performs SHA-256 content-based deduplication and raises a fatal exception if structural types are mismatched.
-- **FR-009**: System MUST implement a merge strategy for `criterion_results` that resolves collisions by highest confidence and raises a fatal exception if structural types are mismatched.
-- **FR-010**: System MUST ensure that all data passed between processing nodes is validated against defined schemas using strict enforcement (no extra fields allowed, no type coercion) to prevent malformed data propagation.
+- **FR-001**: System MUST define a schema for `Evidence` with fields: `source_ref`, `content`, and `relevance_confidence`. **[Constitution IV, V]**
+- **FR-002**: System MUST enforce confidence bounds of [0.0, 1.0]. **[Constitution V.3]**
+- **FR-003**: System MUST define a schema for `JudicialOpinion` to hold the source text and basic identifiers including `case_id` and `court_name` (optional with defaults). **[Constitution IV]**
+- **FR-004**: System MUST define a `CriterionResult` schema with fields: `criterion_id`, `numeric_score` (Integer), `reasoning`, and a `security_violation_found` boolean flag. **[Constitution IV, V]**
+- **FR-005**: System MUST enforce score bounds of [1, 5] for `numeric_score`. **[Constitution V.4]**
+- **FR-006**: System MUST define an `AuditReport` schema as an aggregation of `CriterionResult` entries, a comprehensive text summary, and a derived global audit score calculated using a weighted average (per Constitution XI) and rounded to one decimal place. **[Constitution XI]**
+- **FR-007**: System MUST define a central `State` definition that maintains a snapshot of the most recent validated results. **[Constitution III, IV]**
+- **FR-008**: System MUST implement a merge strategy for `evidences` (dict of lists) that performs SHA-256 content-based deduplication and raises a fatal exception if structural types are mismatched. **[Constitution VI.1]**
+- **FR-009**: System MUST implement a merge strategy for `criterion_results` that resolves collisions by highest confidence and raises a fatal exception if structural types are mismatched. **[Constitution VI.4]**
+- **FR-010**: System MUST ensure that all data passed between processing nodes is validated against defined schemas using strict enforcement (no extra fields allowed, no type coercion) to prevent malformed data propagation. **[Constitution IV.4, V.2]**
+- **FR-011**: System MUST handle scenarios where `AuditReport` is generated with empty `results` by setting `global_score` to 0.0 and summary to "No results available".
+- **FR-012**: System MUST apply Security Override logic during `global_score` calculation: if `security_violation_found` is True for a criterion, its contribution to the weighted average must be capped at 3 regardless of the `numeric_score`. **[Constitution XI.Priority 1]**
 
 ### Key Entities _(include if feature involves data)_
 
@@ -109,6 +111,6 @@ As a legal auditor, I want scores assigned to judicial criteria to be strictly w
 
 ## Assumptions & Dependencies
 
-- **Dependency**: Relies on Feature 2 (Observability) for logging validation errors.
+- **Dependency**: Relies on Feature 2 (Observability) for logging validation errors. **[Constitution XXII]**
 - **Assumption**: `JudicialOpinion` will be provided as a string or a structured object containing at least the text of the opinion.
 - **Assumption**: `AgentState` will be the primary state object used in `LangGraph` `StateGraph` definitions.
