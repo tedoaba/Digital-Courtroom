@@ -18,6 +18,11 @@
 - Q: What level of numeric precision should be maintained for the global audit score? → A: One decimal place (e.g., 4.2 / 5.0).
 - Q: Should metadata fields like case_id and court_name be strictly mandatory? → A: Optional with defaults (e.g., defaults to "Unknown").
 - Q: Should there be a limit on the number of evidence items stored in the state? → A: No hard limit (Allow the list to grow with all valid evidence).
+- Q: How should the "Security Override" constraint be represented in the data models? → A: Dedicated Flag (An explicit boolean flag that triggers capping in the report/aggregator).
+- Q: Should the data models strictly forbid additional fields not defined in the schema? → A: Forbid Extra (Raise error if extra fields are present).
+- Q: Should the data models allow type coercion for incoming data? → A: Strict (Disallow coercion; data must exactly match the type hint).
+- Q: How should the custom reducers handle structurally invalid data during a merge? → A: Fatal Exception (Stop the graph and raise a system error).
+- Q: How should the AuditReport.global_score be calculated from individual criterion results? → A: Weighted Average (Applying Constitution XI weightings: Security capping + weighted categories).
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -69,6 +74,7 @@ As a legal auditor, I want scores assigned to judicial criteria to be strictly w
 - **Duplicate Keys in merge**: If two agents provide the same `criterion_id`, the system MUST retain the one with the higher confidence/quality metric to ensure the most reliable audit data is preserved.
 - **Empty Evidence Lists**: How does `operator.add` handle an empty list? (Should preserve existing state).
 - **Malformed Nested Data**: If an `Evidence` object inside a list is invalid, does the entire state update fail? (Yes, Pydantic should fail the outer validation).
+- **Structural Failure in Reducer**: If a reducer receives a non-container type (e.g., string instead of list), it MUST raise a fatal exception to prevent state corruption.
 
 ## Requirements _(mandatory)_
 
@@ -77,19 +83,19 @@ As a legal auditor, I want scores assigned to judicial criteria to be strictly w
 - **FR-001**: System MUST define a schema for `Evidence` with fields: `source_ref`, `content`, and `relevance_confidence`.
 - **FR-002**: System MUST enforce confidence bounds of [0.0, 1.0].
 - **FR-003**: System MUST define a schema for `JudicialOpinion` to hold the source text and basic identifiers including `case_id` and `court_name` (optional with defaults).
-- **FR-004**: System MUST define a `CriterionResult` schema with fields: `criterion_id`, `numeric_score`, and `reasoning`.
+- **FR-004**: System MUST define a `CriterionResult` schema with fields: `criterion_id`, `numeric_score`, `reasoning`, and a `security_violation_found` boolean flag.
 - **FR-005**: System MUST enforce score bounds of [1, 5].
-- **FR-006**: System MUST define an `AuditReport` schema as an aggregation of `CriterionResult` entries, a comprehensive text summary, and a derived global audit score rounded to one decimal place.
+- **FR-006**: System MUST define an `AuditReport` schema as an aggregation of `CriterionResult` entries, a comprehensive text summary, and a derived global audit score calculated using a weighted average (per Constitution XI) and rounded to one decimal place.
 - **FR-007**: System MUST define a central `State` definition that maintains a snapshot of the most recent validated results.
-- **FR-008**: System MUST implement an additive merge strategy for evidence collections that performs content-based deduplication (using `source_ref` and `content` hash) to prevent redundant entries.
-- **FR-009**: System MUST implement a merge strategy for criterion results that performs a dictionary-style merge, resolving collisions for the same `criterion_id` by retaining the entry with the highest confidence score.
-- **FR-010**: System MUST ensure that all data passed between processing nodes is validated against defined schemas to prevent malformed data propagation.
+- **FR-008**: System MUST implement an additive merge strategy for evidence collections that performs content-based deduplication and raises a fatal exception if structural types are mismatched.
+- **FR-009**: System MUST implement a merge strategy for criterion results that resolves collisions by highest confidence and raises a fatal exception if structural types are mismatched.
+- **FR-010**: System MUST ensure that all data passed between processing nodes is validated against defined schemas using strict enforcement (no extra fields allowed, no type coercion) to prevent malformed data propagation.
 
 ### Key Entities _(include if feature involves data)_
 
 - **Evidence**: Represents a specific piece of information extracted from a source, with a confidence metric and a reference to its location.
 - **JudicialOpinion**: The primary source document being audited, containing the text and case metadata.
-- **CriterionResult**: The outcome of auditing a specific legal criterion (e.g., Transparency, Bias).
+- **CriterionResult**: The outcome of auditing a specific legal criterion (e.g., Transparency, Bias), including a check for security violations.
 - **AuditReport**: The final aggregated output of the judicial audit process.
 
 ## Success Criteria _(mandatory)_
