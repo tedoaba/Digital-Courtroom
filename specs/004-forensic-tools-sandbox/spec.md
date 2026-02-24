@@ -5,6 +5,16 @@
 **Status**: Draft  
 **Input**: User description: "Develop isolated, secure tools for repository cloning, Git log extraction, Python AST static analysis, and PDF parsing. Ensures security (no command injection, no os.system usage) and reproducible evidence gathering without executing malicious cloned code."
 
+## Clarifications
+
+### Session 2026-02-24
+
+- Q: Should we enforce a maximum disk usage limit for cloned repositories to prevent host resource exhaustion? → A: Option A - Enforce a strict 1GB limit per forensic task
+- Q: Which commit metadata fields are mandatory for the "Git Narrative Analysis"? → A: Option A - Capture Hash, Author, Date, and Message
+- Q: How should extracted visual artifacts be stored for downstream processing? → A: Option A - Save as files in the isolated temporary workspace
+- Q: Should the static analysis extract full function bodies and internal call graphs, or focus on high-level declarations and specific framework-related calls? → A: Option A - Extract Classes, Functions, Bases, and specific Framework calls (e.g. StateGraph, BaseModel)
+- Q: For deterministic output auditing, should the findings include the "execution time" or only the "data derivation time"? → A: Option A - Use data derivation time only (e.g. Commit timestamps)
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Secure External Evidence Collection (Priority: P1)
@@ -17,7 +27,7 @@ As a security-conscious auditor, I want to retrieve external source code and his
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid external source URL, **When** the collection tool is invoked, **Then** code is retrieved into a strictly isolated temporary space, and structural metadata is extracted.
+1. **Given** a valid external source URL, **When** the collection tool is invoked, **Then** code is retrieved into a strictly isolated temporary space, and structural metadata (including full Git history: Hash, Author, Date, Message) is extracted.
 2. **Given** a malformed or unauthorized URL, **When** collection is attempted, **Then** the system rejects the request immediately with a clear security warning.
 3. **Given** a source that takes too long to respond, **When** collection is attempted, **Then** the operation is terminated within 60 seconds to prevent resource exhaustion.
 
@@ -56,7 +66,7 @@ As an auditor, I want to extract text and embedded images from PDF reports so th
 ### Edge Case Assumptions
 
 - **Hostile Inputs**: All external URLs and file contents are treated as potentially malicious.
-- **Resource Limits**: No single forensic operation may consume more than 60 seconds of processing time.
+- **Resource Limits**: No single forensic operation may consume more than 60 seconds of processing time or 1GB of disk space.
 - **Cleanup Guarantee**: The system must cleanup all temporary forensic artifacts even if a crash occurs during processing.
 
 ## Requirements _(mandatory)_
@@ -66,17 +76,18 @@ As an auditor, I want to extract text and embedded images from PDF reports so th
 - **FR-001**: The system MUST execute all external commands using a method that prevents shell-based command injection (e.g., using argument lists instead of raw strings).
 - **FR-002**: All forensic collection operations MUST have a hard execution timeout of 60 seconds.
 - **FR-003**: The system MUST provide an isolated temporary workspace for all external artifacts that is automatically purged upon completion or failure.
-- **FR-004**: Code analysis MUST be strictly static, meaning the target code is never imported, loaded into memory for execution, or evaluated.
+- **FR-004**: Code analysis MUST be strictly static, focusing on extracting high-level declarations (Classes, Functions, Bases) and specific framework interactions (e.g., StateGraph wiring, BaseModel fields). The target code is never imported or executed.
 - **FR-005**: All document parsing failures MUST be caught and converted into a standard "unparseable" status rather than allowing library errors to halt the system.
 - **FR-006**: The system MUST validate all source URLs against a strict whitelist of approved domains and protocols before attempting collection.
-- **FR-007**: Image extraction MUST be able to retrieve visual artifacts from documents without executing any scripts embedded within the document.
+- **FR-007**: Image extraction MUST be able to retrieve visual artifacts from documents and save them as temporary files within the isolated workspace without executing any scripts embedded within the document.
 - **FR-008**: All tool outputs MUST be deterministic, ensuring that identical inputs always result in identical evidence findings.
+- **FR-009**: The system MUST enforce a maximum disk usage limit of 1GB for any single isolated workspace.
 
 ### Key Entities _(include if feature involves data)_
 
-- **Forensic Finding**: A structured object containing the evidence "fact", its location, confidence level, and timestamp.
-- **Source Snapshot**: A temporary collection of retrieved code and metadata.
-- **Visual Artifact**: An image or diagram extracted from a document, used for pattern verification.
+- **Forensic Finding**: A structured object containing the evidence "fact", its location, confidence level, and a data-driven timestamp (e.g., commit date, not execution time).
+- **Source Snapshot**: A temporary collection of retrieved code and metadata (including Commits with Hash, Author, Date, and Message).
+- **Visual Artifact**: An image or diagram extracted from a document, stored as a file path in the isolated workspace, used for pattern verification.
 
 ## Success Criteria _(mandatory)_
 
@@ -86,4 +97,4 @@ As an auditor, I want to extract text and embedded images from PDF reports so th
 - **SC-002**: **Safety Guarantee**: 100% of tested command injection payloads are blocked before execution.
 - **SC-003**: **Resource Protection**: 100% of long-running operations are terminated precisely at the 60-second mark.
 - **SC-004**: **Execution Prevention**: Analysis of local "poison" scripts results in zero unexpected side effects in 100% of test cases.
-- **SC-005**: **Reproducibility**: Repeated analysis of the same source results in bit-identical evidence objects every time.
+- **SC-005**: **Reproducibility**: Repeated analysis of the same source results in bit-identical evidence objects every time (achieved by using data-derivation timestamps instead of execution-time markers).
