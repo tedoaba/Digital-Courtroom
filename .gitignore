@@ -6,13 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
-# Ignored Files
-PROJECT_DESCRIPTION.md
-
 # Folders
 ignored/
-.agent/
-memory/
+#.agent/
+#memory/
 
 # Distribution / packaging
 .Python
