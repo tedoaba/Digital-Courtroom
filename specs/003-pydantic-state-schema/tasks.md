@@ -47,7 +47,7 @@
 ### Implementation for User Story 1
 
 - [ ] T007 [US1] Implement `Evidence` model in `src/state.py` using `Field(ge=0, le=1)`
-- [ ] T008 [US1] Implement `JudicialOpinion` model in `src/state.py` with default values for `case_id` and `court_name`
+- [ ] T008 [US1] Implement `JudicialOpinion` model in `src/state.py` with default values for `case_id` and `court_name` (plural naming applied to opinions list downstream)
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
 
@@ -61,14 +61,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T009 [P] [US2] Create unit tests for `merge_evidence` (deduplication/fatal type error) in `tests/unit/test_state.py`
+- [ ] T009 [P] [US2] Create unit tests for `merge_evidences` (SHA-256 deduplication/dict structure/fatal type error) in `tests/unit/test_state.py`
 - [ ] T010 [P] [US2] Create unit tests for `merge_criterion_results` (confidence resolution/fatal type error) in `tests/unit/test_state.py`
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Implement `merge_evidence` reducer in `src/state.py` (content-based deduplication)
+- [ ] T011 [US2] Implement `merge_evidences` reducer in `src/state.py` (plural, dict-based, SHA-256 deduplication)
 - [ ] T012 [US2] Implement `merge_criterion_results` reducer in `src/state.py` (highest confidence wins)
-- [ ] T013 [US2] Define `AgentState` TypedDict with `Annotated` reducers in `src/state.py`
+- [ ] T013 [US2] Define `AgentState` TypedDict with `Annotated` reducers in `src/state.py` (naming: `evidences`, `opinions`, `criterion_results`)
 
 **Checkpoint**: Parallel state aggregation logic is valid.
 

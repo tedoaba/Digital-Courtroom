@@ -46,13 +46,14 @@ The final aggregated output.
 - **`results`** (`dict[str, CriterionResult]`): Map of ID to result.
 - **`summary`** (`str`): High-level analysis.
 - **`global_score`** (`float`): Weighted average based on **Constitution XI**, rounded to 1 decimal place.
+  - **Weights**: Architecture: 1.5, Security: 2.0, Performance: 1.2, Documentation: 1.0.
 
 ## Agent State (`TypedDict`)
 
 | Field               | Type                         | Reducer                   | Description                                            |
 | ------------------- | ---------------------------- | ------------------------- | ------------------------------------------------------ |
-| `evidence`          | `list[Evidence]`             | `merge_evidence`          | Deduplicated list; Fatal on structural mismatch.       |
-| `judicial_opinions` | `list[JudicialOpinion]`      | `operator.add`            | Collection of judge outputs.                           |
-| `results`           | `dict[str, CriterionResult]` | `merge_criterion_results` | Best confidence results; Fatal on structural mismatch. |
+| `evidences`         | `dict[str, list[Evidence]]`  | `merge_evidences`         | Plural per Const. VI.1; Dict-based; Fatal on mismatch. |
+| `opinions`          | `list[JudicialOpinion]`      | `operator.add`            | Plural per Const. VI.2; Collection of judge outputs.   |
+| `criterion_results` | `dict[str, CriterionResult]` | `merge_criterion_results` | Best confidence results; Fatal on structural mismatch. |
 | `errors`            | `list[str]`                  | `operator.add`            | Traceable execution errors.                            |
 | `opinion_text`      | `str`                        | _None_                    | The raw source text of the opinion.                    |

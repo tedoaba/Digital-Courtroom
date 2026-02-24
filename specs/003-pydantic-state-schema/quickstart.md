@@ -9,9 +9,9 @@ from src.state import AgentState
 
 initial_state: AgentState = {
     "opinion_text": "Court case text here...",
-    "evidence": [],
-    "judicial_opinions": [],
-    "results": {},
+    "evidences": {},
+    "opinions": [],
+    "criterion_results": {},
     "errors": []
 }
 ```
@@ -56,12 +56,12 @@ c = CriterionResult(
 Custom reducers prevent structural corruption.
 
 ```python
-from src.state import merge_evidence
+from src.state import merge_evidences
 
 # This works
-merged = merge_evidence(list_a, list_b)
+merged = merge_evidences(dict_a, dict_b)
 
 # This raises TypeError (Fatal Exception per spec)
-# if a node accidentally returns a string instead of a list
-merged = merge_evidence(list_a, "invalid update")
+# if a node accidentally returns a string instead of a dict
+merged = merge_evidences(dict_a, "invalid update")
 ```

@@ -3,7 +3,7 @@
 **Feature Branch**: `003-pydantic-state-schema`  
 **Created**: 2026-02-24  
 **Status**: Draft  
-**Input**: User description: "Feature: Pydantic State Schema and Annotated Reducers - Objective: Implement strongly typed state models to govern the data flow through the LangGraph architecture. - Scope: Evidence, JudicialOpinion, CriterionResult, AuditReport models. AgentState TypedDict with operator.add and operator.ior reducers. - Unit Test Expectations: confidence [0.0, 1.0], score [1, 5]."
+**Input**: User description: "Feature: Pydantic State Schema and Annotated Reducers - Objective: Implement strongly typed state models to govern the data flow through the LangGraph architecture. - Scope: Evidence, JudicialOpinion, CriterionResult, AuditReport models. AgentState TypedDict with merge_evidences and merge_criterion_results reducers. - Unit Test Expectations: confidence [0.0, 1.0], score [1, 5]."
 
 ## Clarifications
 
@@ -51,8 +51,8 @@ As a system engineer, I want state updates from parallel agents to merge correct
 
 **Acceptance Scenarios**:
 
-1. **Given** an existing state with results for 'Criterion A', **When** a new update with results for 'Criterion B' is applied via `ior`, **Then** the state contains results for both 'Criterion A' and 'Criterion B'.
-2. **Given** an existing list of `Evidence`, **When** a new list is applied via `add`, **Then** the lists are concatenated.
+1. **Given** an existing state with results for 'Criterion A', **When** a new update with results for 'Criterion B' is applied via `merge_criterion_results`, **Then** the state contains results for both 'Criterion A' and 'Criterion B'.
+2. **Given** an existing dict of `evidences`, **When** a new dict is applied via `merge_evidences`, **Then** the unique items are merged into the lists.
 
 ---
 
@@ -87,8 +87,8 @@ As a legal auditor, I want scores assigned to judicial criteria to be strictly w
 - **FR-005**: System MUST enforce score bounds of [1, 5].
 - **FR-006**: System MUST define an `AuditReport` schema as an aggregation of `CriterionResult` entries, a comprehensive text summary, and a derived global audit score calculated using a weighted average (per Constitution XI) and rounded to one decimal place.
 - **FR-007**: System MUST define a central `State` definition that maintains a snapshot of the most recent validated results.
-- **FR-008**: System MUST implement an additive merge strategy for evidence collections that performs content-based deduplication and raises a fatal exception if structural types are mismatched.
-- **FR-009**: System MUST implement a merge strategy for criterion results that resolves collisions by highest confidence and raises a fatal exception if structural types are mismatched.
+- **FR-008**: System MUST implement a merge strategy for `evidences` (dict of lists) that performs SHA-256 content-based deduplication and raises a fatal exception if structural types are mismatched.
+- **FR-009**: System MUST implement a merge strategy for `criterion_results` that resolves collisions by highest confidence and raises a fatal exception if structural types are mismatched.
 - **FR-010**: System MUST ensure that all data passed between processing nodes is validated against defined schemas using strict enforcement (no extra fields allowed, no type coercion) to prevent malformed data propagation.
 
 ### Key Entities _(include if feature involves data)_

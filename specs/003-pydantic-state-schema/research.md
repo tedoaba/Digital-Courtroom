@@ -8,21 +8,34 @@ LangGraph's default `operator.add` just appends lists, which can lead to duplica
 
 ### Findings:
 
-#### 1. Evidence List Reducer (Deduplicating)
+#### 1. Evidences Reducer (Deduplicating Dict)
 
-A custom reducer in LangGraph is just a function that takes `(existing, new)` and returns the updated state.
+A custom reducer in LangGraph is just a function that takes `(existing, new)` and returns the updated state. Per Constitution VI.1, this must return a dictionary of lists.
 
 ```python
-def merge_evidence(left: list[Evidence], right: list[Evidence]) -> list[Evidence]:
-    if not isinstance(left, list) or not isinstance(right, list):
-        raise TypeError("merge_evidence expects lists for left and right operands")
+import hashlib
 
-    # Use a dictionary to deduplicate by (source_ref, content_hash)
-    merged = { (e.source_ref, hash(e.content)): e for e in left }
-    for e in right:
-        merged[(e.source_ref, hash(e.content))] = e
-    return list(merged.values())
+def get_content_hash(text: str) -> str:
+    return hashlib.sha256(text.encode()).hexdigest()
+
+def merge_evidences(left: dict[str, list[Evidence]], right: dict[str, list[Evidence]]) -> dict[str, list[Evidence]]:
+    if not isinstance(left, dict) or not isinstance(right, dict):
+        raise TypeError("merge_evidences expects dicts for left and right operands")
+
+    merged = left.copy()
+    for key, evidence_list in right.items():
+        if key not in merged:
+            merged[key] = evidence_list
+        else:
+            # Content-based deduplication using SHA-256
+            existing_hashes = {get_content_hash(e.content) for e in merged[key]}
+            for e in evidence_list:
+                if get_content_hash(e.content) not in existing_hashes:
+                    merged[key].append(e)
+    return merged
 ```
+
+_Correction_: Replaced Python `hash()` with `hashlib.sha256` for stable deduplication across sessions (Core Principle III).
 
 _Correction_: Pydantic models are not hashable by default unless `frozen=True`. Since we want immutability (Constitution XVI), we should use `frozen=True`.
 _Fatal Exception_: Added a type check to raise `TypeError` if non-list data is passed, per Session 2026-02-24.

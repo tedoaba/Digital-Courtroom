@@ -7,7 +7,7 @@
 
 ## Summary
 
-This feature implements the foundational data models and state management for the Digital Courtroom project. Using Pydantic v2 and LangGraph, we will define **strictly typed schemas** for `Evidence`, `JudicialOpinion`, `CriterionResult`, and `AuditReport`. The implementation enforces **zero-tolerance for extra fields or type coercion**, uses **custom reducers** for parallel-safe merge with deduplication, and integrates **Constitution XI** scoring logic (Security Overrides and Weighted Averages).
+This feature implements the foundational data models and state management for the Digital Courtroom project. Using Pydantic v2 and LangGraph, we will define **strictly typed schemas** for `Evidence`, `JudicialOpinion`, `CriterionResult`, and `AuditReport`. The implementation enforces **zero-tolerance for extra fields or type coercion**, uses **custom reducers** for parallel-safe merge (`evidences`, `criterion_results`) with deduplication, and integrates **Constitution XI** scoring logic (Security Overrides and Weighted Averages: Architecture=1.5, Security=2.0).
 
 ## Technical Context
 
@@ -34,6 +34,8 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 - **V.1 (Type Annotations)**: Full PEP-484 compliance required in `src/state.py`. (Status: PASS)
 - **V.3 (Evidence Confidence)**: Field constraint `[0.0, 1.0]` implemented. (Status: PASS)
 - **V.4 (Judicial Score)**: Field constraint `[1, 5]` implemented. (Status: PASS)
+- **VI.1 (Parallel Evidences)**: `Annotated[Dict[str, List[Evidence]], merge_evidences]` used. (Status: PASS)
+- **VI.2 (Parallel Opinions)**: `Annotated[List[JudicialOpinion], operator.add]` used. (Status: PASS)
 - **XI.1 (Security Override)**: `security_violation_found` flag integrated for score capping. (Status: PASS)
 - **XX.1 (File Structure)**: State models strictly placed in `src/state.py`. (Status: PASS)
 
