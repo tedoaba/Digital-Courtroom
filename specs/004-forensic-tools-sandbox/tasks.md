@@ -22,9 +22,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure: `src/tools/`, `src/models/`, `tests/unit/tools/`, `tests/integration/tools/`
-- [ ] T002 Initialize project dependencies (`docling`, `pydantic`) using `uv add`
-- [ ] T003 [P] Configure `ruff` for linting and formatting in `pyproject.toml`
+- [x] T001 Create project structure: `src/tools/`, `src/models/`, `tests/unit/tools/`, `tests/integration/tools/`
+- [x] T002 Initialize project dependencies (`docling`, `pydantic`) using `uv add`
+- [x] T003 [P] Configure `ruff` for linting and formatting in `pyproject.toml`
 
 ---
 
@@ -34,10 +34,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `ToolResult` generic wrapper in `src/tools/base.py`
-- [ ] T005 Implement foundational models (`Evidence`, `Commit`) in `src/models/forensic.py`
-- [ ] T006 [P] Implement URL validation utility with domain/protocol whitelist in `src/tools/utils.py` (FR-006)
-- [ ] T007 [P] Implement common timeout and disk limit decorators/utilities in `src/tools/utils.py` (FR-002, FR-009)
+- [x] T004 Implement `ToolResult` generic wrapper in `src/tools/base.py`
+- [x] T005 Implement foundational models (`Evidence`, `Commit`) in `src/models/forensic.py`
+- [x] T006 [P] Implement URL validation utility with domain/protocol whitelist in `src/tools/utils.py` (FR-006)
+- [x] T007 [P] Implement common timeout and disk limit decorators/utilities in `src/tools/utils.py` (FR-002, FR-009)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -53,16 +53,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T008 [P] [US1] Unit tests for `clone_repo` (success, timeout, injection attempt) in `tests/unit/tools/test_repo_tools.py`
-- [ ] T009 [P] [US1] Unit tests for `extract_git_history` in `tests/unit/tools/test_repo_tools.py`
-- [ ] T010 [US1] Integration test for "Secure External Evidence Collection" scenario in `tests/integration/tools/test_forensic_suite.py`
+- [x] T008 [P] [US1] Unit tests for `clone_repo` (success, timeout, injection attempt) in `tests/unit/tools/test_repo_tools.py`
+- [x] T009 [P] [US1] Unit tests for `extract_git_history` in `tests/unit/tools/test_repo_tools.py`
+- [x] T010 [US1] Integration test for "Secure External Evidence Collection" scenario in `tests/integration/tools/test_forensic_suite.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `clone_repo` using `tempfile.TemporaryDirectory` and `subprocess` list-args in `src/tools/repo_tools.py` (FR-001, FR-003, FR-009, FR-011)
-- [ ] T012 [US1] Implement `extract_git_history` to return `List[Commit]` with hash, author, date, message in `src/tools/repo_tools.py`
-- [ ] T013 [US1] Ensure `repo_tools.py` handles recursive symlinks and network failures (FR-011, FR-012)
-- [ ] T014 [US1] Ensure `repo_tools.py` uses data-derivation timestamps for determinism (FR-008)
+- [x] T011 [US1] Implement `clone_repo` using `tempfile.TemporaryDirectory` and `subprocess` list-args in `src/tools/repo_tools.py` (FR-001, FR-003, FR-009, FR-011)
+- [x] T012 [US1] Implement `extract_git_history` to return `List[Commit]` with hash, author, date, message in `src/tools/repo_tools.py`
+- [x] T013 [US1] Ensure `repo_tools.py` handles recursive symlinks and network failures (FR-011, FR-012)
+- [x] T014 [US1] Ensure `repo_tools.py` uses data-derivation timestamps for determinism (FR-008)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -76,14 +76,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T014 [P] [US2] Unit tests for `scan_repository` with valid and invalid syntax in `tests/unit/tools/test_ast_tools.py`
-- [ ] T015 [P] [US2] Security test for Zero-Execution guarantee (poison script test) in `tests/unit/tools/test_ast_tools.py` (SC-004)
+- [x] T014 [P] [US2] Unit tests for `scan_repository` with valid and invalid syntax in `tests/unit/tools/test_ast_tools.py`
+- [x] T015 [P] [US2] Security test for Zero-Execution guarantee (poison script test) in `tests/unit/tools/test_ast_tools.py` (SC-004)
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement `ASTFinding` Pydantic model in `src/models/forensic.py`
-- [ ] T019 [US2] Implement `scan_repository` using `ast.parse` and `ast.walk` in `src/tools/ast_tools.py` (FR-004, FR-012)
-- [ ] T020 [US2] Add support for detecting `StateGraph` wiring and `BaseModel` fields specifically (FR-004)
+- [x] T018 [P] [US2] Implement `ASTFinding` Pydantic model in `src/models/forensic.py`
+- [x] T019 [US2] Implement `scan_repository` using `ast.parse` and `ast.walk` in `src/tools/ast_tools.py` (FR-004, FR-012)
+- [x] T020 [US2] Add support for detecting `StateGraph` wiring and `BaseModel` fields specifically (FR-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -97,13 +97,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T019 [P] [US3] Unit tests for `ingest_pdf` (success, corrupt PDF) in `tests/unit/tools/test_doc_tools.py`
-- [ ] T020 [P] [US3] Unit tests for `extract_visuals` in `tests/unit/tools/test_vision_tools.py`
+- [x] T019 [P] [US3] Unit tests for `ingest_pdf` (success, corrupt PDF) in `tests/unit/tools/test_doc_tools.py`
+- [x] T020 [P] [US3] Unit tests for `extract_visuals` in `tests/unit/tools/test_vision_tools.py`
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Implement `ingest_pdf` using `docling` with graceful failure handling, 1GB disk limit check, and password-protection detection in `src/tools/doc_tools.py` (FR-005, FR-009, FR-010)
-- [ ] T024 [US3] Implement `extract_visuals` with disk limit enforcement to save images to the isolated temporary workspace in `src/tools/vision_tools.py` (FR-007, FR-009)
+- [x] T023 [US3] Implement `ingest_pdf` using `docling` with graceful failure handling, 1GB disk limit check, and password-protection detection in `src/tools/doc_tools.py` (FR-005, FR-009, FR-010)
+- [x] T024 [US3] Implement `extract_visuals` with disk limit enforcement to save images to the isolated temporary workspace in `src/tools/vision_tools.py` (FR-007, FR-009)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -113,11 +113,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T023 [P] Update `README.md` with forensic tool usage examples
-- [ ] T024 [P] Validate `quickstart.md` steps against final implementation
-- [ ] T025 Performance audit: Ensure all tool calls complete under 60s (SC-003)
-- [ ] T026 Determinism audit: Verify bit-identical results for repeated runs (SC-005)
-- [ ] T027 Final security audit: Verify 100% cleanup of temporary artifacts (SC-001)
+- [x] T023 [P] Update `README.md` with forensic tool usage examples
+- [x] T024 [P] Validate `quickstart.md` steps against final implementation
+- [x] T025 Performance audit: Ensure all tool calls complete under 60s (SC-003)
+- [x] T026 Determinism audit: Verify bit-identical results for repeated runs (SC-005)
+- [x] T027 Final security audit: Verify 100% cleanup of temporary artifacts (SC-001)
 
 ---
 
