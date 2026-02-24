@@ -51,6 +51,7 @@ specs/004-forensic-tools-sandbox/
 ```text
 src/
 └── tools/
+    ├── base.py          # Shared tool interfaces (ToolResult)
     ├── repo_tools.py    # Git operations (clone, log)
     ├── ast_tools.py     # Static analysis logic
     ├── doc_tools.py     # PDF parsing logic

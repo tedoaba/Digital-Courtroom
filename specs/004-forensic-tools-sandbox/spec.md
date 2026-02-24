@@ -78,7 +78,7 @@ As an auditor, I want to extract text and embedded images from PDF reports so th
 - **FR-003**: The system MUST provide an isolated temporary workspace for all external artifacts that is automatically purged upon completion or failure.
 - **FR-004**: Code analysis MUST be strictly static, focusing on extracting high-level declarations (Classes, Functions, Bases) and specific framework interactions (e.g., StateGraph wiring, BaseModel fields). The target code is never imported or executed.
 - **FR-005**: All document parsing failures MUST be caught and converted into a standard "unparseable" status rather than allowing library errors to halt the system.
-- **FR-006**: The system MUST validate all source URLs against a strict whitelist of approved domains and protocols before attempting collection.
+- **FR-006**: The system MUST validate all source URLs against a strict whitelist of approved domains (e.g., `github.com`, `gitlab.com`) and protocols (strictly `https`) before attempting collection.
 - **FR-007**: Image extraction MUST be able to retrieve visual artifacts from documents and save them as temporary files within the isolated workspace without executing any scripts embedded within the document.
 - **FR-008**: All tool outputs MUST be deterministic, ensuring that identical inputs always result in identical evidence findings.
 - **FR-009**: The system MUST enforce a maximum disk usage limit of 1GB for any single isolated workspace.
@@ -97,4 +97,4 @@ As an auditor, I want to extract text and embedded images from PDF reports so th
 - **SC-002**: **Safety Guarantee**: 100% of tested command injection payloads are blocked before execution.
 - **SC-003**: **Resource Protection**: 100% of long-running operations are terminated precisely at the 60-second mark.
 - **SC-004**: **Execution Prevention**: Analysis of local "poison" scripts results in zero unexpected side effects in 100% of test cases.
-- **SC-005**: **Reproducibility**: Repeated analysis of the same source results in bit-identical evidence objects every time (achieved by using data-derivation timestamps instead of execution-time markers).
+- **SC-005**: **Reproducibility**: Repeated analysis of the same source results in bit-identical evidence objects every time (achieved by using UTC data-derivation timestamps instead of execution-time markers).

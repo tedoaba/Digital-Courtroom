@@ -29,5 +29,5 @@
 
 ## Decision 4: Determinism
 
-**Decision**: Enforce UTF-8 encoding for all file reads and use `datetime.fromtimestamp` on commit data.
+**Decision**: Enforce UTF-8 encoding for all file reads and use `datetime.fromtimestamp(..., tz=timezone.utc)` on commit data.
 **Rationale**: Ensures bit-identical findings across platforms.

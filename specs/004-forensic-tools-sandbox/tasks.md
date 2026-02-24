@@ -59,7 +59,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `clone_repo` using `tempfile.TemporaryDirectory` and `subprocess` list-args in `src/tools/repo_tools.py` (FR-001, FR-003)
+- [ ] T011 [US1] Implement `clone_repo` using `tempfile.TemporaryDirectory` and `subprocess` list-args in `src/tools/repo_tools.py` (FR-001, FR-003, FR-009)
 - [ ] T012 [US1] Implement `extract_git_history` to return `List[Commit]` with hash, author, date, message in `src/tools/repo_tools.py`
 - [ ] T013 [US1] Ensure `repo_tools.py` uses data-derivation timestamps for determinism (FR-008)
 
@@ -101,8 +101,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Implement `ingest_pdf` using `docling` with graceful failure handling in `src/tools/doc_tools.py` (FR-005)
-- [ ] T022 [US3] Implement `extract_visuals` to save images to the isolated temporary workspace in `src/tools/vision_tools.py` (FR-007)
+- [ ] T021 [US3] Implement `ingest_pdf` using `docling` with graceful failure handling and 1GB disk limit check in `src/tools/doc_tools.py` (FR-005, FR-009)
+- [ ] T022 [US3] Implement `extract_visuals` with disk limit enforcement to save images to the isolated temporary workspace in `src/tools/vision_tools.py` (FR-007, FR-009)
 
 **Checkpoint**: All user stories should now be independently functional
 

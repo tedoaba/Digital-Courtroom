@@ -26,7 +26,7 @@
 ### `ingest_pdf(pdf_path: Path) -> List[str]`
 
 - **Input**: Path to PDF.
-- **Output**: List of text chunks.
+- **Output**: List of markdown-formatted text chunks.
 
 ### `extract_visuals(pdf_path: Path, output_dir: Path) -> List[Path]`
 
