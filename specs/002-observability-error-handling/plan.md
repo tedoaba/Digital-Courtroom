@@ -31,6 +31,8 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 | ------------------------------ | ------------------------------------------------- | ------- | ---------------------------------------------------------------- |
 | **C-I: Spec-Driven**           | `spec.md` exists and is finalized                 | ✅ PASS | Feature spec is complete and clarified.                          |
 | **C-II: TDD**                  | Tests defined and required before implementation  | ✅ PASS | Implementation tasks will prioritize test file creation first.   |
+| **C-III: State Transitions**   | Entry/Exit events tracked deterministically       | ✅ PASS | StructuredLogger specifically captures lifecycle points.         |
+| **C-IV: Schema-First**         | Pydantic models used for log/error schema         | ✅ PASS | Defined in data-model.md and implementation plan.                |
 | **C-VII: Error Handling**      | Explicit Retryable/Fatal categories defined       | ✅ PASS | Central goal of this feature.                                    |
 | **C-XX: Modular Architecture** | Code appropriately modularized                    | ✅ PASS | Structured as a reusable utility framework.                      |
 | **C-XXII: Structured Logging** | `StructuredLogger` implemented for node lifecycle | ✅ PASS | Mandated by this implementation plan.                            |

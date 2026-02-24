@@ -11,6 +11,10 @@ Implement a custom `PIIRedactionFilter` (inheriting from `logging.Filter`) combi
 - **Regex-based Masking**: Provides a safety net for string-based PII (emails, phone numbers) appearing in messages.
 - **Key-based Redaction**: Reliable way to scrub specific fields in structured payloads (e.g., `client_secret`).
 - **Standard Library Alignment**: Using `logging.Filter` is non-intrusive and works across all handlers (stdout, file, etc.).
+- **Specific Patterns**: Initial scope includes masking for:
+  - Emails: `[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`
+  - Phone Numbers: Standard E.164 and common regional formats.
+  - Secrets: Keys matching `.*_key`, `.*_secret`, `.*_token`, and biological/financial IDs if encountered.
 
 ### Alternatives Considered
 

@@ -28,7 +28,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Implement exception hierarchy (`AppException`, `RetryableException`, `FatalException`, and subclasses) in `src/exceptions.py`
+- [ ] T003 Implement exception hierarchy (`AppException`, `RetryableException`, `FatalException`) and specific subclasses (Timing, Connectivity, SchemaViolation, InvalidInput) in `src/exceptions.py` per FR-009
 - [ ] T004 [P] Create unit tests for the exception hierarchy in `tests/unit/test_exceptions.py` to verify `fatal` attribute and inheritance
 - [ ] T005 Create base `src/utils/logger.py` with standard library logging setup placeholder
 
@@ -52,7 +52,7 @@
 
 - [ ] T007 [P] [US1] Implement `PIIRedactionFilter` in `src/utils/logger.py` using regex-based masking for emails and phone numbers
 - [ ] T008 [US1] Implement `StructuredLogger` class in `src/utils/logger.py` using `python-json-logger` or standard JSON formatter
-- [ ] T009 [US1] Add dedicated methods to `StructuredLogger` for node events: `log_node_entry`, `log_evidence_created`, `log_opinion_rendered`
+- [ ] T009 [US1] Add dedicated methods to `StructuredLogger` for node events: `log_node_entry`, `log_evidence_created`, `log_opinion_rendered`, and `log_verdict_delivered` (FR-005)
 
 **Checkpoint**: User Story 1 functional - system can now emit redacted JSON logs to stdout.
 
