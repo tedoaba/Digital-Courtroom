@@ -17,7 +17,8 @@ This feature involves developing a robust, security-hardened toolkit for forensi
 **Project Type**: Library / Forensic Toolkit  
 **Performance Goals**: Sub-60s execution per tool call  
 **Constraints**: 1GB disk limit per operation, zero execution of audited code, shell-injection safety  
-**Scale/Scope**: Supports repositories up to 1GB and PDFs up to 50MB
+**Scale/Scope**: Supports repositories up to 1GB and PDFs up to 50MB  
+**Architectural Boundary**: Tools are strictly for **fact extraction** (structural/metadata); they do NOT interpret logic or assign scores (reserved for Nodes).
 
 ## Constitution Check
 

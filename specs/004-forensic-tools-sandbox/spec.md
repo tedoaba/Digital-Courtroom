@@ -74,14 +74,18 @@ As an auditor, I want to extract text and embedded images from PDF reports so th
 ### Functional Requirements
 
 - **FR-001**: The system MUST execute all external commands using a method that prevents shell-based command injection (e.g., using argument lists instead of raw strings).
-- **FR-002**: All forensic collection operations MUST have a hard execution timeout of 60 seconds.
+- **FR-002**: All forensic collection operations MUST have a hard execution timeout of 60 seconds. When reached, the system MUST return a `timeout` status with the partial data (if valid) or a timeout error.
 - **FR-003**: The system MUST provide an isolated temporary workspace for all external artifacts that is automatically purged upon completion or failure.
 - **FR-004**: Code analysis MUST be strictly static, focusing on extracting high-level declarations (Classes, Functions, Bases) and specific framework interactions (e.g., StateGraph wiring, BaseModel fields). The target code is never imported or executed.
 - **FR-005**: All document parsing failures MUST be caught and converted into a standard "unparseable" status rather than allowing library errors to halt the system.
 - **FR-006**: The system MUST validate all source URLs against a strict whitelist of approved domains (e.g., `github.com`, `gitlab.com`) and protocols (strictly `https`) before attempting collection.
 - **FR-007**: Image extraction MUST be able to retrieve visual artifacts from documents and save them as temporary files within the isolated workspace without executing any scripts embedded within the document.
 - **FR-008**: All tool outputs MUST be deterministic, ensuring that identical inputs always result in identical evidence findings.
-- **FR-009**: The system MUST enforce a maximum disk usage limit of 1GB for any single isolated workspace.
+- **FR-009**: The system MUST enforce a maximum disk usage limit of 1GB for any single isolated workspace. If the limit is exceeded, the system MUST terminate the process and return a `disk_limit_exceeded` status.
+- **FR-010**: Restricted or password-protected content within documents MUST be explicitly caught and reported as `access_denied` status rather than crashing.
+- **FR-011**: Partial repository clones resulting from network interruptions MUST be automatically cleaned up and reported as a `network_failure`.
+- **FR-012**: The tool MUST handle recursive symlinks in repositories by depth-limiting the walk or ignoring symlinks during AST analysis.
+- **FR-013**: If automated cleanup fails due to OS-level file locks, the system MUST log a CRITICAL error and mark the workspace for manual cleanup, but MUST NOT block the host process.
 
 ### Key Entities _(include if feature involves data)_
 

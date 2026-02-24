@@ -40,7 +40,7 @@ _Metadata for a code structure._
 
 _Wrapper for a tool execution._
 
-- `status`: Literal["success", "failure", "timeout"]
+- `status`: Literal["success", "failure", "timeout", "disk_limit_exceeded", "access_denied", "network_failure"]
 - `data`: T (Optional list of findings)
 - `error`: Optional[str]
 - `execution_time`: float (For logging only, not for evidence)

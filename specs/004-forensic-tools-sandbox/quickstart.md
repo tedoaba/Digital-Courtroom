@@ -4,7 +4,7 @@
 
 - Windows OS (Dev)
 - `uv` installed
-- `git` installed and in PATH
+- `git` installed (v2.17+ recommended for list-argument stability) and in PATH
 
 ## Installation
 

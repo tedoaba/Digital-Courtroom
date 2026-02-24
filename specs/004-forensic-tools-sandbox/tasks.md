@@ -59,9 +59,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `clone_repo` using `tempfile.TemporaryDirectory` and `subprocess` list-args in `src/tools/repo_tools.py` (FR-001, FR-003, FR-009)
+- [ ] T011 [US1] Implement `clone_repo` using `tempfile.TemporaryDirectory` and `subprocess` list-args in `src/tools/repo_tools.py` (FR-001, FR-003, FR-009, FR-011)
 - [ ] T012 [US1] Implement `extract_git_history` to return `List[Commit]` with hash, author, date, message in `src/tools/repo_tools.py`
-- [ ] T013 [US1] Ensure `repo_tools.py` uses data-derivation timestamps for determinism (FR-008)
+- [ ] T013 [US1] Ensure `repo_tools.py` handles recursive symlinks and network failures (FR-011, FR-012)
+- [ ] T014 [US1] Ensure `repo_tools.py` uses data-derivation timestamps for determinism (FR-008)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -80,9 +81,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T016 [P] [US2] Implement `ASTFinding` Pydantic model in `src/models/forensic.py`
-- [ ] T017 [US2] Implement `scan_repository` using `ast.parse` and `ast.walk` in `src/tools/ast_tools.py` (FR-004)
-- [ ] T018 [US2] Add support for detecting `StateGraph` wiring and `BaseModel` fields specifically (FR-004)
+- [ ] T018 [P] [US2] Implement `ASTFinding` Pydantic model in `src/models/forensic.py`
+- [ ] T019 [US2] Implement `scan_repository` using `ast.parse` and `ast.walk` in `src/tools/ast_tools.py` (FR-004, FR-012)
+- [ ] T020 [US2] Add support for detecting `StateGraph` wiring and `BaseModel` fields specifically (FR-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -101,8 +102,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Implement `ingest_pdf` using `docling` with graceful failure handling and 1GB disk limit check in `src/tools/doc_tools.py` (FR-005, FR-009)
-- [ ] T022 [US3] Implement `extract_visuals` with disk limit enforcement to save images to the isolated temporary workspace in `src/tools/vision_tools.py` (FR-007, FR-009)
+- [ ] T023 [US3] Implement `ingest_pdf` using `docling` with graceful failure handling, 1GB disk limit check, and password-protection detection in `src/tools/doc_tools.py` (FR-005, FR-009, FR-010)
+- [ ] T024 [US3] Implement `extract_visuals` with disk limit enforcement to save images to the isolated temporary workspace in `src/tools/vision_tools.py` (FR-007, FR-009)
 
 **Checkpoint**: All user stories should now be independently functional
 
