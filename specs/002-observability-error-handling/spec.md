@@ -5,6 +5,16 @@
 **Status**: Draft  
 **Input**: User description: "Feature: Core Observability and Error Handling Framework..."
 
+## Clarifications
+
+### Session 2026-02-24
+
+- Q: Log Data Privacy → A: Automatically mask/redact known PII patterns in the log payload
+- Q: Error Notification Threshold → A: Log as "CRITICAL" severity; rely on log monitoring for alerts
+- Q: Trace Retention & Sampling → A: 30-day retention; standard for operational auditing
+- Q: Log Output Destination → A: Stream to stdout/stderr (Unified Standard Output)
+- Q: Tracing Context Propagation → A: Automatic (via decorators/middleware)
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Machine-Readable Logging for Automated Analysis (Priority: P1)
@@ -63,16 +73,20 @@ As a developer, I want errors to be categorized into clear failure types (e.g., 
 ### Functional Requirements
 
 - **FR-001**: System MUST provide a logging utility that outputs data in a structured, machine-readable format (JSON).
-- **FR-002**: Every log record MUST include deterministic keys for `timestamp`, `event_type`, `severity`, and `payload`.
-- **FR-003**: The logging system MUST support dedicated capture methods for common lifecycle events: node entry, evidence creation, opinion rendering, and final verdict delivery.
-- **FR-004**: System MUST define a formalized hierarchy of exceptions.
-- **FR-005**: All system-defined exceptions MUST explicitly specify whether they are retryable (transient) or fatal (permanent).
-- **FR-006**: System MUST support the following specific error categories:
+- **FR-002**: Logging utility MUST stream all structured log records to standard output (stdout) or standard error (stderr) to facilitate external aggregation.
+- **FR-003**: Every log record MUST include deterministic keys for `timestamp`, `event_type`, `severity`, and `payload`.
+- **FR-004**: Logging utility MUST automatically identify and redact identifiable PII patterns from the `payload` before emitting structured data.
+- **FR-005**: The logging system MUST support dedicated capture methods for common lifecycle events: node entry, evidence creation, opinion rendering, and final verdict delivery.
+- **FR-006**: System MUST define a formalized hierarchy of exceptions.
+- **FR-007**: All system-defined exceptions MUST explicitly specify whether they are retryable (transient) or fatal (permanent).
+- **FR-008**: Fatal errors MUST be automatically logged at "CRITICAL" severity level to support external alerting.
+- **FR-009**: System MUST support the following specific error categories:
   - Timing/Timeout (Retryable)
   - Connectivity/Network (Retryable)
   - Schema/Data Contract Violation (Fatal)
   - Input/Validation Error (Fatal)
-- **FR-007**: System MUST provide a mechanism to enable and configure distributed tracing via environment variables.
+- **FR-010**: System MUST provide a mechanism to enable and configure distributed tracing via environment variables.
+- **FR-011**: Distributed tracing MUST support automatic context propagation via decorators or middleware to ensure consistent parent-child linkage.
 
 ### Key Entities _(include if feature involves data)_
 
@@ -88,3 +102,4 @@ As a developer, I want errors to be categorized into clear failure types (e.g., 
 - **SC-002**: 100% of log records contain a `timestamp` in ISO-8601 format and an `event_type` key.
 - **SC-003**: All custom-defined errors correctly propagate their "retryable" or "fatal" status through the system.
 - **SC-004**: Tracing metadata is only emitted when the tracing feature is explicitly enabled via the environment.
+- **SC-005**: Tracing infrastructure supports a minimum of 30-day data retention for historical analysis.
