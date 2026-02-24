@@ -17,9 +17,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Update dependencies in `pyproject.toml` (pydantic>=2.6.0, langgraph, typing_extensions)
-- [ ] T002 [P] Create `src/state.py` with base imports and Pydantic configuration
-- [ ] T003 [P] Create `tests/unit/test_state.py` with basic test scaffolding
+- [x] T001 Update dependencies in `pyproject.toml` (pydantic>=2.6.0, langgraph, typing_extensions)
+- [x] T002 [P] Create `src/state.py` with base imports and Pydantic configuration
+- [x] T003 [P] Create `tests/unit/test_state.py` with basic test scaffolding
 
 ---
 
@@ -27,7 +27,7 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T004 Implement `StrictModel` base class with `extra='forbid'`, `strict=True`, and `frozen=True` in `src/state.py`
+- [x] T004 Implement `StrictModel` base class with `extra='forbid'`, `strict=True`, and `frozen=True` in `src/state.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -41,13 +41,13 @@
 
 ### Tests for User Story 1
 
-- [ ] T005 [P] [US1] Create validation tests for `Evidence` (confidence bounds) in `tests/unit/test_state.py`
-- [ ] T006 [P] [US1] Create validation tests for `JudicialOpinion` (optional fields/defaults) in `tests/unit/test_state.py`
+- [x] T005 [P] [US1] Create validation tests for `Evidence` (confidence bounds) in `tests/unit/test_state.py`
+- [x] T006 [P] [US1] Create validation tests for `JudicialOpinion` (optional fields/defaults) in `tests/unit/test_state.py`
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Implement `Evidence` model in `src/state.py` using `Field(ge=0, le=1)`
-- [ ] T008 [US1] Implement `JudicialOpinion` model in `src/state.py` with default values for `case_id` and `court_name` (plural naming applied to opinions list downstream)
+- [x] T007 [US1] Implement `Evidence` model in `src/state.py` using `Field(ge=0, le=1)`
+- [x] T008 [US1] Implement `JudicialOpinion` model in `src/state.py` with default values for `case_id` and `court_name` (plural naming applied to opinions list downstream)
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
 
@@ -61,14 +61,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T009 [P] [US2] Create unit tests for `merge_evidences` (SHA-256 deduplication/dict structure/fatal type error) in `tests/unit/test_state.py`
-- [ ] T010 [P] [US2] Create unit tests for `merge_criterion_results` (confidence resolution/fatal type error) in `tests/unit/test_state.py`
+- [x] T009 [P] [US2] Create unit tests for `merge_evidences` (SHA-256 deduplication/dict structure/fatal type error) in `tests/unit/test_state.py`
+- [x] T010 [P] [US2] Create unit tests for `merge_criterion_results` (confidence resolution/fatal type error) in `tests/unit/test_state.py`
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Implement `merge_evidences` reducer in `src/state.py` (plural, dict-based, SHA-256 deduplication)
-- [ ] T012 [US2] Implement `merge_criterion_results` reducer in `src/state.py` (highest confidence wins)
-- [ ] T013 [US2] Define `AgentState` TypedDict with `Annotated` reducers in `src/state.py` (naming: `evidences`, `opinions`, `criterion_results`)
+- [x] T011 [US2] Implement `merge_evidences` reducer in `src/state.py` (plural, dict-based, SHA-256 deduplication)
+- [x] T012 [US2] Implement `merge_criterion_results` reducer in `src/state.py` (highest confidence wins)
+- [x] T013 [US2] Define `AgentState` TypedDict with `Annotated` reducers in `src/state.py` (naming: `evidences`, `opinions`, `criterion_results`)
 
 **Checkpoint**: Parallel state aggregation logic is valid.
 
@@ -82,13 +82,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T014 [P] [US3] Create validation tests for `CriterionResult` (score bounds [1,5]) in `tests/unit/test_state.py`
-- [ ] T015 [P] [US3] Create tests for `AuditReport.global_score` calculation and rounding in `tests/unit/test_state.py`
+- [x] T014 [P] [US3] Create validation tests for `CriterionResult` (score bounds [1,5]) in `tests/unit/test_state.py`
+- [x] T015 [P] [US3] Create tests for `AuditReport.global_score` calculation and rounding in `tests/unit/test_state.py`
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] Implement `CriterionResult` model in `src/state.py` using `Field(ge=1, le=5)`
-- [ ] T017 [US3] Implement `AuditReport` model in `src/state.py` with `@property` or validator for `global_score` (Constitution XI weighted average)
+- [x] T016 [US3] Implement `CriterionResult` model in `src/state.py` using `Field(ge=1, le=5)`
+- [x] T017 [US3] Implement `AuditReport` model in `src/state.py` with `@property` or validator for `global_score` (Constitution XI weighted average)
 
 **Checkpoint**: All data models and scoring logic are complete and verified.
 
@@ -98,9 +98,9 @@
 
 **Purpose**: Final verification and cleanup.
 
-- [ ] T018 [P] Verify all code examples in `quickstart.md` against implementation in `src/state.py`
-- [ ] T019 Run full test suite with coverage report and fix any linting issues
-- [ ] T020 [P] Document any implementation variations in `research.md`
+- [x] T018 [P] Verify all code examples in `quickstart.md` against implementation in `src/state.py`
+- [x] T019 Run full test suite with coverage report and fix any linting issues
+- [x] T020 [P] Document any implementation variations in `research.md`
 
 ---
 
