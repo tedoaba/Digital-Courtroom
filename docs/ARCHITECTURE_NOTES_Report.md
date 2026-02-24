@@ -59,33 +59,40 @@ The system strictly executes through consecutive layers, avoiding spaghetti conn
 
 ### 3.1 Layer Decomposition
 
-```text
-┌─────────────────────────────────────────────────────────┐
-│                    ORCHESTRATION LAYER                  │
-│               LangGraph Typed StateGraph                │
-├─────────────────────────────────────────────────────────┤
-│  Layer 0: ContextBuilder                                │
-│    - Loads JSON rubric & configures execution space     │
-├─────────────────────────────────────────────────────────┤
-│  Layer 1: Detective Layer (Parallel Fan-Out)            │
-│    ├── RepoInvestigator  [Targets Source Code]          │
-│    ├── DocAnalyst        [Targets Specs/PDFs]           │
-│    └── VisionInspector   [Targets Extraction/Imagery]   │
-├─────────────────────────────────────────────────────────┤
-│  Layer 1.5: EvidenceAggregator (Fan-In Sync)            │
-│    - Deduplicates, verifies, and cross-references facts │
-├─────────────────────────────────────────────────────────┤
-│  Layer 2: Judicial Layer (Parallel Fan-Out)             │
-│    ├── Prosecutor        [Critical Lens]                │
-│    ├── Defense Attorney  [Optimistic Lens]              │
-│    └── Tech Lead         [Pragmatic Lens]               │
-├─────────────────────────────────────────────────────────┤
-│  Layer 3: Supreme Court (Synthesis)                     │
-│    └── ChiefJustice      [Python Deterministic Rules]   │
-├─────────────────────────────────────────────────────────┤
-│  Layer 4: ReportGenerator                               │
-│    └── Outputs Final Markdown Audit                     │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Orchestration ["ORCHESTRATION LAYER: LangGraph Typed StateGraph"]
+        direction TB
+        L0("<b>Layer 0: ContextBuilder</b><br/>Loads JSON rubric & configures execution space")
+
+        subgraph L1 ["Layer 1: Detective Layer (Parallel Fan-Out)"]
+            RI("RepoInvestigator<br/>[Targets Source Code]")
+            DA("DocAnalyst<br/>[Targets Specs/PDFs]")
+            VI("VisionInspector<br/>[Targets Extraction/Imagery]")
+        end
+
+        L15("<b>Layer 1.5: EvidenceAggregator (Fan-In Sync)</b><br/>Deduplicates, verifies, and cross-references facts")
+
+        subgraph L2 ["Layer 2: Judicial Layer (Parallel Fan-Out)"]
+            PROS("Prosecutor<br/>[Critical Lens]")
+            DEF("Defense Attorney<br/>[Optimistic Lens]")
+            TECH("Tech Lead<br/>[Pragmatic Lens]")
+        end
+
+        subgraph L3 ["Layer 3: Supreme Court (Synthesis)"]
+            CJ("ChiefJustice<br/>[Python Deterministic Rules]")
+        end
+
+        subgraph L4 ["Layer 4: ReportGenerator"]
+            RG("Outputs Final Markdown Audit")
+        end
+
+        L0 --> L1
+        L1 --> L15
+        L15 --> L2
+        L2 --> L3
+        L3 --> L4
+    end
 ```
 
 ### 3.2 Full System Architecture Diagram

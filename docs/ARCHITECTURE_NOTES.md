@@ -43,37 +43,41 @@
 
 ### 2.1 Layer Decomposition
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    ORCHESTRATION LAYER                   │
-│                  LangGraph StateGraph                    │
-├─────────────────────────────────────────────────────────┤
-│  Layer 0: ContextBuilder                                │
-│    - Loads rubric JSON                                  │
-│    - Validates inputs (repo URL, PDF path)              │
-│    - Dispatches forensic instructions by target_artifact│
-├─────────────────────────────────────────────────────────┤
-│  Layer 1: Detective Layer (Parallel Fan-Out)            │
-│    ├── RepoInvestigator  [target: github_repo]          │
-│    ├── DocAnalyst        [target: pdf_report]           │
-│    └── VisionInspector   [target: extracted_images]     │
-├─────────────────────────────────────────────────────────┤
-│  Layer 1.5: EvidenceAggregator (Fan-In Sync)            │
-│    - Collects all Evidence objects                       │
-│    - Validates completeness                             │
-│    - Cross-references doc claims vs repo reality        │
-├─────────────────────────────────────────────────────────┤
-│  Layer 2: Judicial Layer (Parallel Fan-Out)              │
-│    ├── Prosecutor   [critical lens]                     │
-│    ├── Defense      [optimistic lens]                   │
-│    └── TechLead     [pragmatic lens]                    │
-├─────────────────────────────────────────────────────────┤
-│  Layer 3: Supreme Court (Synthesis)                      │
-│    └── ChiefJustice [deterministic rule engine]         │
-├─────────────────────────────────────────────────────────┤
-│  Layer 4: ReportGenerator                                │
-│    └── Markdown output with structured sections         │
-└─────────────────────────────────────────────────────────┘
+
+```mermaid
+flowchart TD
+    subgraph Orchestration ["ORCHESTRATION LAYER: LangGraph Typed StateGraph"]
+        direction TB
+        L0("<b>Layer 0: ContextBuilder</b><br/>Loads JSON rubric & configures execution space")
+
+        subgraph L1 ["Layer 1: Detective Layer (Parallel Fan-Out)"]
+            RI("RepoInvestigator<br/>[Targets Source Code]")
+            DA("DocAnalyst<br/>[Targets Specs/PDFs]")
+            VI("VisionInspector<br/>[Targets Extraction/Imagery]")
+        end
+
+        L15("<b>Layer 1.5: EvidenceAggregator (Fan-In Sync)</b><br/>Deduplicates, verifies, and cross-references facts")
+
+        subgraph L2 ["Layer 2: Judicial Layer (Parallel Fan-Out)"]
+            PROS("Prosecutor<br/>[Critical Lens]")
+            DEF("Defense Attorney<br/>[Optimistic Lens]")
+            TECH("Tech Lead<br/>[Pragmatic Lens]")
+        end
+
+        subgraph L3 ["Layer 3: Supreme Court (Synthesis)"]
+            CJ("ChiefJustice<br/>[Python Deterministic Rules]")
+        end
+
+        subgraph L4 ["Layer 4: ReportGenerator"]
+            RG("Outputs Final Markdown Audit")
+        end
+
+        L0 --> L1
+        L1 --> L15
+        L15 --> L2
+        L2 --> L3
+        L3 --> L4
+    end
 ```
 
 ### 2.2 Full System Architecture Diagram
