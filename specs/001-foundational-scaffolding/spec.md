@@ -59,23 +59,26 @@ As a developer, I want a pre-integrated testing framework so that I can write an
 
 ### Edge Cases
 
-- **Missing Configuration Template**: System warns if the baseline configuration template is missing, as it is required for onboarding new developers.
-- **Incompatible Host Environment**: If the system detects a version of the package manager or language runtime that does not meet the minimum requirements, it provides a clear upgrade instruction.
+- **Missing Configuration Template**: System warns if the baseline configuration template (`.env.example`) is missing, as it is required for onboarding new developers.
+- **Incompatible Host Environment**: If the system detects a version of the package manager (uv < 0.4.0) or language runtime (Python < 3.12) that does not meet the minimum requirements, it provides a clear upgrade instruction.
 - **Conflicting Port or Resource Availability**: If a foundational service requires a specific local resource that is occupied, the configuration check flags this immediately.
+- **Permission Denied**: If the setup process lacks write permissions for `src/` or `tests/` directories, it MUST fail with a clear "Access Denied" instruction.
+- **Interrupted Setup**: If the setup process is interrupted, re-running the command MUST safely resume or clean up partial states (idempotency).
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
-- **FR-001**: System MUST utilize a single, official tool for package management and environment isolation to ensure 100% reproducibility.
-- **FR-002**: System MUST implement a hierarchical directory structure that isolates application logic, automated tests, and configuration assets.
-- **FR-003**: System MUST centralize configuration loading to ensure all components use the same source of truth for settings.
-- **FR-004**: System MUST load configuration from an external file that can be customized per environment without being committed to version control.
-- **FR-005**: System MUST provide a template configuration file documenting all required parameters for external service integrations.
-- **FR-006**: System MUST implement a "fail-fast" validation strategy: the application MUST terminate if mandatory configuration is missing or structurally invalid.
-- **FR-007**: System MUST initialize the project with all baseline dependencies required for data validation, asynchronous orchestration, and automated testing.
-- **FR-008**: System MUST detect and prohibit any hardcoded sensitive values (secrets) within the source code during the configuration validation phase.
-- **FR-009**: System MUST support automated code quality checks, including linting and formatting (e.g., Ruff), enforced as part of the project's foundational standards.
+- **FR-001**: System MUST utilize `uv` as the single, official tool for package management, environment isolation, and script execution to ensure 100% reproducibility.
+- **FR-002**: System MUST implement a hierarchical directory structure as defined in [Appendix A](#appendix-a-directory-structure) that isolates application logic, automated tests, and configuration assets.
+- **FR-003**: System MUST centralize configuration loading (via a `Config` class) to ensure all components use the same source of truth for settings.
+- **FR-004**: System MUST load configuration from an external `.env` file that can be customized per environment without being committed to version control.
+- **FR-005**: System MUST provide a `.env.example` template configuration file documenting all required parameters, including `OPENAI_API_KEY` and `ANTHROPIC_API_KEY`.
+- **FR-006**: System MUST implement a "fail-fast" validation strategy using Pydantic: the application MUST terminate if mandatory configuration is missing or structurally invalid (e.g., type mismatch or invalid URL format).
+- **FR-007**: System MUST initialize the project with all baseline dependencies (Pydantic, python-dotenv, LangGraph, LangChain) required for data validation, asynchronous orchestration, and automated testing.
+- **FR-008**: System MUST detect and prohibit any hardcoded sensitive values (secrets matching regex patterns like `sk-[a-zA-Z0-9]{20,}`) within the source code during the configuration validation phase.
+- **FR-009**: System MUST support automated code quality checks using Ruff, enforcing PEP8 and naming standards as part of the project's foundational requirements.
+- **FR-010**: System MUST differentiate between mandatory keys (termination on failure) and optional keys (fall back to safe defaults, e.g., `LOG_LEVEL="INFO"`).
 
 ### Key Entities _(include if feature involves data)_
 
@@ -86,8 +89,29 @@ As a developer, I want a pre-integrated testing framework so that I can write an
 
 ### Measurable Outcomes
 
-- **SC-001**: A new developer can reach a "ready-to-code" state (all dependencies installed and tests passing) in under 15 seconds after cloning.
-- **SC-002**: Zero hardcoded secrets are present in any version-controlled file.
-- **SC-003**: 100% of the directory structure matches the approved architectural Appendix A specification.
-- **SC-004**: The system provides a descriptive failure message within 1 second if a required API key is missing.
-- **SC-005**: The entire environment setup and test execution process is triggered by exactly one CLI command.
+- **SC-001**: A new developer can reach a "ready-to-code" state (all dependencies installed and baseline tests passing) in under 15 seconds after cloning.
+- **SC-002**: Zero hardcoded secrets (API keys, passwords) are present in any version-controlled file.
+- **SC-003**: 100% of the directory structure matches the approved [Appendix A](#appendix-a-directory-structure) specification.
+- **SC-004**: The system provides a descriptive failure message (listing the specific missing key and expected format) within 500ms if a required API key is missing.
+- **SC-005**: The entire environment setup and test execution process is triggered by the `uv sync && uv run pytest` commands (or a wrapped setup script).
+
+## Appendix A: Directory Structure
+
+The repository MUST maintain the following structure:
+
+```text
+/
+├── src/                # Application source code
+│   ├── nodes/          # Agent orchestration nodes
+│   ├── tools/          # Custom agent tools
+│   ├── config.py       # Configuration management (Pydantic)
+│   ├── state.py        # Central state models
+│   └── graph.py        # LangGraph orchestration logic
+├── tests/              # Automated verification suite
+│   ├── conftest.py     # Shared fixtures
+│   └── ...             # Feature-specific tests
+├── audit/              # System-generated audit logs and reports
+├── rubric/             # Evaluation criteria and scoring files
+├── .env.example        # Configuration template
+└── pyproject.toml      # Project manifest (uv managed)
+```
