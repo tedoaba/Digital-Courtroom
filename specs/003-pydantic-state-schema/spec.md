@@ -5,6 +5,20 @@
 **Status**: Draft  
 **Input**: User description: "Feature: Pydantic State Schema and Annotated Reducers - Objective: Implement strongly typed state models to govern the data flow through the LangGraph architecture. - Scope: Evidence, JudicialOpinion, CriterionResult, AuditReport models. AgentState TypedDict with operator.add and operator.ior reducers. - Unit Test Expectations: confidence [0.0, 1.0], score [1, 5]."
 
+## Clarifications
+
+### Session 2026-02-24
+
+- Q: What level of structured metadata is required for the JudicialOpinion entity? → A: Simple object (text + basic identifiers: `case_id`, `court_name`).
+- Q: How should the system identify the source of a specific piece of evidence? → A: Generic Reference (string field for URL, page name, or paragraph ID).
+- Q: What should be the resolution strategy if multiple updates for the same criterion_id occur? → A: Highest Confidence (Keep the version with the highest `relevance_confidence`).
+- Q: Should the AuditReport schema include a derived global metrics field? → A: Single Global Score (a derived numeric average/rating).
+- Q: Should the AgentState preserve a history of updates or only the "latest verified" state? → A: Snapshot only (Store only the current merged results).
+- Q: How should the system handle duplicate evidence items when merging lists? → A: Content-based Deduplication (Identify and merge duplicates based on source + content).
+- Q: What level of numeric precision should be maintained for the global audit score? → A: One decimal place (e.g., 4.2 / 5.0).
+- Q: Should metadata fields like case_id and court_name be strictly mandatory? → A: Optional with defaults (e.g., defaults to "Unknown").
+- Q: Should there be a limit on the number of evidence items stored in the state? → A: No hard limit (Allow the list to grow with all valid evidence).
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Evidence Validation (Priority: P1)
@@ -52,7 +66,7 @@ As a legal auditor, I want scores assigned to judicial criteria to be strictly w
 
 ### Edge Cases
 
-- **Duplicate Keys in ior merge**: How does the system handle two agents providing the same key in a dictionary? (Default: later update wins if keys collide, but reducers should be used to prevent loss if needed).
+- **Duplicate Keys in merge**: If two agents provide the same `criterion_id`, the system MUST retain the one with the higher confidence/quality metric to ensure the most reliable audit data is preserved.
 - **Empty Evidence Lists**: How does `operator.add` handle an empty list? (Should preserve existing state).
 - **Malformed Nested Data**: If an `Evidence` object inside a list is invalid, does the entire state update fail? (Yes, Pydantic should fail the outer validation).
 
@@ -60,21 +74,21 @@ As a legal auditor, I want scores assigned to judicial criteria to be strictly w
 
 ### Functional Requirements
 
-- **FR-001**: System MUST define a schema for `Evidence` with fields: `source_url`, `content`, and `relevance_confidence`.
+- **FR-001**: System MUST define a schema for `Evidence` with fields: `source_ref`, `content`, and `relevance_confidence`.
 - **FR-002**: System MUST enforce confidence bounds of [0.0, 1.0].
-- **FR-003**: System MUST define a schema for `JudicialOpinion` to hold the source text and metadata.
+- **FR-003**: System MUST define a schema for `JudicialOpinion` to hold the source text and basic identifiers including `case_id` and `court_name` (optional with defaults).
 - **FR-004**: System MUST define a `CriterionResult` schema with fields: `criterion_id`, `numeric_score`, and `reasoning`.
 - **FR-005**: System MUST enforce score bounds of [1, 5].
-- **FR-006**: System MUST define an `AuditReport` schema as an aggregation of `CriterionResult` entries and a summary.
-- **FR-007**: System MUST define a central `State` definition in the state management module.
-- **FR-008**: System MUST implement an additive merge strategy for evidence collections (new items appended to existing).
-- **FR-009**: System MUST implement an inclusive-OR merge strategy for criterion results (dictionary-style merge where entries for different criteria are combined).
+- **FR-006**: System MUST define an `AuditReport` schema as an aggregation of `CriterionResult` entries, a comprehensive text summary, and a derived global audit score rounded to one decimal place.
+- **FR-007**: System MUST define a central `State` definition that maintains a snapshot of the most recent validated results.
+- **FR-008**: System MUST implement an additive merge strategy for evidence collections that performs content-based deduplication (using `source_ref` and `content` hash) to prevent redundant entries.
+- **FR-009**: System MUST implement a merge strategy for criterion results that performs a dictionary-style merge, resolving collisions for the same `criterion_id` by retaining the entry with the highest confidence score.
 - **FR-010**: System MUST ensure that all data passed between processing nodes is validated against defined schemas to prevent malformed data propagation.
 
 ### Key Entities _(include if feature involves data)_
 
-- **Evidence**: Represents a specific piece of information extracted from a source, with a confidence metric.
-- **JudicialOpinion**: The primary source document being audited.
+- **Evidence**: Represents a specific piece of information extracted from a source, with a confidence metric and a reference to its location.
+- **JudicialOpinion**: The primary source document being audited, containing the text and case metadata.
 - **CriterionResult**: The outcome of auditing a specific legal criterion (e.g., Transparency, Bias).
 - **AuditReport**: The final aggregated output of the judicial audit process.
 
