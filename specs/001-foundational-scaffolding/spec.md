@@ -5,6 +5,12 @@
 **Status**: Draft  
 **Input**: User description: "Establish the core repository structure, package management, configuration framework, and testing scaffolding."
 
+## Clarifications
+
+### Session 2026-02-24
+
+- Q: Should the foundational scaffolding include automated linting/formatting rules like Ruff? → A: Option B - Include Quality Tools (Ruff) to enforce standards from day one.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Consistent Development Environment (Priority: P1)
@@ -69,7 +75,7 @@ As a developer, I want a pre-integrated testing framework so that I can write an
 - **FR-006**: System MUST implement a "fail-fast" validation strategy: the application MUST terminate if mandatory configuration is missing or structurally invalid.
 - **FR-007**: System MUST initialize the project with all baseline dependencies required for data validation, asynchronous orchestration, and automated testing.
 - **FR-008**: System MUST detect and prohibit any hardcoded sensitive values (secrets) within the source code during the configuration validation phase.
-- **FR-009**: System MUST support [NEEDS CLARIFICATION: Should the foundational scaffolding include automated linting/formatting rules like Ruff or just the core testing framework?]
+- **FR-009**: System MUST support automated code quality checks, including linting and formatting (e.g., Ruff), enforced as part of the project's foundational standards.
 
 ### Key Entities _(include if feature involves data)_
 
