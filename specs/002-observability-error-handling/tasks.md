@@ -17,8 +17,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize feature branch `002-observability-error-handling` and install dependencies `python-json-logger` and `langsmith` using `uv add`
-- [ ] T002 [P] Verify `src/utils/` and `tests/unit/` directories exist per project structure in `plan.md`
+- [x] T001 Initialize feature branch `002-observability-error-handling` and install dependencies `python-json-logger` and `langsmith` using `uv add`
+- [x] T002 [P] Verify `src/utils/` and `tests/unit/` directories exist per project structure in `plan.md`
 
 ---
 
@@ -28,9 +28,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Implement exception hierarchy (`AppException`, `RetryableException`, `FatalException`) and specific subclasses (Timing, Connectivity, SchemaViolation, InvalidInput) in `src/exceptions.py` per FR-009
-- [ ] T004 [P] Create unit tests for the exception hierarchy in `tests/unit/test_exceptions.py` to verify `fatal` attribute and inheritance
-- [ ] T005 Create base `src/utils/logger.py` with standard library logging setup placeholder
+- [x] T003 Implement exception hierarchy (`AppException`, `RetryableException`, `FatalException`) and specific subclasses (Timing, Connectivity, SchemaViolation, InvalidInput) in `src/exceptions.py` per FR-009
+- [x] T004 [P] Create unit tests for the exception hierarchy in `tests/unit/test_exceptions.py` to verify `fatal` attribute and inheritance
+- [x] T005 Create base `src/utils/logger.py` with standard library logging setup placeholder
 
 **Checkpoint**: Foundation ready - exception classes and basic structure are in place.
 
@@ -46,13 +46,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T006 [P] [US1] Create unit tests in `tests/unit/test_logger.py` for JSON structure, required fields (`timestamp`, `event_type`, `severity`), and PII masking
+- [x] T006 [P] [US1] Create unit tests in `tests/unit/test_logger.py` for JSON structure, required fields (`timestamp`, `event_type`, `severity`), and PII masking
 
 ### Implementation for User Story 1
 
-- [ ] T007 [P] [US1] Implement `PIIRedactionFilter` in `src/utils/logger.py` using regex-based masking for emails and phone numbers
-- [ ] T008 [US1] Implement `StructuredLogger` class in `src/utils/logger.py` using `python-json-logger` or standard JSON formatter
-- [ ] T009 [US1] Add dedicated methods to `StructuredLogger` for node events: `log_node_entry`, `log_evidence_created`, `log_opinion_rendered`, and `log_verdict_delivered` (FR-005)
+- [x] T007 [P] [US1] Implement `PIIRedactionFilter` in `src/utils/logger.py` using regex-based masking for emails and phone numbers
+- [x] T008 [US1] Implement `StructuredLogger` class in `src/utils/logger.py` using `python-json-logger` or standard JSON formatter
+- [x] T009 [US1] Add dedicated methods to `StructuredLogger` for node events: `log_node_entry`, `log_evidence_created`, `log_opinion_rendered`, and `log_verdict_delivered` (FR-005)
 
 **Checkpoint**: User Story 1 functional - system can now emit redacted JSON logs to stdout.
 
@@ -66,12 +66,12 @@
 
 ### Tests for User Story 2
 
-- [ ] T010 [P] [US2] Create integration test `tests/integration/test_observability_context.py` to verify `langsmith` context propagation across simulated node transitions
+- [x] T010 [P] [US2] Create integration test `tests/integration/test_observability_context.py` to verify `langsmith` context propagation across simulated node transitions
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Configure LangSmith environment variables and tracing settings in `src/config.py` using Pydantic `BaseSettings`
-- [ ] T012 [US2] Verify or apply `@traceable` decorators to core entry points to ensure automatic context linkage
+- [x] T011 [US2] Configure LangSmith environment variables and tracing settings in `src/config.py` using Pydantic `BaseSettings`
+- [x] T012 [US2] Verify or apply `@traceable` decorators to core entry points to ensure automatic context linkage
 
 **Checkpoint**: User Story 2 functional - execution traces are captured and visualized when enabled.
 
@@ -85,8 +85,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T013 [US3] Implement log level mapping logic in `StructuredLogger` to automatically use `CRITICAL` for fatal errors and `WARNING` for retryable ones
-- [ ] T014 [US3] Update `tests/unit/test_logger.py` to verify the automated severity mapping for different exception categories
+- [x] T013 [US3] Implement log level mapping logic in `StructuredLogger` to automatically use `CRITICAL` for fatal errors and `WARNING` for retryable ones
+- [x] T014 [US3] Update `tests/unit/test_logger.py` to verify the automated severity mapping for different exception categories
 
 **Checkpoint**: User Story 3 functional - system distinguishes error types for intelligent alerting and recovery.
 
@@ -96,10 +96,10 @@
 
 **Purpose**: Final refinements and alignment with the project constitution.
 
-- [ ] T015 [P] Update `src/state.py` with structured error/log fields if required for node-level state tracking
-- [ ] T016 [P] Update `docs/quickstart.md` with final API examples and PII masking confirmation
-- [ ] T017 Final run of `tests/unit/` and `tests/integration/` ensuring 100% pass rate
-- [ ] T018 Run `check-prerequisites.ps1` to ensure no regression in documentation quality
+- [x] T015 [P] Update `src/state.py` with structured error/log fields if required for node-level state tracking
+- [x] T016 [P] Update `docs/quickstart.md` with final API examples and PII masking confirmation
+- [x] T017 Final run of `tests/unit/` and `tests/integration/` ensuring 100% pass rate
+- [x] T018 Run `check-prerequisites.ps1` to ensure no regression in documentation quality
 
 ---
 
