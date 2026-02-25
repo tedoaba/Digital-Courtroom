@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 import hashlib
 import operator
-from typing import Annotated, Literal, Optional, TypedDict
+from typing import Annotated, Any, Literal, Optional, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -69,14 +69,20 @@ class JudicialOpinion(StrictModel):
 
 class CriterionResult(StrictModel):
     """
-    The outcome for a single rubric criterion.
+    The final verdict for a specific rubric dimension, synthesized from multiple judicial opinions.
     """
 
     criterion_id: str
     numeric_score: int = Field(ge=1, le=5)
     reasoning: str
     relevance_confidence: float = Field(ge=0.0, le=1.0)
+    judge_opinions: list[JudicialOpinion] = Field(description="The opinions used for synthesis (1-3)")
+    dissent_summary: Optional[str] = Field(default=None, description="Markdown summary of conflict if variance > 2")
+    remediation: Optional[str] = Field(default=None, description="Combined unique technical fix instructions")
+    applied_rules: list[str] = Field(default_factory=list, description="Rules triggered (e.g., SECURITY_OVERRIDE)")
+    execution_log: dict[str, Any] = Field(default_factory=dict, description="Data trace of calculation steps")
     security_violation_found: bool = False
+    re_evaluation_required: bool = False
 
 
 class Commit(StrictModel):
@@ -105,50 +111,7 @@ class AuditReport(StrictModel):
 
     results: dict[str, CriterionResult]
     summary: str
-
-    @property
-    def global_score(self) -> float:
-        """
-        Derived global audit score calculated using a weighted average.
-        Per Constitution XI: Architecture (1.5), Security (2.0),
-        Performance (1.2), Documentation (1.0).
-        - Security Override: If violation found, score capped at 3.
-        - Precision: One decimal place.
-        """
-        if not self.results:
-            return 0.0
-
-        weights_map = {
-            "architecture": 1.5,
-            "security": 2.0,
-            "performance": 1.2,
-            "documentation": 1.0,
-        }
-        default_weight = 1.0
-
-        total_weighted_score = 0.0
-        total_weight = 0.0
-
-        for crit_id, result in self.results.items():
-            # Determine weight based on prefix
-            weight = default_weight
-            for prefix, w in weights_map.items():
-                if crit_id.lower().startswith(prefix):
-                    weight = w
-                    break
-
-            # Apply Security Override capping
-            score = result.numeric_score
-            if result.security_violation_found:
-                score = min(score, 3)
-
-            total_weighted_score += score * weight
-            total_weight += weight
-
-        if total_weight == 0:
-            return 0.0
-
-        return round(total_weighted_score / total_weight, 1)
+    global_score: float = Field(ge=1.0, le=5.0, description="Weighted average score (1 decimal)")
 
 
 # --- Reducers ---
