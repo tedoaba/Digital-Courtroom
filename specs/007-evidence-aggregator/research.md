@@ -31,6 +31,24 @@
 - Set-based deduplication: Requires making Pydantic models hashable (standard but then requires `frozen=True`).
 - Manual loop: Simplest to implement without changing `Evidence` models.
 
+## Decision: Hallucination Matching Threshold
+
+**Decision**: Exact matching after normalization.
+**Rationale**:
+
+1. Partial matches (e.g., `auth.py` matching `src/auth.py`) are dangerous and can hide actual hallucinations.
+2. We require "Relative to Root" paths in documentation.
+3. Case-sensitivity: MUST match the file system. In CI/CD (usually Linux), `src/Auth.py` != `src/auth.py`. We will respect this to avoid "it works on my machine" issues.
+
+## Decision: Manifest Extraction
+
+**Decision**: Extract manifest from `repo` evidence items where `evidence_class` is `FILE_METADATA` or similar.
+**Rationale**:
+
+1. The `RepoInvestigator` (Layer 1) produces a list of files it examined.
+2. We iterate through `evidences["repo"]` and collect all `location` fields into a `set` for O(1) matching.
+3. If `evidences["repo"]` is empty, the manifest is empty, triggering SC-001 for all doc claims.
+
 ## Decision: Collision Policy
 
 **Decision**: First-write-wins (or log and preserve).
@@ -39,4 +57,4 @@
 ## Decision: Performance Budget
 
 **Decision**: Dictionary merging and list comprehension.
-**Rationale**: Python dict lookups are O(1). Merging 1,000 items takes <1ms. String matching for 1,000 paths against 10,000 files in a set is also O(n) and very fast. SC-002 (50ms) is highly achievable.
+**Rationale**: Python dict lookups are O(1). Merging 1,000 items takes <1ms. String matching for 1,000 paths against 10,000 files in a set is also O(n) and very fast. SC-002 (50ms) is highly achievable. Performance will be verified using `pytest-benchmark` or a simple `time.perf_counter()` block.

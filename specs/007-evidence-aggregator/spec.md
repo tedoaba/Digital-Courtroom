@@ -61,9 +61,12 @@ As a system operator, I want the system to handle missing detective sources grac
 
 ### Edge Cases
 
-- **Empty Repo**: If the `RepoInvestigator` found no files, every path mentioned in docs should be flagged as hallucinated.
-- **Multiple Hallucinations**: System should handle and report multiple missing files from a single doc analysis without stopping.
-- **Path Normalization**: Handles different path formats (e.g., `./src/file.py` vs `src/file.py`) during cross-referencing.
+- **Empty Repo**: If the `RepoInvestigator` found no files (empty manifest), every path mentioned in docs SHOULD be flagged as hallucinated.
+- **Multiple Hallucinations**: System MUST handle and report multiple missing files from a single doc analysis without stopping.
+- **Path Normalization**: Handles different path formats (e.g., `./src/file.py` vs `src/file.py`) by normalizing to a standard relative path format before comparison. Case-sensitivity MUST match the target file system (default to Case-Sensitive for Linux-based CI/CD).
+- **Directory vs File**: If documentation cites a path that exists in the repo but is a directory when a file was expected (or vice versa), it MUST be flagged as a `DOCUMENT_CLAIM` mismatch.
+- **Failed Investigator Protocol**: If a file exists but the `RepoInvestigator` failed to analyze it due to an internal error, the aggregator MUST NOT flag it as hallucinated, but MUST include a warning in the `rationale`.
+- **Malformed Input**: If input `evidences` is not a dict or lists are not `Evidence` objects, the node MUST log a FATAL level event and append a "CRITICAL_STATE_ERROR" to `state.errors`.
 - **Circular References**: No risk here as it's a fan-in point, but must handle empty input dicts gracefully by failing fast or logging a fatal error.
 
 ## Requirements _(mandatory)_
@@ -71,13 +74,21 @@ As a system operator, I want the system to handle missing detective sources grac
 ### Functional Requirements
 
 - **FR-001**: System MUST function as the primary fan-in synchronization point in the LangGraph, ensuring all parallel detective nodes (Repo, Doc, Vision) complete execution.
-- **FR-002**: System MUST use the `operator.ior` reducer pattern for the `evidences` field in the `AgentState` to merge dictionaries without data loss.
-- **FR-003**: System MUST identify all file paths extracted by the `DocAnalyst` and cross-reference them against the actual file manifest discovered by the `RepoInvestigator`.
-- **FR-004**: System MUST generate "Hallucinated Path" evidence entries with `evidence_class="DOCUMENT_CLAIM"` for any documentation claim that refers to a file not present in the repository.
-- **FR-005**: System MUST NOT crash if detective sources are missing; if 'repo' or 'docs' are missing, it MUST append a descriptive error to `state.errors` (Constitution VII.5).
-- **FR-006**: System MUST deduplicate evidence items based on their unique identifiers (`evidence_id`) if multiple detectives produce the same piece of evidence.
-- **FR-007**: System MUST provide a "clean" evidence dictionary that is ready for consumption by Judge nodes, ensuring all cross-references are annotated.
-- **FR-008**: System MUST sanitize all file paths collected from documentation and reject any that resolve outside the repository root, flagging them as "Hallucinated Path".
+- **FR-002**: System MUST use the `merge_evidences` reducer pattern for the `evidences` field in the `AgentState` to merge dictionaries without data loss, aligning with Principle VI.1.
+- **FR-003**: System MUST identify all file paths extracted by the `DocAnalyst` (from `location` or `content` fields) and cross-reference them against the actual file manifest discovered by the `RepoInvestigator`.
+- **FR-004**: System MUST generate "Hallucinated Path" evidence entries with `evidence_id` format `docs_DOCUMENT_CLAIM_{hash}` (where hash is SHA-256 of the path) for any documentation claim that refers to a file not present in the repository.
+- **FR-005**: System MUST NOT crash if detective sources are missing.
+  - If `repo` or `docs` are missing (nil or key absent), it MUST append a descriptive `FORENSIC_SOURCE_MISSING` error to `state.errors` and set a `pipeline_integrity=FAILED` flag in metadata to prevent judges from issuing final verdicts.
+- **FR-006**: System MUST deduplicate evidence items based on their unique identifiers (`evidence_id`). If duplicates exist within a source, it MUST preserve the first item and log a warning.
+- **FR-007**: System MUST provide a "clean" evidence dictionary where:
+  - Only valid Pydantic `Evidence` objects are present.
+  - `docs` evidence items are annotated with `found: bool` based on repo manifest.
+  - All paths are relative to repository root.
+- **FR-008**: System MUST sanitize all file paths collected from documentation:
+  - Reject any path with `..` that resolves outside the repo root.
+  - Reject absolute paths (e.g., `/etc/passwd`).
+  - Normalize to POSIX style (forward slashes).
+  - Flag rejected paths as hallucinated with `rationale="SECURITY_VIOLATION: Path outside root"`.
 
 ### Key Entities
 
@@ -90,6 +101,12 @@ As a system operator, I want the system to handle missing detective sources grac
 ### Measurable Outcomes
 
 - **SC-001**: 100% of file paths cited in documentation but missing from the repository are correctly flagged as "Hallucinated Path".
-- **SC-002**: The aggregation process adds less than 50ms of overhead to the graph execution (focusing on dictionary merging and string matching).
+- **SC-002**: The aggregation process adds less than 50ms of overhead to the graph execution for datasets < 1000 items (verified via `timeit` in unit tests).
 - **SC-003**: System correctly identifies and warns about 100% of missing detective sources in test suites.
-- **SC-004**: 100% consolidation — No evidence item produced by a detective is lost during the fan-in transition.
+- **SC-004**: 100% consolidation — No unique `evidence_id` produced by a detective is lost during the fan-in transition.
+- **SC-005**: 100% of "Hallucinated Path" findings generate a `PROJECT_LIFECYCLE` log event at `WARNING` level with metadata containing the offending path.
+
+## Non-Functional Requirements
+
+- **NFR-001 (Security)**: Path validation MUST NOT perform disk I/O beyond checking existence in the provided `RepoInvestigator` manifest (Static Analysis Only, Principle XV.5).
+- **NFR-002 (Observability)**: Every aggregation run MUST log a summary: `{"event": "aggregation_complete", "counts": {"repo": X, "docs": Y, "vision": Z}, "hallucinations": N}`.
