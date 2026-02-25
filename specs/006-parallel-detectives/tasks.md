@@ -25,9 +25,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize directory structure for detectives in `src/nodes/` and `src/tools/`
-- [ ] T002 [P] Create `__init__.py` files in `src/nodes/`, `src/tools/`, `tests/unit/nodes/`, and `tests/unit/tools/`
-- [ ] T003 Ensure `uv` environment has `docling`, `gitingest`, and `pydantic` installed
+- [x] T001 Initialize directory structure for detectives in `src/nodes/` and `src/tools/`
+- [x] T002 [P] Create `__init__.py` files in `src/nodes/`, `src/tools/`, `tests/unit/nodes/`, and `tests/unit/tools/`
+- [x] T003 Ensure `uv` environment has `docling`, `gitingest`, and `pydantic` installed
 
 ---
 
@@ -37,10 +37,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Verify state consolidation of `Evidence`, `Commit`, and `ASTFinding` in `src/state.py`
-- [ ] T005 Update `merge_evidences` reducer in `src/state.py` to handle the updated `Evidence` schema
-- [ ] T006 Update `AgentState` in `src/state.py` to ensure `evidences` and `errors` fields match `data-model.md`
-- [ ] T007 Define shared timeout and logging utility constants for detectives in `src/config.py` (60s limit)
+- [x] T004 Verify state consolidation of `Evidence`, `Commit`, and `ASTFinding` in `src/state.py`
+- [x] T005 Update `merge_evidences` reducer in `src/state.py` to handle the updated `Evidence` schema
+- [x] T006 Update `AgentState` in `src/state.py` to ensure `evidences` and `errors` fields match `data-model.md`
+- [x] T007 Define shared timeout and logging utility constants for detectives in `src/config.py` (60s limit)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -54,14 +54,14 @@
 
 ### Tests for User Story 1
 
-- [ ] T008 [P] [US1] Create unit tests for `repo_tools` in `tests/unit/tools/test_repo_tools.py` (mocking git and subprocess)
-- [ ] T009 [P] [US1] Create unit tests for `RepoInvestigator` node in `tests/unit/nodes/test_detectives.py`
+- [x] T008 [P] [US1] Create unit tests for `repo_tools` in `tests/unit/tools/test_repo_tools.py` (mocking git and subprocess)
+- [x] T009 [P] [US1] Create unit tests for `RepoInvestigator` node in `tests/unit/nodes/test_detectives.py`
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `repo_tools.py` with `tempfile` isolation and AST parsing logic in `src/tools/repo_tools.py`
-- [ ] T011 [US1] Implement `RepoInvestigator` node logic with 60s timeout and error handling in `src/nodes/detectives.py`
-- [ ] T012 [US1] Add structured logging for `RepoInvestigator` duration and file count per FR-009
+- [x] T010 [US1] Implement `repo_tools.py` with `tempfile` isolation and AST parsing logic in `src/tools/repo_tools.py`
+- [x] T011 [US1] Implement `RepoInvestigator` node logic with 60s timeout and error handling in `src/nodes/detectives.py`
+- [x] T012 [US1] Add structured logging for `RepoInvestigator` duration and file count per FR-009
 
 **Checkpoint**: User Story 1 (RepoInvestigator) is functional and testable independently.
 
@@ -75,14 +75,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T013 [P] [US2] Create unit tests for `doc_tools` in `tests/unit/tools/test_doc_tools.py` (mocking docling)
-- [ ] T014 [P] [US2] Create unit tests for `DocAnalyst` node in `tests/unit/nodes/test_detectives.py`
+- [x] T013 [P] [US2] Create unit tests for `doc_tools` in `tests/unit/tools/test_doc_tools.py` (mocking docling)
+- [x] T014 [P] [US2] Create unit tests for `DocAnalyst` node in `tests/unit/nodes/test_detectives.py`
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Implement `doc_tools.py` for PDF to Markdown conversion and chunking in `src/tools/doc_tools.py`
-- [ ] T016 [US2] Implement `DocAnalyst` node logic with 60s timeout and error handling in `src/nodes/detectives.py`
-- [ ] T017 [US2] Add structured logging for `DocAnalyst` duration and page count per FR-009
+- [x] T015 [US2] Implement `doc_tools.py` for PDF to Markdown conversion and chunking in `src/tools/doc_tools.py`
+- [x] T016 [US2] Implement `DocAnalyst` node logic with 60s timeout and error handling in `src/nodes/detectives.py`
+- [x] T017 [US2] Add structured logging for `DocAnalyst` duration and page count per FR-009
 
 **Checkpoint**: User Story 2 (DocAnalyst) is functional and testable independently.
 
@@ -96,16 +96,16 @@
 
 ### Tests for User Story 3
 
-- [ ] T018 [P] [US3] Create unit tests for `vision_tools` in `tests/unit/tools/test_vision_tools.py` (mocking LLM and image extraction)
-- [ ] T019 [P] [US3] Create unit tests for `VisionInspector` node in `tests/unit/nodes/test_detectives.py`
+- [x] T018 [P] [US3] Create unit tests for `vision_tools` in `tests/unit/tools/test_vision_tools.py` (mocking LLM and image extraction)
+- [x] T019 [P] [US3] Create unit tests for `VisionInspector` node in `tests/unit/nodes/test_detectives.py`
 
 ### Implementation for User Story 3
 
-- [ ] T020 [US3] Implement `vision_tools.py` for diagram classification using Multimodal LLM in `src/tools/vision_tools.py`
-- [ ] T021 [US3] Implement `VisionInspector` node logic with 60s timeout and error handling in `src/nodes/detectives.py`
-- [ ] T022 [US3] Add structured logging for `VisionInspector` duration and image count per FR-009
+- [x] T020 [US3] Implement `vision_tools.py` for diagram classification using Multimodal LLM in `src/tools/vision_tools.py`
+- [x] T021 [US3] Implement `VisionInspector` node logic with 60s timeout and error handling in `src/nodes/detectives.py`
+- [x] T022 [US3] Add structured logging for `VisionInspector` duration and image count per FR-009
 
-**Checkpoint**: All user stories are independently functional.
+**Checkpoint**: All user stories are independently functional. [x]
 
 ---
 
@@ -113,10 +113,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T023 [P] Validate all detective nodes return `found=False` on failures/timeouts without crashing system
-- [ ] T024 [P] Verify no interpretation or scoring logic is present in any detective node (Fact-only Principle)
-- [ ] T025 [P] Performance optimization: Ensure all parallel executions fit within 60-second window
-- [ ] T026 Update `quickstart.md` with verified execution examples
+- [x] T023 [P] Validate all detective nodes return `found=False` on failures/timeouts without crashing system
+- [x] T024 [P] Verify no interpretation or scoring logic is present in any detective node (Fact-only Principle)
+- [x] T025 [P] Performance optimization: Ensure all parallel executions fit within 60-second window
+- [x] T026 Update `quickstart.md` with verified execution examples
 
 ---
 
