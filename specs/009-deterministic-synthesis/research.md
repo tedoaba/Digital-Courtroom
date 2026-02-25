@@ -62,6 +62,17 @@ def round_score(score):
 - If any `evidence_id` is missing or has `found=False`, penalize that judge's score: `adjusted_score = max(1, original_score - penalty_value)` where `penalty_value = 2`.
 - Log the nullification in `execution_log`.
 
+## Decision: Constitutional Alignment (Principle XI)
+
+**Rationale**: Ensure the synthesis node strictly follows the legal hierarchy of the Digital Courtroom.
+**Synthesis Priorities (Hierarchy)**:
+
+1.  **Security Override**: Hard cap at 3.0 for any verified critical vulnerability.
+2.  **Fact Supremacy**: Penalty/Nullification for citing non-existent facts.
+3.  **Functionality Weight**: Tech Lead weighting (2.0x) for technical dimensions.
+4.  **Dissent Requirement**: Mandatory template-based summary for variance > 2.
+5.  **Variance Re-evaluation**: Automatic flagging for human audit if variance > 2.
+
 ## Alternatives Considered
 
 - **LLM-based Synthesis**: Rejected by Principle III.5 and XI (requires deterministic Python logic).

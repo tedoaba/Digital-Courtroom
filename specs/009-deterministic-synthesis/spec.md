@@ -9,8 +9,9 @@
 
 ### Session 2026-02-25
 
-- Q: Missing Judge Fallback Strategy → A: Use the mean of the remaining two judge scores (rounded).
+- Q: Missing Judge Fallback Strategy → A: Use the mean of the remaining judges (rounded). If 0 judges return, fail with CRITICAL status.
 - Q: Scoring Tie-Breaking Direction → A: Round half up (e.g., 2.5 becomes 3).
+- Q: Security Keywords → A: "shell injection", "rce", "hardcoded credentials", "path traversal", "sql injection", "xss", "insecure deserialization".
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -24,8 +25,8 @@ As a System Auditor, I want the Chief Justice to resolve conflicting scores from
 
 **Acceptance Scenarios**:
 
-1. **Given** three judges return scores 2, 4, 3 for a non-security criterion, **When** Chief Justice executes, **Then** the final score is calculated using the FUNCTIONALITY_WEIGHT rule (TechLead weight = 2x) and rounded to the nearest integer.
-2. **Given** a variance between scores is 3 or 4, **When** Chief Justice executes, **Then** a DISSENT_REQUIREMENT flag is triggered and a summary of the conflict is required in the output model.
+1. **Given** three judges return scores 2, 4, 3 for a non-security criterion, **When** Chief Justice executes, **Then** the final score is calculated using the weighted sum `(P*1 + D*1 + T*2) / 4` and rounded using "Round Half Up".
+2. **Given** a variance between raw scores is 3 or 4, **When** Chief Justice executes, **Then** a DISSENT_REQUIREMENT flag is triggered and a markdown summary of the conflict (including judge IDs) is required.
 
 ---
 
@@ -39,7 +40,7 @@ As a Security Officer, I want confirmed security vulnerabilities to automaticall
 
 **Acceptance Scenarios**:
 
-1. **Given** the Prosecutor's argument contains confirmed security keywords (e.g., "shell injection") AND the RepoInvestigator found evidence of `os.system` usage, **When** Chief Justice executes, **Then** the `SECURITY_OVERRIDE` rule is applied and the final score is capped at 3.
+1. **Given** the Prosecutor's argument contains confirmed security keywords (e.g., "shell injection") AND the RepoInvestigator found evidence of `os.system` usage, **When** Chief Justice executes, **Then** the `SECURITY_OVERRIDE` rule is applied and the final score is capped at 3 _after_ weighted averaging but _before_ rounding.
 
 ---
 
@@ -53,7 +54,7 @@ As a Forensic Expert, I want the Chief Justice to invalidate judicial claims tha
 
 **Acceptance Scenarios**:
 
-1. **Given** a `JudicialOpinion` cites an `evidence_id` that has `found=False` in the state, **When** Chief Justice executes, **Then** the `FACT_SUPREMACY` rule is applied, the judge's score is penalized/adjusted, and the event is logged.
+1. **Given** a `JudicialOpinion` cites an `evidence_id` that has `found=False` in the state, **When** Chief Justice executes, **Then** a -2 point penalty is applied to that judge's score (min score 1) before averaging, and the event is logged.
 
 ---
 
@@ -61,16 +62,20 @@ As a Forensic Expert, I want the Chief Justice to invalidate judicial claims tha
 
 ### Functional Requirements
 
-- **FR-001**: Chief Justice MUST be implemented as a pure Python component with ZERO LLM operations.
-- **FR-002**: System MUST accept an array of `JudicialOpinion` objects and a dictionary of `Evidence` objects as input.
-- **FR-003**: System MUST calculate score variance (max - min) for every rubric dimension.
-- **FR-004**: System MUST apply the `SECURITY_OVERRIDE` rule: confirmed security flaws (found in Evidence) MUST cap the criterion score at 3, overriding any higher scores.
-- **FR-005**: System MUST apply the `FACT_SUPREMACY` rule: any judicial argument citing non-existent evidence (`found=False`) MUST have its score influence automatically suppressed or penalized.
-- **FR-006**: System MUST apply the `FUNCTIONALITY_WEIGHT` rule: the Tech Lead's score carries double weight (2.0x) for technical/architectural criteria. Calculations MUST use "round half up" logic for fractional scores.
-- **FR-007**: System MUST generate a `CriterionResult` model for every dimension, including the `final_score` and a `dissent_summary` if variance > 2.
-- **FR-008**: System MUST log detailed execution traces for every criterion in a structured `execution_log` field, including raw scores, variance, specific rules applied, and intermediate calculation steps.
-- **FR-009**: System MUST handle cases where a judge's opinion is missing (due to node failure) by calculating the mean of the remaining two judge scores (using "round half up" logic) and logging a "Degraded Synthesis" state.
-- **FR-010**: System MUST apply the `VARIANCE_RE_EVALUATION` rule: if score variance > 2, the system MUST perform an automated secondary check of the cited evidence relevance vs the judge arguments and flag the result for manual verification with a `re_evaluation_required` flag.
+- **FR-001**: Chief Justice MUST be implemented as a pure Python component with ZERO LLM operations (Principle III.5).
+- **FR-002**: System MUST accept an array of `JudicialOpinion` objects and a dictionary of `Evidence` objects as input in the standard Pydantic state format.
+- **FR-003**: System MUST calculate raw score variance (max - min) for every rubric dimension.
+- **FR-004**: System MUST apply the `SECURITY_OVERRIDE` rule: if any judge IDs a "critical" vulnerability (using defined security keywords) AND that evidence is verified, the final weighted average MUST be capped at 3.0 before rounding.
+- **FR-005**: System MUST apply the `FACT_SUPREMACY` rule: any judge citing an `evidence_id` where `found=False` incurs a -2 penalty to their individual score (min 1) before weighted calculation.
+- **FR-006**: System MUST apply the `FUNCTIONALITY_WEIGHT` rule: Tech Lead score weight = 2.0x, others = 1.0x. Order: Penalty -> Weighting -> Security Cap -> Round Half Up (2.5 -> 3, 2.49 -> 2).
+- **FR-007**: System MUST generate a `CriterionResult` model. If variance > 2, `dissent_summary` MUST include judge IDs and their respective scores. `remediation` MUST be a combined string of all unique judge remediation steps.
+- **FR-008**: System MUST log execution traces including: `criterion_id`, `raw_scores`, `weights`, `penalty_events`, `override_triggered`, `final_float`, and `final_int`.
+- **FR-009**: System MUST handle partial judge failures:
+  - If 2 judges succeed: Final score = mean(scores) rounded half up.
+  - If 1 judge succeeds: That score becomes the final score.
+  - If 0 judges succeed: Raise `SynthesisError` and set state to `CRITICAL_FAILURE`.
+- **FR-010**: System MUST apply the `VARIANCE_RE_EVALUATION` rule: if raw variance > 2, flag the result for manual verification via `re_evaluation_required=True`.
+- **FR-011**: System MUST align with Constitution §XI prioritizing: 1. Security Override, 2. Fact Supremacy, 3. FunctionALITY Weight, 4. Dissent Requirement, 5. Variance Re-evaluation.
 
 ### Key Entities _(include if feature involves data)_
 
@@ -85,5 +90,5 @@ As a Forensic Expert, I want the Chief Justice to invalidate judicial claims tha
 - **SC-001**: 100% of `final_score` computations are deterministic and reproducible (same input = same output every time).
 - **SC-002**: 100% of confirmed security violations result in a capped score, regardless of other judge inputs.
 - **SC-003**: 100% of hallucinations (citing non-existent evidence) are successfully detected and suppressed by the `FACT_SUPREMACY` logic.
-- **SC-004**: Processing time for the synthesis node is < 50ms (since it avoids LLM calls).
+- **SC-004**: Processing time for the synthesis node is < 50ms on standard 2vCPU/4GB container environments.
 - **SC-005**: Each criterion in the generated state includes a structured log of all applied rules for traceability.
