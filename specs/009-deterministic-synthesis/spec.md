@@ -5,6 +5,13 @@
 **Status**: Draft  
 **Input**: User description: "Deterministic Synthesis via Chief Justice (Layer 3) - objective: Consolidate varying judicial opinions deterministically using strict precedence rules. Problem: Ensures non-LLM, guaranteed rule-based outcome resolution prioritizing Facts and Security over varied judge score spreads."
 
+## Clarifications
+
+### Session 2026-02-25
+
+- Q: Missing Judge Fallback Strategy → A: Use the mean of the remaining two judge scores (rounded).
+- Q: Scoring Tie-Breaking Direction → A: Round half up (e.g., 2.5 becomes 3).
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Resolving Conflicting Judicial Opinions (Priority: P1)
@@ -59,10 +66,10 @@ As a Forensic Expert, I want the Chief Justice to invalidate judicial claims tha
 - **FR-003**: System MUST calculate score variance (max - min) for every rubric dimension.
 - **FR-004**: System MUST apply the `SECURITY_OVERRIDE` rule: confirmed security flaws (found in Evidence) MUST cap the criterion score at 3, overriding any higher scores.
 - **FR-005**: System MUST apply the `FACT_SUPREMACY` rule: any judicial argument citing non-existent evidence (`found=False`) MUST have its score influence automatically suppressed or penalized.
-- **FR-006**: System MUST apply the `FUNCTIONALITY_WEIGHT` rule: the Tech Lead's score carries double weight (2.0x) for technical/architectural criteria.
+- **FR-006**: System MUST apply the `FUNCTIONALITY_WEIGHT` rule: the Tech Lead's score carries double weight (2.0x) for technical/architectural criteria. Calculations MUST use "round half up" logic for fractional scores.
 - **FR-007**: System MUST generate a `CriterionResult` model for every dimension, including the `final_score` and a `dissent_summary` if variance > 2.
 - **FR-008**: System MUST log detailed execution traces for every criterion, including raw scores, variance, specific rules applied, and intermediate calculation steps.
-- **FR-009**: System MUST handle cases where a judge's opinion is missing (due to node failure) using deterministic fallback rules (e.g., averaging remaining judges).
+- **FR-009**: System MUST handle cases where a judge's opinion is missing (due to node failure) by calculating the mean of the remaining two judge scores (using "round half up" logic) and logging a "Degraded Synthesis" state.
 
 ### Key Entities _(include if feature involves data)_
 
