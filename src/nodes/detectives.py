@@ -13,8 +13,8 @@ def repo_investigator(state: AgentState) -> Dict[str, Any]:
     repo_url = state.get("repo_url", "")
     rubric_dimensions = state.get("rubric_dimensions", [])
     
-    # FR-012: Filter logic
-    repo_dims = [d for d in rubric_dimensions if d.get("source") == "repo"]
+    # FR-012: Filter logic - Rubric uses 'target_artifact' instead of 'source'
+    repo_dims = [d for d in rubric_dimensions if d.get("target_artifact") == "github_repo"]
     
     if not repo_dims:
         return {}
@@ -137,8 +137,8 @@ def doc_analyst(state: AgentState) -> Dict[str, Any]:
     pdf_path = state.get("pdf_path", "")
     rubric_dimensions = state.get("rubric_dimensions", [])
     
-    # FR-012: Filter logic
-    doc_dims = [d for d in rubric_dimensions if d.get("source") == "docs"]
+    # FR-012: Filter logic - Rubric uses 'target_artifact' instead of 'source'
+    doc_dims = [d for d in rubric_dimensions if d.get("target_artifact") == "pdf_report"]
     
     if not doc_dims:
         return {}
@@ -211,8 +211,8 @@ def vision_inspector(state: AgentState) -> Dict[str, Any]:
     pdf_path = state.get("pdf_path", "")
     rubric_dimensions = state.get("rubric_dimensions", [])
     
-    # FR-012: Filter logic
-    vision_dims = [d for d in rubric_dimensions if d.get("source") == "vision"]
+    # FR-012: Filter logic - Rubric uses 'target_artifact' instead of 'source'
+    vision_dims = [d for d in rubric_dimensions if d.get("target_artifact") == "pdf_images"]
     
     if not vision_dims:
         return {}
