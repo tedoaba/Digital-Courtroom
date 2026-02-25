@@ -13,7 +13,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create `specs/008-judicial-nodes/checklists/requirements.md` per implementation plan documentation structure
+- [x] T001 Create `specs/008-judicial-nodes/checklists/requirements.md` per implementation plan documentation structure
 
 ---
 
@@ -23,10 +23,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Update `src/state.py` with `JudicialOpinion` Pydantic model (including mandatory fields: `opinion_id`, `judge`, `criterion_id`, `score`, `argument`, `cited_evidence`)
-- [ ] T003 Update `AgentState` in `src/state.py` to include `opinions` list with `operator.add` reducer
-- [ ] T004 Define `JudicialTask` TypedDict in `src/nodes/judges.py` for LangGraph `Send` pattern
-- [ ] T005 [P] Ensure `src/config.py` enforces `temperature=0` for judicial LLM calls
+- [x] T002 Update `src/state.py` with `JudicialOpinion` Pydantic model (including mandatory fields: `opinion_id`, `judge`, `criterion_id`, `score`, `argument`, `cited_evidence`)
+- [x] T003 Update `AgentState` in `src/state.py` to include `opinions` list with `operator.add` reducer
+- [x] T004 Define `JudicialTask` TypedDict in `src/nodes/judges.py` for LangGraph `Send` pattern
+- [x] T005 [P] Ensure `src/config.py` enforces `temperature=0` for judicial LLM calls
 
 **Checkpoint**: Foundation ready - Judicial state and configuration are in place.
 
@@ -42,14 +42,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T006 [P] [US1] Create unit tests for persona prompt divergence (< 10% overlap) in `tests/unit/test_judges.py`
-- [ ] T007 [P] [US1] Create unit test for judicial fan-out logic using `Send` in `tests/unit/test_judges.py`
+- [x] T006 [P] [US1] Create unit tests for persona prompt divergence (< 10% overlap) in `tests/unit/test_judges.py`
+- [x] T007 [P] [US1] Create unit test for judicial fan-out logic using `Send` in `tests/unit/test_judges.py`
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Implement "Philosophy Blocks" for Prosecutor, Defense, and TechLead in `src/nodes/judges.py`
-- [ ] T009 [US1] Implement `evaluate_criterion` node in `src/nodes/judges.py` using `.with_structured_output(JudicialOpinion)`
-- [ ] T010 [US1] Implement integration test for the full fan-out/fan-in workflow in `tests/integration/test_judicial_workflow.py`
+- [x] T008 [US1] Implement "Philosophy Blocks" for Prosecutor, Defense, and TechLead in `src/nodes/judges.py`
+- [x] T009 [US1] Implement `evaluate_criterion` node in `src/nodes/judges.py` using `.with_structured_output(JudicialOpinion)`
+- [x] T010 [US1] Implement integration test for the full fan-out/fan-in workflow in `tests/integration/test_judicial_workflow.py`
 
 **Checkpoint**: User Story 1 is functional - 3 judges can now evaluate a single criterion in parallel.
 
@@ -63,14 +63,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T011 [P] [US2] Add unit tests for evidence citation validation in `tests/unit/test_judges.py`
-- [ ] T012 [P] [US2] Add unit tests for persona-specific field population (mitigations, charges, remediation) in `tests/unit/test_judges.py`
+- [x] T011 [P] [US2] Add unit tests for evidence citation validation in `tests/unit/test_judges.py`
+- [x] T012 [P] [US2] Add unit tests for persona-specific field population (mitigations, charges, remediation) in `tests/unit/test_judges.py`
 
 ### Implementation for User Story 2
 
-- [ ] T013 [P] [US2] Update `JudicialOpinion` model in `src/state.py` with optional fields: `mitigations`, `charges`, `remediation`
-- [ ] T014 [US2] Refine persona system prompts in `src/nodes/judges.py` to enforce strict evidence citation (`evidence_id`)
-- [ ] T015 [US2] Update `evaluate_criterion` in `src/nodes/judges.py` to handle persona-specific field expectations
+- [x] T013 [P] [US2] Update `JudicialOpinion` model in `src/state.py` with optional fields: `mitigations`, `charges`, `remediation`
+- [x] T014 [US2] Refine persona system prompts in `src/nodes/judges.py` to enforce strict evidence citation (`evidence_id`)
+- [x] T015 [US2] Update `evaluate_criterion` in `src/nodes/judges.py` to handle persona-specific field expectations
 
 **Checkpoint**: User Story 2 is functional - Judges now provide detailed, cited feedback with specialized fields.
 
@@ -84,14 +84,14 @@
 
 ### Tests for User Story 3
 
-- [ ] T016 [P] [US3] Create unit tests for schema violation retry logic and final fallback in `tests/unit/test_judges.py`
-- [ ] T017 [P] [US3] Create unit tests for exponential backoff during HTTP timeouts in `tests/unit/test_judges.py`
+- [x] T016 [P] [US3] Create unit tests for schema violation retry logic and final fallback in `tests/unit/test_judges.py`
+- [x] T017 [P] [US3] Create unit tests for exponential backoff during HTTP timeouts in `tests/unit/test_judges.py`
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Implement recursive retry helper with "schema reminder" prompt injection per Principle VII.3 in `src/nodes/judges.py`
-- [ ] T019 [US3] Implement exponential backoff for LLM calls in `src/nodes/judges.py`
-- [ ] T020 [US3] Implement final fallback `JudicialOpinion` (score 3, error argument) in `src/nodes/judges.py` for terminal failures
+- [x] T018 [US3] Implement recursive retry helper with "schema reminder" prompt injection per Principle VII.3 in `src/nodes/judges.py`
+- [x] T019 [US3] Implement exponential backoff for LLM calls in `src/nodes/judges.py`
+- [x] T020 [US3] Implement final fallback `JudicialOpinion` (score 3, error argument) in `src/nodes/judges.py` for terminal failures
 
 **Checkpoint**: User Story 3 is functional - The judicial layer is now resilient to transient LLM errors.
 
@@ -101,10 +101,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T021 [P] Update `README.md` or `docs/` with details on Layer 2 architecture
-- [ ] T022 [P] Finalize `quickstart.md` local execution guide instructions
-- [ ] T023 Run `tests/harness/run_judicial_mock.py` to validate full Layer 2 flow end-to-end
-- [ ] T024 Perform final code cleanup and ensure compliance with project constitution
+- [x] T021 [P] Update `README.md` or `docs/` with details on Layer 2 architecture
+- [x] T022 [P] Finalize `quickstart.md` local execution guide instructions
+- [x] T023 Run `tests/harness/run_judicial_mock.py` to validate full Layer 2 flow end-to-end
+- [x] T024 Perform final code cleanup and ensure compliance with project constitution
 
 ---
 
