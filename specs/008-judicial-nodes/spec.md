@@ -62,26 +62,30 @@ As a system operator, I want the judicial nodes to handle LLM schema violations 
 
 ### Edge Cases
 
-- **Hallucinated Citations**: A judge cites an `evidence_id` that doesn't exist. The system must be able to flag this in the synthesis layer (Layer 3).
-- **Persona Collusion**: LLM prompts are too similar, causing judges to return identical text. FR-002 addresses this by enforcing < 10% overlap.
-- **Empty Evidence**: No evidence was found by detectives. Judges must still render an opinion (likely a low score) based on the _absence_ of evidence.
-- **Schema Exhaustion**: LLM fails to return valid schema even after 2 retries.
+- **Hallucinated Citations**: A judge cites an `evidence_id` that doesn't exist. The system MUST validate citations against `state.get('evidences')` and remove invalid ones or flag them in the synthesis layer (Layer 3).
+- **Persona Collusion**: LLM prompts are too similar, causing judges to return identical text. FR-002 enforces < 10% overlap using Jaccard Similarity on the native text (excluding JSON schema and meta-prompts).
+- **Empty Evidence**: No evidence was found by detectives. Judges MUST render an opinion (likely a low score) based on the _absence_ of evidence, explicitly setting `cited_evidence=["NO_EVIDENCE"]`.
+- **Schema Exhaustion**: LLM fails to return valid schema even after 2 retries. Returns explicitly defined neutral fallback.
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
-- **FR-001**: System MUST construct three distinct system prompts for `Prosecutor`, `Defense`, and `TechLead` personas.
-- **FR-002**: Persona-specific philosophical instructions MUST share less than 10% text overlap natively.
-- **FR-003**: The `Prosecutor` node MUST apply a "Critical Lens" (Philosophy: "Trust No One. Assume Vibe Coding.").
-- **FR-004**: The `Defense` node MUST apply an "Optimistic Lens" (Philosophy: "Reward Effort and Intent.").
-- **FR-005**: The `TechLead` node MUST apply a "Pragmatic Lens" (Philosophy: "Does it work? Is it maintainable?").
+- **FR-001**: System MUST construct three distinct system prompts for `Prosecutor`, `Defense`, and `TechLead` personas, consisting of a common task definition and a distinct "Persona Philosophy Block".
+- **FR-002**: Persona Philosophy Blocks MUST share less than 10% text overlap natively, measured using Jaccard Similarity on the text.
+- **FR-003**: The `Prosecutor` node MUST apply a "Critical Lens" (Philosophy: "Trust No One. Assume Vibe Coding. Actively look for security vulnerabilities and code smells").
+- **FR-004**: The `Defense` node MUST apply an "Optimistic Lens" (Philosophy: "Reward Effort and Intent. Assume good faith and prioritize partial implementation over missing features").
+- **FR-005**: The `TechLead` node MUST apply a "Pragmatic Lens" (Philosophy: "Does it work? Is it maintainable? Focus on architectural stability and real-world viability").
 - **FR-006**: All judicial nodes MUST utilize `.with_structured_output(JudicialOpinion)` for LLM interaction.
-- **FR-007**: System MUST implement a fallback mechanism for schema validation errors with a maximum of 2 retries. If failure persists, return a fallback opinion with `score=3` and `argument="System Error: Judicial evaluation failed after retries."`.
-- **FR-008**: System MUST apply exponential backoff for HTTP timeouts during LLM calls.
+- **FR-007**: System MUST implement a fallback mechanism for schema validation errors with a maximum of 2 retries. If failure persists, return a fallback opinion with `score=3`, `argument="System Error: Judicial evaluation failed after retries."`, `cited_evidence=[]`, `mitigations=None`, `charges=None`, and `remediation=None`.
+- **FR-008**: System MUST apply exponential backoff for HTTP timeouts during LLM calls (maximum of 2 retries).
 - **FR-009**: All judicial LLM calls MUST be constrained to `temperature=0` via `config.py`.
 - **FR-010**: Every generated `JudicialOpinion` MUST cite specific `evidence_id` values as justification.
 - **FR-011**: System MUST execute judicial nodes at the granularity of one LLM call per persona per rubric criterion to ensure failure isolation and prompt context minimization.
+- **FR-012**: Judicial layer MUST handle evidence transition by explicitly reading the synchronized `state.get('evidences')` provided by Layer 1.5.
+- **FR-013**: When confronted with conflicting evidence from different detectives, each judge MUST independently evaluate and document the conflict through their specific persona lens without causing an error.
+- **FR-014**: System MUST utilize sandboxed prompt construction to prevent prompt injection and ensure no data leakage from the application configuration.
+- **FR-015**: System MUST log node entry, exit, and the final rendered opinion for each judge per criterion to ensure full observability (Constitution Principle XXII).
 
 ### Key Entities _(include if feature involves data)_
 
@@ -101,11 +105,12 @@ As a system operator, I want the judicial nodes to handle LLM schema violations 
 
 ### Measurable Outcomes
 
-- **SC-001**: 100% of judicial nodes return valid objects adhering to the `JudicialOpinion` schema after at most 2 retries.
-- **SC-002**: Prompt similarity analysis shows < 10% overlap between the distinctive philosophy sections of the three judges.
-- **SC-003**: Audit execution continues without halting even if one judge node fails after 2 retries (returns a fallback `JudicialOpinion` with score 3 and standardized error argument).
+- **SC-001**: 100% of judicial nodes return valid objects adhering to the `JudicialOpinion` schema after at most 2 retries (technology-agnostic resilience).
+- **SC-002**: Prompt similarity analysis shows < 10% overlap (Jaccard similarity) between the distinctive philosophy sections of the three judges.
+- **SC-003**: Audit execution continues without halting even if one judge node fails after 2 retries (returns exactly the fallback `JudicialOpinion` defined in FR-007).
 - **SC-004**: All cited `evidence_id` values in opinions are verifiable against the input `evidences` set.
 - **SC-005**: All LLM calls for judicial evaluations are verified to have been made with `temperature=0`.
+- **SC-006**: Performance of the 30+ parallel LLM execution fan-out MUST achieve a p95 latency of < 15 seconds.
 
 ## Assumptions
 
