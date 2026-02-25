@@ -60,18 +60,29 @@ As a developer, I want to be able to specify which rubric file to use so that I 
 - **URL Injection**: What if the URL contains shell metacharacters?
   - _Response_: Strict regex validation must reject any URL not matching the GitHub HTTPS pattern.
 
+## Clarifications
+
+### Session 2026-02-25
+
+- Q: How is the rubric path configured? → A: Passed via State Input (e.g., in the `AgentState`).
+- Q: What is the failure behavior for validation errors? → A: Append to `errors` list and return (Allows routing to `ErrorHandler`).
+- Q: Which rubric dimensions should be loaded? → A: Load all dimensions found in the rubric.
+- Q: Should synthesis rules be loaded by this node? → A: Load both `dimensions` and `synthesis_rules` from the rubric JSON.
+- Q: Should state fields be initialized to empty structures? → A: Initialize `evidences`, `opinions`, and `criterion_results` as empty structures.
+
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
-- **FR-001**: The node MUST load the rubric from a configurable path (default: `rubric/week2_rubric.json`).
+- **FR-001**: The node MUST load the rubric from a path provided in the `AgentState` (defaulting to `rubric/week2_rubric.json` if not provided).
 - **FR-002**: The node MUST validate that `repo_url` matches the pattern `^https://github\.com/[\w\-\.]+/[\w\-\.]+(?:\.git)?$`.
 - **FR-003**: The node MUST reject URLs containing `localhost`, `127.0.0.1`, or the `file://` protocol.
 - **FR-004**: The node MUST verify the existence of the PDF report at `pdf_path` using `os.path.exists()`.
-- **FR-005**: The node MUST parse the rubric JSON and extract the `dimensions` array into the `rubric_dimensions` state field.
+- **FR-005**: The node MUST parse the rubric JSON and extract both the `dimensions` array and the `synthesis_rules` dictionary into the corresponding state fields (`rubric_dimensions` and `synthesis_rules`).
 - **FR-006**: The node MUST log a `node_entry` event with the `StructuredLogger`, including the rubric version and dimension count in the payload.
-- **FR-007**: The node MUST fail fast (raise exception) on any validation error instead of attempting a retry.
-- **FR-008**: The node MUST support configuration of the rubric path to avoid hardcoded strings in the logic.
+- **FR-007**: The node MUST fail gracefully on validation errors by appending a descriptive error message to the `errors` state list and returning the current state, allowing upstream routing to handle the failure.
+- **FR-008**: The node MUST use the `rubric_path` field from the initial state to determine which rulebook to load.
+- **FR-009**: The node MUST initialize `evidences` (dict), `opinions` (list), and `criterion_results` (dict) as empty structures if they are missing from the state, ensuring downstream reducers operate on valid collections.
 
 ### Key Entities _(include if feature involves data)_
 
