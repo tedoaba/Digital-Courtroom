@@ -6,9 +6,9 @@ This guide explains how to invoke the `ContextBuilder` node within the `Digital 
 
 The node reads the rubric path from the initial state or defaults to the week 2 rubric.
 
-| Field         | Meaning                                  | Default                   |
-| :------------ | :--------------------------------------- | :------------------------ |
-| `rubric_path` | Path to the machine-readable rubric JSON | `rubric/week2_rubic.json` |
+| Field         | Meaning                                  | Default                    |
+| :------------ | :--------------------------------------- | :------------------------- |
+| `rubric_path` | Path to the machine-readable rubric JSON | `rubric/week2_rubric.json` |
 
 ## Usage
 
@@ -22,7 +22,7 @@ from src.graph import app
 initial_state = {
     "repo_url": "https://github.com/user/project",
     "pdf_path": "./audit_report.pdf",
-    "rubric_path": "rubric/week2_rubic.json" # Optional
+    "rubric_path": "rubric/week2_rubric.json" # Optional
 }
 
 # Run the graph
@@ -40,7 +40,7 @@ if result.get("errors"):
 
 ## Internal Workflow
 
-1. **Log Entry**: Emits a `node_entry` event with `correlation_id`.
+1. **Log Entry/Exit**: Emits `context_builder_entry` and `context_builder_exit` events.
 2. **Validate URL**: Checks syntax and security constraints.
 3. **Validate Files**: Checks existence of PDF and Rubric.
 4. **Parse Rubric**: Extracts dimensions and rules into the `AgentState`.

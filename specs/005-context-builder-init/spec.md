@@ -17,8 +17,8 @@ As an auditor, I want to provide a repository URL and a PDF report path so that 
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid GitHub repository URL and a valid path to an existing PDF report, **When** the `ContextBuilder` node is executed, **Then** it should return a state object containing all 10 rubric dimensions from `rubric/week2_rubric.json`.
-2. **Given** valid inputs, **When** the node starts, **Then** it should log a `node_entry` event using the `StructuredLogger`.
+1.  **Given** a valid GitHub repository URL and a valid path to an existing PDF report, **When** the `ContextBuilder` node is executed, **Then** it should return a state object containing all 10 rubric dimensions from `rubric/week2_rubric.json`.
+2.  **Given** valid inputs, **When** the node starts, **Then** it should log a `context_builder_entry` event and upon completion a `context_builder_exit` event using the `StructuredLogger`.
 
 ---
 
@@ -79,7 +79,7 @@ As a developer, I want to be able to specify which rubric file to use so that I 
 - **FR-003**: The node MUST reject URLs containing `localhost`, `127.0.0.1`, or the `file://` protocol.
 - **FR-004**: The node MUST verify the existence of the PDF report at `pdf_path` using `os.path.exists()`.
 - **FR-005**: The node MUST parse the rubric JSON and extract both the `dimensions` array and the `synthesis_rules` dictionary into the corresponding state fields (`rubric_dimensions` and `synthesis_rules`).
-- **FR-006**: The node MUST log a `node_entry` event with the `StructuredLogger`, including the rubric version and dimension count in the payload.
+- **FR-006**: The node MUST log `context_builder_entry` and `context_builder_exit` events with the `StructuredLogger`. The entry log MUST include the rubric version and dimension count in the payload.
 - **FR-007**: The node MUST fail gracefully on validation errors by appending a descriptive error message to the `errors` state list and returning the current state, allowing upstream routing to handle the failure.
 - **FR-008**: The node MUST use the `rubric_path` field from the initial state to determine which rulebook to load.
 - **FR-009**: The node MUST initialize `evidences` (dict), `opinions` (list), and `criterion_results` (dict) as empty structures if they are missing from the state, ensuring downstream reducers operate on valid collections.
