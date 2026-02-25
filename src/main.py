@@ -46,7 +46,10 @@ def main():
     
     try:
         # Execute the graph
-        config = {"configurable": {"thread_id": correlation_id}}
+        config = {
+            "configurable": {"thread_id": correlation_id},
+            "max_concurrency": 3  # Mitigate 429 Too Many Requests
+        }
         final_state = courtroom_swarm.invoke(initial_state, config=config)
         
         # Check for errors in final state

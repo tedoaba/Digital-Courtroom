@@ -60,8 +60,8 @@ def get_ollama_llm():
     )
 
 @retry(
-    stop=stop_after_attempt(3), 
-    wait=wait_exponential(multiplier=1, min=1, max=10),
+    stop=stop_after_attempt(5), 
+    wait=wait_exponential(multiplier=2, min=2, max=30),
     retry=retry_if_exception_type(Exception),
     reraise=True
 )
