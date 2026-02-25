@@ -5,6 +5,13 @@
 **Status**: Draft  
 **Input**: User description: "Evidence Aggregation Sync Node (Layer 1.5): Act as a fan-in point to synchronize, deduplicate, and cross-reference all collected evidence before judgment. Included: evidence_aggregator.py, path validation. Excluded: Graph deployment. Dependencies: Feature 6."
 
+## Clarifications
+
+### Session 2026-02-25
+
+- Q: Policy for missing detective sources? → A: Fail if repo or docs is missing; Warn for vision.
+- Q: Handling of out-of-bound paths in documentation? → A: Sanitize and restrict to repository root; flag as Hallucinated Path.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Consolidate Detective Evidence (Priority: P1)
@@ -66,9 +73,10 @@ As a system operator, I want to be warned if a detective agent fails to provide 
 - **FR-002**: System MUST use the `operator.ior` reducer pattern for the `evidences` field in the `AgentState` to merge dictionaries without data loss.
 - **FR-003**: System MUST identify all file paths extracted by the `DocAnalyst` and cross-reference them against the actual file manifest discovered by the `RepoInvestigator`.
 - **FR-004**: System MUST generate "Hallucinated Path" evidence entries for any documentation claim that refers to a file not present in the repository.
-- **FR-005**: System MUST log a warning if any of the three mandatory evidence sources (`repo`, `docs`, `vision`) are entirely missing from the input state.
+- FR-005: System MUST fail execution with a fatal error if 'repo' or 'docs' evidence sources are entirely missing; MUST log a warning if 'vision' is missing but continue execution.
 - **FR-006**: System MUST deduplicate evidence items based on their unique identifiers (`evidence_id`) if multiple detectives produce the same piece of evidence.
 - **FR-007**: System MUST provide a "clean" evidence dictionary that is ready for consumption by Judge nodes, ensuring all cross-references are annotated.
+- **FR-008**: System MUST sanitize all file paths collected from documentation and reject any that resolve outside the repository root, flagging them as "Hallucinated Path".
 
 ### Key Entities
 
