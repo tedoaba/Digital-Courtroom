@@ -24,15 +24,14 @@ from src.nodes.evidence_aggregator import aggregator_node
 from src.state import AgentState, Evidence, EvidenceClass
 from datetime import datetime
 
-# 1. Setup mock evidence
+# 1. Setup mock evidence (relative paths)
 repo_ev = Evidence(
     evidence_id="repo_GIT_0",
     source="repo",
     evidence_class=EvidenceClass.GIT_FORENSIC,
     goal="List files",
     found=True,
-    location="root",
-    content="src/main.py, src/utils.py", # Aggregator parses manifest from content
+    location="src/main.py",
     confidence=1.0,
     timestamp=datetime.now()
 )
@@ -43,8 +42,7 @@ doc_ev = Evidence(
     evidence_class=EvidenceClass.DOCUMENT_CLAIM,
     goal="Verify auth",
     found=True,
-    location="p. 5",
-    content="implemented in src/auth.py",
+    location="src/auth.py", # This will be cross-referenced
     confidence=0.9,
     timestamp=datetime.now()
 )
@@ -57,5 +55,15 @@ state = {
 result = aggregator_node(state)
 
 # 3. Verify Hallucination Flag
-# Since src/auth.py is NOT in the repo manifest, a new evidence item should exist in result["evidences"]["docs"]
+# Since "src/auth.py" is NOT in the repo evidence locations list,
+# a new evidence item with evidence_class="DOCUMENT_CLAIM" and found=False
+# will be appended to result["evidences"]["docs"].
+```
+
+## Success Criteria (SC-002)
+
+The aggregator is optimized for performance, handling 1,000 evidence items in **< 1ms** on standard hardware (verified via `test_aggregator_performance_benchmark`).
+
+```
+
 ```

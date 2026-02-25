@@ -17,8 +17,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Verify project dependencies in `pyproject.toml` (langgraph, pydantic)
-- [ ] T002 Ensure node directory exists at `src/nodes/`
+- [x] T001 [P] Verify project dependencies in `pyproject.toml` (langgraph, pydantic)
+- [x] T002 Ensure node directory exists at `src/nodes/`
 
 ---
 
@@ -28,8 +28,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Update `src/state.py` with `merge_evidences` reducer and ensure `AgentState` supports `evidences` field
-- [ ] T004 [P] Implement internal path validation utility within `src/nodes/evidence_aggregator.py` for sandbox safety (FR-008)
+- [x] T003 Update `src/state.py` with `merge_evidences` reducer and ensure `AgentState` supports `evidences` field
+- [x] T004 [P] Implement internal path validation utility within `src/nodes/evidence_aggregator.py` for sandbox safety (FR-008)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -43,13 +43,13 @@
 
 ### Tests for User Story 1
 
-- [ ] T005 [P] [US1] Create unit tests for basic evidence merging and deduplication in `tests/unit/test_evidence_aggregator.py`
+- [x] T005 [P] [US1] Create unit tests for basic evidence merging and deduplication in `tests/unit/test_evidence_aggregator.py`
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] Implement `aggregator_node` skeleton and basic source merging logic in `src/nodes/evidence_aggregator.py`
-- [ ] T007 [US1] Implement `evidence_id` deduplication within each source list in `src/nodes/evidence_aggregator.py` (FR-006)
-- [ ] T008 [US1] Ensure the output provides a "clean" dictionary ready for Judge nodes (FR-007)
+- [x] T006 [US1] Implement `aggregator_node` skeleton and basic source merging logic in `src/nodes/evidence_aggregator.py`
+- [x] T007 [US1] Implement `evidence_id` deduplication within each source list in `src/nodes/evidence_aggregator.py` (FR-006)
+- [x] T008 [US1] Ensure the output provides a "clean" dictionary ready for Judge nodes (FR-007)
 
 **Checkpoint**: User Story 1 complete - system can now synchronize parallel detective flows.
 
@@ -63,13 +63,13 @@
 
 ### Tests for User Story 2
 
-- [ ] T009 [P] [US2] Add unit tests for path cross-referencing and "Hallucinated Path" generation in `tests/unit/test_evidence_aggregator.py`
+- [x] T009 [P] [US2] Add unit tests for path cross-referencing and "Hallucinated Path" generation in `tests/unit/test_evidence_aggregator.py`
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] Implement logic to extract file manifest from `repo` evidence content in `src/nodes/evidence_aggregator.py`
-- [ ] T011 [US2] Implement path sanitization and cross-reference logic against the repo manifest in `src/nodes/evidence_aggregator.py`
-- [ ] T012 [US2] Implement generation of `DOCUMENT_CLAIM` evidence for hallucinated paths in `src/nodes/evidence_aggregator.py` (FR-004)
+- [x] T010 [US2] Implement logic to extract file manifest from `repo` evidence content in `src/nodes/evidence_aggregator.py`
+- [x] T011 [US2] Implement path sanitization and cross-reference logic against the repo manifest in `src/nodes/evidence_aggregator.py`
+- [x] T012 [US2] Implement generation of `DOCUMENT_CLAIM` evidence for hallucinated paths in `src/nodes/evidence_aggregator.py` (FR-004)
 
 **Checkpoint**: User Story 2 complete - system can now detect documentation hallucinations.
 
@@ -83,12 +83,12 @@
 
 ### Tests for User Story 3
 
-- [ ] T013 [P] [US3] Add unit tests for missing source validation and error handling in `tests/unit/test_evidence_aggregator.py`
+- [x] T013 [P] [US3] Add unit tests for missing source validation and error handling in `tests/unit/test_evidence_aggregator.py`
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Implement mandatory source validation (repo, docs) and error logging to `state.errors` in `src/nodes/evidence_aggregator.py` (FR-005)
-- [ ] T015 [US3] Implement warning log for missing `vision` evidence in `src/nodes/evidence_aggregator.py`
+- [x] T014 [US3] Implement mandatory source validation (repo, docs) and error logging to `state.errors` in `src/nodes/evidence_aggregator.py` (FR-005)
+- [x] T015 [US3] Implement warning log for missing `vision` evidence in `src/nodes/evidence_aggregator.py`
 
 **Checkpoint**: All user stories complete - robust fan-in synchronization is established.
 
@@ -98,9 +98,9 @@
 
 **Purpose**: Improvements that affect multiple user stories and integration verification
 
-- [ ] T016 [P] Implement integration test for complete graph fan-in behavior in `tests/integration/test_graph_sync.py`
-- [ ] T017 [P] Perform overhead benchmark to ensure <50ms processing time (SC-002)
-- [ ] T018 [P] Update `specs/007-evidence-aggregator/quickstart.md` with finalized implementation examples
+- [x] T016 [P] Implement integration test for complete graph fan-in behavior in `tests/integration/test_graph_sync.py`
+- [x] T017 [P] Perform overhead benchmark to ensure <50ms processing time (SC-002)
+- [x] T018 [P] Update `specs/007-evidence-aggregator/quickstart.md` with finalized implementation examples
 
 ---
 
