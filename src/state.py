@@ -1,6 +1,8 @@
+from datetime import datetime
+from enum import Enum
 import hashlib
 import operator
-from typing import Annotated, TypedDict
+from typing import Annotated, Literal, Optional, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -20,14 +22,33 @@ class StrictModel(BaseModel):
     )
 
 
+class EvidenceClass(str, Enum):
+    """Forensic classes for evidence categorisation."""
+
+    GIT_FORENSIC = "GIT_FORENSIC"
+    STATE_MANAGEMENT = "STATE_MANAGEMENT"
+    ORCHESTRATION_PATTERN = "ORCHESTRATION_PATTERN"
+    SECURITY_VIOLATION = "SECURITY_VIOLATION"
+    MODEL_DEFINITIONS = "MODEL_DEFINITIONS"
+    DOCUMENT_CLAIM = "DOCUMENT_CLAIM"
+
+
 class Evidence(StrictModel):
     """
-    Represents a factual claim extracted from a source.
+    Represents a persistent forensic fact captured by a detective.
+    Aligned with Principle XVI and FR-002.
     """
 
-    source_ref: str
-    content: str
-    relevance_confidence: float = Field(ge=0.0, le=1.0)
+    evidence_id: str = Field(..., description="Format: {source}_{class}_{index}")
+    source: Literal["repo", "docs", "vision"]
+    evidence_class: EvidenceClass
+    goal: str
+    found: bool
+    content: Optional[str] = None
+    location: str
+    rationale: str
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    timestamp: datetime
 
 
 class JudicialOpinion(StrictModel):
@@ -51,6 +72,25 @@ class CriterionResult(StrictModel):
     reasoning: str
     relevance_confidence: float = Field(ge=0.0, le=1.0)
     security_violation_found: bool = False
+
+
+class Commit(StrictModel):
+    """Metadata for a single git commit."""
+
+    hash: str
+    author: str
+    date: datetime
+    message: str
+
+
+class ASTFinding(StrictModel):
+    """Metadata for a code structure finding via AST analysis."""
+
+    file: str
+    line: int
+    node_type: str
+    name: str
+    details: dict = Field(default_factory=dict)
 
 
 class AuditReport(StrictModel):
@@ -114,7 +154,8 @@ def merge_evidences(
     right: dict[str, list[Evidence]],
 ) -> dict[str, list[Evidence]]:
     """
-    Dict-based merge with SHA-256 content deduplication.
+    Dict-based merge with evidence_id deduplication.
+    Aligned with Principle VI.1.
     """
     if not isinstance(left, dict) or not isinstance(right, dict):
         raise TypeError("merge_evidences expects dicts for left and right operands")
@@ -124,15 +165,11 @@ def merge_evidences(
         if key not in merged:
             merged[key] = list(evidence_list)
         else:
-            # Content-based deduplication using SHA-256
-            existing_hashes = {
-                hashlib.sha256(e.content.encode()).hexdigest() for e in merged[key]
-            }
+            existing_ids = {e.evidence_id for e in merged[key]}
             for e in evidence_list:
-                e_hash = hashlib.sha256(e.content.encode()).hexdigest()
-                if e_hash not in existing_hashes:
+                if e.evidence_id not in existing_ids:
                     merged[key].append(e)
-                    existing_hashes.add(e_hash)
+                    existing_ids.add(e.evidence_id)
     return merged
 
 

@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 from pydantic import ValidationError
 
 from src.state import (
@@ -7,14 +8,13 @@ from src.state import (
     Evidence,
     JudicialOpinion,
     StrictModel,
+    EvidenceClass,
     merge_criterion_results,
     merge_evidences,
 )
 
-
 def test_strict_model_extra_fields():
     """Test that extra fields are forbidden in StrictModel."""
-
     class MyModel(StrictModel):
         name: str
 
@@ -26,7 +26,6 @@ def test_strict_model_extra_fields():
 
 def test_strict_model_strict_types():
     """Test that type coercion is forbidden in StrictModel."""
-
     class MyModel(StrictModel):
         count: int
 
@@ -38,37 +37,44 @@ def test_strict_model_strict_types():
 
 def test_strict_model_frozen():
     """Test that models are immutable (frozen)."""
-
     class MyModel(StrictModel):
         name: str
 
     obj = MyModel(name="original")
-    with pytest.raises(
-        ValidationError if hasattr(pytest, "ValidationError") else Exception,
-    ):
-        # Pydantic v2 raises error on assignment to frozen model
+    with pytest.raises(ValidationError):
         obj.name = "changed"  # type: ignore
 
 
-# --- User Story 1: Evidence Validation ---
-
+# --- Evidence Validation ---
 
 def test_evidence_validation_bounds():
     """Test that Evidence confidence is constrained to [0, 1]."""
+    common = {
+        "evidence_id": "repo_ast_1",
+        "source": "repo",
+        "evidence_class": EvidenceClass.GIT_FORENSIC,
+        "goal": "Verify goal",
+        "found": True,
+        "content": "content",
+        "location": "location",
+        "rationale": "rationale",
+        "timestamp": datetime.now()
+    }
+    
     # Valid bounds
-    Evidence(source_ref="ref", content="content", relevance_confidence=0.0)
-    Evidence(source_ref="ref", content="content", relevance_confidence=1.0)
-    Evidence(source_ref="ref", content="content", relevance_confidence=0.5)
+    Evidence(**{**common, "confidence": 0.0})
+    Evidence(**{**common, "confidence": 1.0})
+    Evidence(**{**common, "confidence": 0.5})
 
     # Invalid - high
     with pytest.raises(ValidationError) as exc_info:
-        Evidence(source_ref="ref", content="content", relevance_confidence=1.1)
-    assert "relevance_confidence" in str(exc_info.value)
+        Evidence(**{**common, "confidence": 1.1})
+    assert "confidence" in str(exc_info.value)
 
     # Invalid - low
     with pytest.raises(ValidationError) as exc_info:
-        Evidence(source_ref="ref", content="content", relevance_confidence=-0.1)
-    assert "relevance_confidence" in str(exc_info.value)
+        Evidence(**{**common, "confidence": -0.1})
+    assert "confidence" in str(exc_info.value)
 
 
 def test_judicial_opinion_defaults():
@@ -92,37 +98,34 @@ def test_judicial_opinion_explicit():
     assert opinion.metadata["key"] == "value"
 
 
-# --- User Story 2: Parallel State Merging ---
-
+# --- Parallel State Merging ---
 
 def test_merge_evidences_deduplication():
-    """Test that merge_evidences deduplicates items based on content hashing."""
-    e1 = Evidence(
-        source_ref="ref1",
-        content="identical content",
-        relevance_confidence=0.5,
-    )
-    e2 = Evidence(
-        source_ref="ref2",
-        content="identical content",
-        relevance_confidence=0.8,
-    )
-    e3 = Evidence(
-        source_ref="ref3",
-        content="different content",
-        relevance_confidence=0.9,
-    )
+    """Test that merge_evidences deduplicates items based on evidence_id."""
+    common = {
+        "source": "repo",
+        "evidence_class": EvidenceClass.GIT_FORENSIC,
+        "goal": "Verify goal",
+        "found": True,
+        "location": "location",
+        "rationale": "rationale",
+        "confidence": 0.5,
+        "timestamp": datetime.now()
+    }
+    
+    e1 = Evidence(evidence_id="id1", content="content1", **common)
+    e2 = Evidence(evidence_id="id1", content="content1", **common)
+    e3 = Evidence(evidence_id="id2", content="different content", **common)
 
     left = {"key": [e1]}
     right = {"key": [e2, e3]}
 
     merged = merge_evidences(left, right)
 
-    # e1 and e2 have same content, so e2 should be deduplicated (or e1 kept)
-    # The count should be 2: e1 (original) and e3 (new content)
-    assert len(merged["key"]) == 2  # noqa: PLR2004
-    assert merged["key"][0].content == "identical content"
-    assert merged["key"][1].content == "different content"
+    # e1 and e2 have same evidence_id, so e2 should be deduplicated
+    assert len(merged["key"]) == 2
+    assert merged["key"][0].evidence_id == "id1"
+    assert merged["key"][1].evidence_id == "id2"
 
 
 def test_merge_evidences_type_error():
@@ -151,12 +154,11 @@ def test_merge_criterion_results_confidence():
     right = {"crit": r2}
 
     merged = merge_criterion_results(left, right)
-    assert merged["crit"].relevance_confidence == 0.9  # noqa: PLR2004
-    assert merged["crit"].numeric_score == 5  # noqa: PLR2004
+    assert merged["crit"].relevance_confidence == 0.9
+    assert merged["crit"].numeric_score == 5
 
 
-# --- User Story 3: Criterion Scoring Constraints ---
-
+# --- Criterion Scoring Constraints ---
 
 def test_criterion_result_score_bounds():
     """Test that CriterionResult score is constrained to [1, 5]."""
@@ -197,7 +199,6 @@ def test_criterion_result_score_bounds():
 
 def test_audit_report_weighted_score():
     """Test global_score calculation with weights and security overrides."""
-    # Architecture (1.5) and Security (2.0)  # noqa: ERA001
     r1 = CriterionResult(
         criterion_id="architecture_1",
         numeric_score=5,
@@ -217,9 +218,9 @@ def test_audit_report_weighted_score():
         summary="Audit summary",
     )
 
-    # Expected: (5 * 1.5 + 3 * 2.0) / (1.5 + 2.0)  # noqa: ERA001
+    # Expected: (5 * 1.5 + 3 * 2.0) / (1.5 + 2.0)
     # (7.5 + 6.0) / 3.5 = 13.5 / 3.5 = 3.857... -> rounded to 3.9
-    assert report.global_score == 3.9  # noqa: PLR2004
+    assert report.global_score == 3.9
 
 
 def test_audit_report_empty_results():
@@ -230,8 +231,18 @@ def test_audit_report_empty_results():
 
 def test_merge_evidences_new_key():
     """Test merge_evidences when a new key is added."""
-    e1 = Evidence(source_ref="ref1", content="c1", relevance_confidence=0.5)
-    e2 = Evidence(source_ref="ref2", content="c2", relevance_confidence=0.5)
+    common = {
+        "source": "repo",
+        "evidence_class": EvidenceClass.GIT_FORENSIC,
+        "goal": "Verify goal",
+        "found": True,
+        "location": "location",
+        "rationale": "rationale",
+        "confidence": 0.5,
+        "timestamp": datetime.now()
+    }
+    e1 = Evidence(evidence_id="id1", content="c1", **common)
+    e2 = Evidence(evidence_id="id2", content="c2", **common)
 
     left = {"k1": [e1]}
     right = {"k2": [e2]}

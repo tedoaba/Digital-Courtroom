@@ -22,4 +22,15 @@ class ObservabilitySettings(BaseSettings):
     langsmith_timeout: int = 5
     langsmith_retries: int = 3
 
+class DetectiveSettings(BaseSettings):
+    """Settings for Layer 1 Detective nodes."""
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore')
+    
+    # Global timeout for all external detective operations (FR-008)
+    operation_timeout_seconds: int = 60
+    
+    # Multimodal LLM parameters (FR-011)
+    llm_temperature: float = 0.0
+
 settings = ObservabilitySettings()
+detective_settings = DetectiveSettings()

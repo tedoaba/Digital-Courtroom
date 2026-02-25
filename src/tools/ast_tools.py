@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 from typing import List, Union
 
-from src.models.forensic import ASTFinding
+from src.state import ASTFinding
 from src.tools.base import ToolResult
 from src.tools.utils import with_timeout
 
