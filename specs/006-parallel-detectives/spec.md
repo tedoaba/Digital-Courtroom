@@ -62,10 +62,10 @@ The system needs to instantiate a `VisionInspector` node capable of taking extra
 
 ### Edge Cases
 
-- What happens when a code repository is extremely large and times out during clone or AST parsing?
-- How does the system handle corrupt PDF documents that crash the parser?
-- What happens if the multimodal LLM rate limits requests during Vision Inspector execution?
-- If all detectives fail comprehensively, how do they signal downstream layers while maintaining pipeline integrity?
+- **Timeout on Large Repositories**: If a code repository is extremely large and times out during clone or AST parsing (>60 seconds), the node MUST truncate operations and return `found=False` with a timeout rationale.
+- **Corrupt Documents**: How does the system handle corrupt PDF documents that crash the parser? (Handled via catch-all exception and `found=False`).
+- **LLM Rate Limits**: What happens if the multimodal LLM rate limits requests during Vision Inspector execution? (Handled via retry logic and fallback to `found=False`).
+- **Comprehensive Failure**: If all detectives fail comprehensively, they return failure items, allowing the pipeline to proceed to the aggregator which flags the absence of evidence.
 
 ## Requirements _(mandatory)_
 
@@ -80,6 +80,7 @@ The system needs to instantiate a `VisionInspector` node capable of taking extra
 - **FR-007**: The system MUST implement dependency abstractions for the detectives to allow full unit testability via mocks of LLMs, GitHub APIs, and local PDF files.
 - **FR-008**: The detectives MUST enforce a hard timeout of 60 seconds for all external operations (cloning, parsing, LLM calls).
 - **FR-009**: Each detective node MUST log structured observability metrics upon completion, specifically operation duration and the count of processed artifacts (files, pages, or images).
+- **FR-010**: The `RepoInvestigator` MUST include "Tool Safety" forensics, specifically searching for prohibited calls like `os.system()` or `eval()` in the target repository's code.
 
 ### Key Entities
 

@@ -26,8 +26,8 @@
 
 ### 3. Vision Inspector (VisionInspector)
 
-- **Decision**: Extract images using `docling`'s image export features. Use Gemini Pro Vision/GPT-4o for classification.
-- **Rationale**: Multimodal models can distinguish between linear flowcharts and complex parallel graph diagrams.
+- **Decision**: Extract images using `docling`'s image export features. Use **Gemini Pro Vision** for classification.
+- **Rationale**: Multimodal models can distinguish between linear flowcharts and complex parallel graph diagrams. Gemini is the project's mandated multimodal provider.
 - **Prompt Pattern**: "Classify the following architectural diagram into one of: 'Parallel Flow', 'Linear Pipeline', or 'Generic Flowchart'. Provide a 2-sentence structural description."
 
 ### 4. Error Handling & Logging

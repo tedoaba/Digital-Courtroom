@@ -37,10 +37,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Align `Evidence` model in `src/state.py` with `src/models/forensic.py` and `data-model.md`
+- [ ] T004 Verify state consolidation of `Evidence`, `Commit`, and `ASTFinding` in `src/state.py`
 - [ ] T005 Update `merge_evidences` reducer in `src/state.py` to handle the updated `Evidence` schema
 - [ ] T006 Update `AgentState` in `src/state.py` to ensure `evidences` and `errors` fields match `data-model.md`
-- [ ] T007 Define shared timeout and logging utility constants for detectives (60s limit)
+- [ ] T007 Define shared timeout and logging utility constants for detectives in `src/config.py` (60s limit)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

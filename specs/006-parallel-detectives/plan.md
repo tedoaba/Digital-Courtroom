@@ -10,7 +10,7 @@ Implement the `RepoInvestigator`, `DocAnalyst`, and `VisionInspector` nodes with
 ## Technical Context
 
 **Language/Version**: Python 3.11+  
-**Primary Dependencies**: `langgraph`, `pydantic`, `docling`, `git`, `gitingest`, Multimodal LLM (Gemini/OpenAI)  
+**Primary Dependencies**: `langgraph`, `pydantic`, `docling`, `git`, `gitingest`, **Gemini Pro (Multimodal)**  
 **Storage**: Transient state in `AgentState`, temporary isolated directories for Git clones.  
 **Testing**: `pytest` with `pytest-mock` for dependency isolation.  
 **Target Platform**: Any environment supporting Python and `git`.  
