@@ -8,6 +8,8 @@
 | AST Forensic Patterns    | Identify `ast` patterns to detect `StateGraph` wiring and `Pydantic` models reliably. | Resolved |
 | PDF Extraction (Docling) | Best practices for extracting text chunks and images using `docling`.                 | Resolved |
 | Multimodal Prompting     | Prompt engineering for zero-shot diagram classification in `VisionInspector`.         | Resolved |
+| Git History Format       | Standardizing git log parameters for forensic consistency.                            | Resolved |
+| Rubric Dispatch Logic    | Defining how parallel detectives filter their assigned tasks.                         | Resolved |
 
 ## Findings
 
@@ -16,6 +18,7 @@
 - **Decision**: Use `tempfile.TemporaryDirectory` context manager for each `RepoInvestigator` run. Use `subprocess.run` with `list` arguments and a 60s timeout.
 - **Rationale**: Ensures that cloned code never persists or interferes with the host system. List-form arguments prevent shell injection.
 - **AST Strategy**: Use `ast.walk` to find `Call` nodes to `StateGraph` and `ClassDef` nodes inheriting from `BaseModel`.
+- **Git Log Protocol**: Use `git log --oneline --reverse -n 50` to capture chronological evolution of the codebase.
 - **Alternatives**: `tree-sitter` was considered but `ast` is built-in and sufficient for structural verification of Python code.
 
 ### 2. PDF Analysis (DocAnalyst)
@@ -30,7 +33,8 @@
 - **Rationale**: Multimodal models can distinguish between linear flowcharts and complex parallel graph diagrams. Gemini is the project's mandated multimodal provider.
 - **Prompt Pattern**: "Classify the following architectural diagram into one of: 'Parallel Flow', 'Linear Pipeline', or 'Generic Flowchart'. Provide a 2-sentence structural description."
 
-### 4. Error Handling & Logging
+### 4. Orchestration & State Safety
 
 - **Decision**: Catch all `Exception` at the node boundary. Log the traceback via `StructuredLogger`. Return `Evidence(found=False, rationale=str(e))`.
-- **Rationale**: Prevents a single detective failure from crashing the entire audit pipeline (Principle VII).
+- **Filtering Logic**: Each detective receives the full `rubric_dimensions` list but MUST filter by `dimension.source` before processing.
+- **Rationale**: Prevents a single detective failure from crashing the entire audit pipeline (Principle VII) and ensures clean separation of concerns (Principle XIV).

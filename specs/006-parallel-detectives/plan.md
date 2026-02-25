@@ -13,10 +13,11 @@ Implement the `RepoInvestigator`, `DocAnalyst`, and `VisionInspector` nodes with
 **Primary Dependencies**: `langgraph`, `pydantic`, `docling`, `git`, `gitingest`, **Gemini Pro (Multimodal)**  
 **Storage**: Transient state in `AgentState`, temporary isolated directories for Git clones.  
 **Testing**: `pytest` with `pytest-mock` for dependency isolation.  
+**Observability**: **LangSmith** tracing configured for all node executions.  
 **Target Platform**: Any environment supporting Python and `git`.  
 **Project Type**: Multi-agent Orchestration System.  
 **Performance Goals**: Each detective node must complete processing within 60 seconds (SC-005).  
-**Constraints**: No `os.system()`, mandatory `tempfile` isolation, AST-based analysis only.  
+**Constraints**: No `os.system()`, mandatory `tempfile` isolation, AST-based analysis only, **LLM temperature=0**.
 **Scale/Scope**: Layer 1 of the Digital Courtroom architecture.
 
 ## Constitution Check
@@ -29,7 +30,8 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 4. **Principle IX (Fact vs Opinion)**: Detectives strictly collect facts without scoring (FR-002).
 5. **Principle XIV (Fan-Out)**: Implementation supports the parallel fan-out pattern required by the Layer 1 architecture.
 6. **Principle XV (Sandboxing)**: Mandatory use of `tempfile` and `subprocess` list-form with timeouts (FR-003, FR-008).
-7. **Principle XXII (Logging)**: Mandatory structured metrics logging (FR-009).
+7. **Principle XXII (Logging)**: Mandatory structured metrics logging (FR-009) and LangSmith tracing (FR-013).
+8. **Principle XXIV (Determinism)**: Mandatory LLM `temperature=0` (FR-011).
 
 ### Design Re-Evaluation (Post-Phase 1)
 

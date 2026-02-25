@@ -12,6 +12,8 @@
 - Q: What is the maximum allowed execution time (timeout) for a single detective node before it must truncate and return `found=False`? → A: 60 seconds (Standard, matches architectural notes).
 - Q: Beyond the classification string, should the `VisionInspector` also include a brief textual description of the flow captured in the diagram? → A: Yes, include classification and structural description (matches architecture notes).
 - Q: What specific metrics must each detective node log upon completion to satisfy the requirement for high observability? → A: Operation duration and artifact count (files/pages/images).
+- Q: How should `rubric_dimensions` be handled by detectives? → A: Detectives MUST only process dimensions matching their source (e.g., `RepoInvestigator` filters for `source == "repo"`).
+- Q: What specific git history is required for forensics? → A: The last 50 commits using `git log --oneline --reverse`.
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -41,7 +43,7 @@ The system needs to instantiate a `DocAnalyst` that can parse a locally provided
 **Acceptance Scenarios**:
 
 1. **Given** a valid local PDF file path, **When** the `DocAnalyst` node executes, **Then** it extracts the text and returns `Evidence` objects detailing the presence of key architectural terms and cited file paths.
-2. **Given** an unparseable or non-existent PDF file, **When** the `DocAnalyst` executes, **Then** it logs the failure and safely returns an `Evidence` object with `found=False` allowing the evaluation pipeline to continue gracefully.
+2. **Given** an unparseable, non-existent, or password-protected PDF file, **When** the `DocAnalyst` executes, **Then** it logs the failure and safely returns an `Evidence` object with `found=False` allowing the evaluation pipeline to continue gracefully.
 
 ---
 
@@ -63,7 +65,9 @@ The system needs to instantiate a `VisionInspector` node capable of taking extra
 ### Edge Cases
 
 - **Timeout on Large Repositories**: If a code repository is extremely large and times out during clone or AST parsing (>60 seconds), the node MUST truncate operations and return `found=False` with a timeout rationale.
+- **Empty Repositories**: If the Git clone results in an empty directory, `RepoInvestigator` returns `found=False` with rationale "Repository contains no detectable code files".
 - **Corrupt Documents**: How does the system handle corrupt PDF documents that crash the parser? (Handled via catch-all exception and `found=False`).
+- **Protected PDFs**: Password-protected PDFs are treated as unparseable; node returns `found=False` with rationale "Document encrypted/protected".
 - **LLM Rate Limits**: What happens if the multimodal LLM rate limits requests during Vision Inspector execution? (Handled via retry logic and fallback to `found=False`).
 - **Comprehensive Failure**: If all detectives fail comprehensively, they return failure items, allowing the pipeline to proceed to the aggregator which flags the absence of evidence.
 
@@ -72,8 +76,8 @@ The system needs to instantiate a `VisionInspector` node capable of taking extra
 ### Functional Requirements
 
 - **FR-001**: The system MUST implement three separate python functions/nodes: `RepoInvestigator`, `DocAnalyst`, and `VisionInspector` in `src/nodes/detectives.py`.
-- **FR-002**: Each detective MUST strictly produce outputs as immutable `Evidence` schemas containing factual data without scoring or incorporating opinionated judgments.
-- **FR-003**: The `RepoInvestigator` MUST utilize AST parsing and safe subprocess calls (e.g. `tempfile` isolation, no `shell=True`) to perform code forensics safely.
+- **FR-002**: Each detective MUST strictly produce outputs as immutable `Evidence` schemas containing factual data without scoring or incorporating opinionated judgments. Forbidden language includes interpretive adjectives (e.g., "cleanly implemented", "poorly structured") or numeric grades.
+- **FR-003**: The `RepoInvestigator` MUST utilize AST parsing and safe subprocess calls (e.g. `tempfile` isolation, no `shell=True`) to perform code forensics safely. `DocAnalyst` MUST use Docling for structural extraction via sandboxed libraries.
 - **FR-004**: System MUST ensure that any specific failure within a detective (e.g. timeout, unparseable file) does not crash the application.
 - **FR-005**: In the event of an anticipated failure, the failing node MUST log an error and return an `Evidence` object where `found=False`.
 - **FR-006**: Code within `detectives.py` MUST solely handle forensic collection, and MUST exclude synchronization logic (which is handled by `EvidenceAggregator`).
@@ -81,6 +85,9 @@ The system needs to instantiate a `VisionInspector` node capable of taking extra
 - **FR-008**: The detectives MUST enforce a hard timeout of 60 seconds for all external operations (cloning, parsing, LLM calls).
 - **FR-009**: Each detective node MUST log structured observability metrics upon completion, specifically operation duration and the count of processed artifacts (files, pages, or images).
 - **FR-010**: The `RepoInvestigator` MUST include "Tool Safety" forensics, specifically searching for prohibited calls like `os.system()` or `eval()` in the target repository's code.
+- **FR-011**: All LLM-backed detective operations MUST use `temperature=0` to ensure forensic determinism.
+- **FR-012**: Detective nodes MUST implement the filter logic to only process `rubric_dimensions` where the `dimension["source"]` strictly matches the detective's assigned source (e.g., "repo", "docs", or "vision").
+- **FR-013**: The system MUST support LangSmith tracing for all detective node executions for auditability.
 
 ### Key Entities
 
