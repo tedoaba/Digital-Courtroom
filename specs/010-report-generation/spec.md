@@ -7,6 +7,14 @@
 
 The objective of this feature is to implement Layer 4 (`ReportGenerator`) of the Digital Courtroom. It transforms the structured `AuditReport` Pydantic model produced by the `ChiefJustice` node into a professional, human-readable Markdown report that encapsulates the entire audit trail, including evidence citations, judicial debates, and actionable remediation steps.
 
+## Clarifications
+
+### Session 2026-02-25
+
+- Q: Output File Naming & Location Strategy → A: audit/reports/{repo_name}/report.md (Namespace per repo)
+- Q: Checksum Log Inclusion Format → A: Embedded Collapsible: Raw JSON in a `<details>` block at the end.
+- Q: Remediation Plan Structure → A: Grouped by Criterion: Each criterion lists its own specific fixes.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Generate Comprehensive Audit Report (Priority: P1)
@@ -72,11 +80,12 @@ As a system operator, I want the report generator to handle missing data gracefu
   - `## Remediation Plan`
   - `## Forensic Evidence Manifest`
 - **FR-003**: System MUST include a "Dissenting Verdict" block for any criterion where `dissent_summary` is non-null.
-- **FR-004**: System MUST list specific, file-level instructions for remediation as defined in the `AgentState`.
+- **FR-004**: System MUST list specific, file-level instructions for remediation grouped by their parent rubric criterion.
 - **FR-005**: System MUST include a "Forensic Evidence Manifest" at the end of the report, mapping every `evidence_id` to its `source`, `location`, and `rationale`.
 - **FR-006**: System MUST handle all file I/O using OS-agnostic path logic to ensure cross-platform compatibility.
 - **FR-007**: System MUST provide a `fallback_render` mode that catch-all exceptions during Markdown generation and returns a basic "System Fault Report" to prevent total pipeline failure.
-- **FR-008**: System MUST include a "Checksum Log" which is a list of all `Evidence` objects serialized to JSON and appended to the report or output as a sibling file `run_manifest.json`.
+- **FR-008**: System MUST include a "Checksum Log" consisting of all `Evidence` objects serialized to JSON; this MUST be embedded as a collapsible `<details>` block in report and optionally output as a sibling file `run_manifest.json`.
+- **FR-009**: System MUST initialize the output workspace at `audit/reports/{repo_name}/` and store both the Markdown report and any auxiliary artifacts (manifests, logs) within this namespace.
 
 ### Key Entities _(include if feature involves data)_
 
