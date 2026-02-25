@@ -1,0 +1,75 @@
+# Audit Report: {{ repo_name }}
+
+## Metadata Table
+| Field | Value |
+|-------|-------|
+| Run Date | {{ run_date }} |
+| Git Hash | {{ git_hash }} |
+| Rubric Version | {{ rubric_version }} |
+| Aggregate Score | **{{ global_score }} / 5.0** |
+
+## Executive Summary
+
+{{ summary }}
+
+> **Overall Score: [ {{ global_score }} / 5.0 ]**
+
+## Criterion Breakdown
+
+{% for criterion_id, result in results.items() -%}
+### {{ result.dimension_name if result.dimension_name else criterion_id }} - Score: {{ result.numeric_score }}/5
+
+**Verdict**: {{ result.reasoning }}
+
+{% if result.judge_opinions -%}
+<details>
+<summary>View Judicial Debate</summary>
+
+{% for opinion in result.judge_opinions -%}
+**{{ opinion.judge }}**: {{ opinion.argument }}
+(Cites: {{ opinion.cited_evidence | join(', ') if opinion.cited_evidence else 'None' }})
+{% if opinion.mitigations %}*Mitigations:* {{ opinion.mitigations | join('; ') }}{% endif %}
+{% if opinion.charges %}*Charges:* {{ opinion.charges | join('; ') }}{% endif %}
+{% if opinion.remediation %}*Remediation:* {{ opinion.remediation }}{% endif %}
+
+---
+{% endfor -%}
+</details>
+{%- endif %}
+
+{% if result.dissent_summary -%}
+> **{{ 'Dissent Summary' if result.execution_log.raw_variance > 2 else 'Judicial Note' }}**: {{ result.dissent_summary }}
+{%- endif %}
+
+{%- endfor %}
+
+## Remediation Plan
+
+{% for criterion_id, result in results.items() -%}
+{% if result.remediation -%}
+**{{ result.dimension_name if result.dimension_name else criterion_id }}**:
+{{ result.remediation }}
+
+{% endif -%}
+{%- endfor %}
+
+## Forensic Evidence Manifest
+
+| ID | Source | Location | Rationale/Content |
+|----|--------|----------|-------------------|
+{% for source, evidence_list in evidences.items() -%}
+{% for e in evidence_list -%}
+| {{ e.evidence_id }} | {{ e.source | capitalize }} | `{{ e.location }}` | {{ e.rationale }}{% if e.content %}<br><br><details><summary>View Content</summary><pre>{{ e.content }}</pre></details>{% endif %} |
+{% endfor -%}
+{%- endfor %}
+
+## Checksum Log
+
+<details>
+<summary>View Raw Forensic Data (JSON)</summary>
+
+```json
+{{ checksum_log_json }}
+```
+
+</details>

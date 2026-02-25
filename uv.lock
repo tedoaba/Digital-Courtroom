@@ -552,6 +552,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "docling" },
     { name = "gitingest" },
+    { name = "jinja2" },
     { name = "langchain" },
     { name = "langchain-google-genai" },
     { name = "langgraph" },
@@ -577,6 +578,7 @@ dev = [
 requires-dist = [
     { name = "docling", specifier = ">=2.75.0" },
     { name = "gitingest", specifier = ">=0.3.1" },
+    { name = "jinja2", specifier = ">=3.1.6" },
     { name = "langchain", specifier = ">=1.2.10" },
     { name = "langchain-google-genai", specifier = ">=4.2.1" },
     { name = "langgraph", specifier = ">=1.0.9" },
