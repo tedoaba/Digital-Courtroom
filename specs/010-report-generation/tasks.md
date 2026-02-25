@@ -15,9 +15,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create `src/templates/` directory for Jinja2 templates
-- [ ] T002 Add `jinja2` to project dependencies using `uv add jinja2`
-- [ ] T003 [P] Initialize `audit/reports/` directory in `.gitignore` to prevent committing local reports
+- [x] T001 [P] Create `src/templates/` directory for Jinja2 templates
+- [x] T002 Add `jinja2` to project dependencies using `uv add jinja2`
+- [x] T003 [P] Initialize `audit/reports/` directory in `.gitignore` to prevent committing local reports
 
 ---
 
@@ -27,9 +27,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create base Jinja2 template `src/templates/report.md.j2` with basic GFM structure
-- [ ] T005 [P] Implement OS-agnostic path management and `sanitize_repo_name()` logic in `src/nodes/justice.py`
-- [ ] T006 Configure `StructuredLogger` and timestamped workspace logic (`audit/reports/{repo}/{timestamp}/`) in `src/nodes/justice.py`
+- [x] T004 Create base Jinja2 template `src/templates/report.md.j2` with basic GFM structure
+- [x] T005 [P] Implement OS-agnostic path management and `sanitize_repo_name()` logic in `src/nodes/justice.py`
+- [x] T006 Configure `StructuredLogger` and timestamped workspace logic (`audit/reports/{repo}/{timestamp}/`) in `src/nodes/justice.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -43,16 +43,16 @@
 
 ### Tests for User Story 1
 
-- [ ] T007 [P] [US1] Create unit tests for Markdown rendering in `tests/unit/nodes/test_report.py`
-- [ ] T008 [US1] Implement rendering check for Executive Summary and Scorebox in `tests/unit/nodes/test_report.py`
+- [x] T007 [P] [US1] Create unit tests for Markdown rendering in `tests/unit/nodes/test_report.py`
+- [x] T008 [US1] Implement rendering check for Executive Summary and Scorebox in `tests/unit/nodes/test_report.py`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement Executive Summary and Scorebox block in `src/templates/report.md.j2`
-- [ ] T010 [US1] Implement Criterion Breakdown loop with Dimension Name and Score in `src/templates/report.md.j2`
-- [ ] T011 [US1] Implement Judicial Debate (collapsible), Dissent/Judicial Note logic, and "No evidence" placeholders (FR-003, FR-013, FR-015) in `src/templates/report.md.j2`
-- [ ] T012 [US1] Implement Remediation Plan section with `[file]:[line] - [action]` formatting (FR-012) in `src/templates/report.md.j2`
-- [ ] T013 [US1] Implement `report_generator` node logic in `src/nodes/justice.py` to render the `report.md.j2` template
+- [x] T009 [US1] Implement Executive Summary and Scorebox block in `src/templates/report.md.j2`
+- [x] T010 [US1] Implement Criterion Breakdown loop with Dimension Name and Score in `src/templates/report.md.j2`
+- [x] T011 [US1] Implement Judicial Debate (collapsible), Dissent/Judicial Note logic, and "No evidence" placeholders (FR-003, FR-013, FR-015) in `src/templates/report.md.j2`
+- [x] T012 [US1] Implement Remediation Plan section with `[file]:[line] - [action]` formatting (FR-012) in `src/templates/report.md.j2`
+- [x] T013 [US1] Implement `report_generator` node logic in `src/nodes/justice.py` to render the `report.md.j2` template
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
 
@@ -66,14 +66,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T014 [P] [US2] Update `tests/unit/nodes/test_report.py` to include evidence citation and manifest validation
+- [x] T014 [P] [US2] Update `tests/unit/nodes/test_report.py` to include evidence citation and manifest validation
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Implement Forensic Evidence Manifest table and `Evidence.content` truncation logic (FR-005, FR-011) in `src/templates/report.md.j2`
-- [ ] T016 [US2] Implement Checksum Log as a collapsible `<details>` block with raw JSON in `src/templates/report.md.j2`
-- [ ] T017 [US2] Implement `run_manifest.json` file generation in `src/nodes/justice.py`
-- [ ] T018 [US2] Ensure all `evidence_id` references in the report are consistent with the manifest
+- [x] T015 [US2] Implement Forensic Evidence Manifest table and `Evidence.content` truncation logic (FR-005, FR-011) in `src/templates/report.md.j2`
+- [x] T016 [US2] Implement Checksum Log as a collapsible `<details>` block with raw JSON in `src/templates/report.md.j2`
+- [x] T017 [US2] Implement `run_manifest.json` file generation in `src/nodes/justice.py`
+- [x] T018 [US2] Ensure all `evidence_id` references in the report are consistent with the manifest
 
 **Checkpoint**: User Stories 1 and 2 are functional and provide full traceability.
 
@@ -87,12 +87,12 @@
 
 ### Tests for User Story 3
 
-- [ ] T019 [P] [US3] Add test case for partial data handling in `tests/unit/nodes/test_report.py`
+- [x] T019 [P] [US3] Add test case for partial data handling in `tests/unit/nodes/test_report.py`
 
 ### Implementation for User Story 3
 
-- [ ] T020 [US3] Add Jinja2 conditionals to handle null or empty fields in `src/templates/report.md.j2`
-- [ ] T021 [US3] Implement `fallback_render` exception handling in `src/nodes/justice.py`
+- [x] T020 [US3] Add Jinja2 conditionals to handle null or empty fields in `src/templates/report.md.j2`
+- [x] T021 [US3] Implement `fallback_render` exception handling in `src/nodes/justice.py`
 
 **Checkpoint**: The generator is now resilient to node failures.
 
@@ -102,13 +102,13 @@
 
 **Purpose**: Final refinements and integration
 
-- [ ] T022 [P] Update docstrings and technical notes in `src/nodes/justice.py`
-- [ ] T023 [P] Implement Jinja2 `trim_blocks` and `lstrip_blocks` to optimize Markdown formatting
-- [ ] T024 Created integration test for full report generation pipeline in `tests/integration/test_full_pipeline.py`
-- [ ] T025 [P] Verify `quickstart.md` manual trigger instructions against final implementation
-- [ ] T026 Benchmark report generation time to ensure < 500ms (Requirement SC-003) in `tests/performance/test_report_speed.py`
-- [ ] T027 [P] Verify byte-for-byte determinism (SC-006) for identical inputs in `tests/unit/nodes/test_report.py`
-- [ ] T028 [P] Validate evidence ID regex `[a-z]+_[a-z]+_[0-9]+` in citations and manifest in `tests/unit/nodes/test_report.py`
+- [x] T022 [P] Update docstrings and technical notes in `src/nodes/justice.py`
+- [x] T023 [P] Implement Jinja2 `trim_blocks` and `lstrip_blocks` to optimize Markdown formatting
+- [x] T024 Created integration test for full report generation pipeline in `tests/integration/test_full_pipeline.py`
+- [x] T025 [P] Verify `quickstart.md` manual trigger instructions against final implementation
+- [x] T026 Benchmark report generation time to ensure < 500ms (Requirement SC-003) in `tests/performance/test_report_speed.py`
+- [x] T027 [P] Verify byte-for-byte determinism (SC-006) for identical inputs in `tests/unit/nodes/test_report.py`
+- [x] T028 [P] Validate evidence ID regex `[a-z]+_[a-z]+_[0-9]+` in citations and manifest in `tests/unit/nodes/test_report.py`
 
 ---
 
