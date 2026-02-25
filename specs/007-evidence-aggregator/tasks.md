@@ -69,17 +69,17 @@
 
 - [ ] T010 [US2] Implement logic to extract file manifest from `repo` evidence content in `src/nodes/evidence_aggregator.py`
 - [ ] T011 [US2] Implement path sanitization and cross-reference logic against the repo manifest in `src/nodes/evidence_aggregator.py`
-- [ ] T012 [US2] Implement generation of `REPORT_ACCURACY` evidence for hallucinated paths in `src/nodes/evidence_aggregator.py` (FR-004)
+- [ ] T012 [US2] Implement generation of `DOCUMENT_CLAIM` evidence for hallucinated paths in `src/nodes/evidence_aggregator.py` (FR-004)
 
 **Checkpoint**: User Story 2 complete - system can now detect documentation hallucinations.
 
 ---
 
-## Phase 5: User Story 3 - Missing Source Warning (Priority: P2)
+## Phase 5: User Story 3 - Missing Source Handling (Priority: P2)
 
-**Goal**: Warn operators if 'vision' is missing and fail execution if 'repo' or 'docs' are entirely absent.
+**Goal**: Warn operators if 'vision' is missing and log errors to `state.errors` if 'repo' or 'docs' are entirely absent.
 
-**Independent Test**: Run node with missing `vision` key (check logs) and then with missing `repo` key (verify fatal error/exception).
+**Independent Test**: Run node with missing `vision` key (check logs) and then with missing `repo` key (verify error appended to `state.errors`).
 
 ### Tests for User Story 3
 
@@ -87,7 +87,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Implement mandatory source validation (repo, docs) and fail-fast logic in `src/nodes/evidence_aggregator.py` (FR-005)
+- [ ] T014 [US3] Implement mandatory source validation (repo, docs) and error logging to `state.errors` in `src/nodes/evidence_aggregator.py` (FR-005)
 - [ ] T015 [US3] Implement warning log for missing `vision` evidence in `src/nodes/evidence_aggregator.py`
 
 **Checkpoint**: All user stories complete - robust fan-in synchronization is established.

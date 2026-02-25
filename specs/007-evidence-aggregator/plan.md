@@ -19,7 +19,7 @@ The `EvidenceAggregator` acts as the mandatory fan-in synchronization point betw
 **Constraints**:
 
 - MUST enforce path sanitization (C-XV, FR-008)
-- MUST fail if critical sources (`repo`, `docs`) are missing (Clarification Q1)
+- MUST handle missing critical sources (`repo`, `docs`) gracefully by logging to `state.errors` (Constitution VII.5)
 - MUST use `operator.ior` for memory-safe merging (C-VI)
   **Scale/Scope**: Handles O(100s) of evidence items and file paths per run.
 

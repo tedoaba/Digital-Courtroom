@@ -15,9 +15,9 @@ The `AgentState` is the primary container for evidence data during graph executi
 
 Created by the `EvidenceAggregator` when a mismatch is found.
 
-- `evidence_id`: `aggregator_REPORT_ACCURACY_{digest}`
-- `source`: `docs` (as it's a documentation claim being verified)
-- `evidence_class`: `DOCUMENT_CLAIM` (existing enum in `src/state.py`)
+- `evidence_id`: `docs_DOCUMENT_CLAIM_{index}` (Aligned with Constitution XVI.3)
+- `source`: `docs`
+- `evidence_class`: `DOCUMENT_CLAIM` (Enum defined in `src/state.py`)
 - `found`: `False` (indicating a hallucination)
 - `location`: The file path mentioned in the doc.
 - `rationale`: "Path cited in documentation does not exist in the repository manifest."

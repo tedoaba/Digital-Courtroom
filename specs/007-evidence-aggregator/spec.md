@@ -40,21 +40,22 @@ As a forensic validator, I want to verify if the file paths claimed in the docum
 **Acceptance Scenarios**:
 
 1. **Given** doc evidence citing `src/utils.py` and repo evidence confirming `src/utils.py` exists, **When** cross-referenced, **Then** no hallucination is flagged for this path.
-2. **Given** doc evidence citing `non-existent.py` and repo evidence that doesn't mention it, **When** cross-referenced, **Then** an `Evidence` object with `evidence_class="REPORT_ACCURACY"` (or similar) and `found=False` (labeled "Hallucinated Path") is added to the states.
+2. **Given** doc evidence citing `non-existent.py` and repo evidence that doesn't mention it, **When** cross-referenced, **Then** an `Evidence` object with `evidence_class="DOCUMENT_CLAIM"` and `found=False` (labeled "Hallucinated Path") is added to the state.
 
 ---
 
-### User Story 3 - Missing Source Warning (Priority: P2)
+### User Story 3 - Missing Source Handling (Priority: P2)
 
-As a system operator, I want to be warned if a detective agent fails to provide any evidence so that I can investigate potential failures in the parallel fan-out layer.
+As a system operator, I want the system to handle missing detective sources gracefully by logging errors rather than crashing, so that the judges can still process partial evidence.
 
-**Why this priority**: Detective failures should not be silent. Judges need to know if they are missing an entire category of evidence (e.g., Vision).
+**Why this priority**: Detective failures should not be silent, but they also shouldn't stop the entire pipeline (Constitution VII.5).
 
-**Independent Test**: Run aggregation where the `vision` evidence key is completely missing or empty, and check for a warning log in the system.
+**Independent Test**: Run aggregation where the `repo` source is missing; verify an error is added to `state.errors` and the node completes execution.
 
 **Acceptance Scenarios**:
 
-1. **Given** `repo` and `docs` evidence but empty `vision`, **When** aggregated, **Then** a warning is logged stating that evidence from source 'vision' is missing.
+1. **Given** `repo` or `docs` evidence is entirely missing, **When** aggregated, **Then** the node appends a descriptive error to `state.errors` and continues.
+2. **Given** `vision` is missing, **When** aggregated, **Then** a warning is logged but no error is added to `state.errors`.
 
 ---
 
@@ -72,8 +73,8 @@ As a system operator, I want to be warned if a detective agent fails to provide 
 - **FR-001**: System MUST function as the primary fan-in synchronization point in the LangGraph, ensuring all parallel detective nodes (Repo, Doc, Vision) complete execution.
 - **FR-002**: System MUST use the `operator.ior` reducer pattern for the `evidences` field in the `AgentState` to merge dictionaries without data loss.
 - **FR-003**: System MUST identify all file paths extracted by the `DocAnalyst` and cross-reference them against the actual file manifest discovered by the `RepoInvestigator`.
-- **FR-004**: System MUST generate "Hallucinated Path" evidence entries for any documentation claim that refers to a file not present in the repository.
-- FR-005: System MUST fail execution with a fatal error if 'repo' or 'docs' evidence sources are entirely missing; MUST log a warning if 'vision' is missing but continue execution.
+- **FR-004**: System MUST generate "Hallucinated Path" evidence entries with `evidence_class="DOCUMENT_CLAIM"` for any documentation claim that refers to a file not present in the repository.
+- **FR-005**: System MUST NOT crash if detective sources are missing; if 'repo' or 'docs' are missing, it MUST append a descriptive error to `state.errors` (Constitution VII.5).
 - **FR-006**: System MUST deduplicate evidence items based on their unique identifiers (`evidence_id`) if multiple detectives produce the same piece of evidence.
 - **FR-007**: System MUST provide a "clean" evidence dictionary that is ready for consumption by Judge nodes, ensuring all cross-references are annotated.
 - **FR-008**: System MUST sanitize all file paths collected from documentation and reject any that resolve outside the repository root, flagging them as "Hallucinated Path".
