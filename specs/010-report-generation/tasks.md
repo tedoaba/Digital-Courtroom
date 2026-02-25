@@ -16,7 +16,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 [P] Create `src/templates/` directory for Jinja2 templates
-- [ ] T002 Add `jinja2` to project dependencies in `pyproject.toml` or `requirements.txt`
+- [ ] T002 Add `jinja2` to project dependencies using `uv add jinja2`
 - [ ] T003 [P] Initialize `audit/reports/` directory in `.gitignore` to prevent committing local reports
 
 ---
@@ -51,7 +51,7 @@
 - [ ] T009 [US1] Implement Executive Summary and Scorebox block in `src/templates/report.md.j2`
 - [ ] T010 [US1] Implement Criterion Breakdown loop with Dimension Name and Score in `src/templates/report.md.j2`
 - [ ] T011 [US1] Implement Judicial Debate (collapsible) and Dissenting Opinion logic in `src/templates/report.md.j2`
-- [ ] T012 [US1] Implement Remediation Plan section grouped by Criterion in `src/templates/report.md.j2`
+- [ ] T012 [US1] Implement Remediation Plan section (grouped by `dimension_id`) in `src/templates/report.md.j2`
 - [ ] T013 [US1] Implement `report_generator` node logic in `src/nodes/justice.py` to render the `report.md.j2` template
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
@@ -106,6 +106,7 @@
 - [ ] T023 [P] Implement Jinja2 `trim_blocks` and `lstrip_blocks` to optimize Markdown formatting
 - [ ] T024 Created integration test for full report generation pipeline in `tests/integration/test_full_pipeline.py`
 - [ ] T025 [P] Verify `quickstart.md` manual trigger instructions against final implementation
+- [ ] T026 Benchmark report generation time to ensure < 500ms (Requirement SC-003) in `tests/performance/test_report_speed.py`
 
 ---
 

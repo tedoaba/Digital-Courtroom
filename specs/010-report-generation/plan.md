@@ -21,6 +21,7 @@ The `ReportGenerator` (Layer 4) will transform the synthesized `AuditReport` Pyd
 - Deterministic output (same input → same Markdown byte-for-byte).
 - Safe file I/O (no `os.system`).
 - Relative path stability via `pathlib`.
+- **LLM Determinism**: Any LLM calls within the node MUST use `temperature=0` (Principle XXIV).
   **Scale/Scope**: ~10 Criteria, 3 Judge Opinions per criterion, up to 100 Evidence objects.
 
 ## Constitution Check

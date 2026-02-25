@@ -79,7 +79,7 @@ As a system operator, I want the report generator to handle missing data gracefu
   - `## Criterion Breakdown`
   - `## Remediation Plan`
   - `## Forensic Evidence Manifest`
-- **FR-003**: System MUST include a "Dissenting Verdict" block for any criterion where `dissent_summary` is non-null.
+- **FR-003**: System MUST include a "Dissent Summary" block for any criterion where `dissent_summary` is non-null.
 - **FR-004**: System MUST list specific, file-level instructions for remediation grouped by their parent rubric criterion.
 - **FR-005**: System MUST include a "Forensic Evidence Manifest" at the end of the report, mapping every `evidence_id` to its `source`, `location`, and `rationale`.
 - **FR-006**: System MUST handle all file I/O using OS-agnostic path logic to ensure cross-platform compatibility.
