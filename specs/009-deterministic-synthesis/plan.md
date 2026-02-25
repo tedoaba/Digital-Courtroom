@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements the final synthesis layer (Layer 3) of the Digital Courtroom. The `ChiefJusticeNode` will be a pure Python component responsible for consolidating opinions from the Prosecutor, Defense, and Tech Lead into a final `AuditReport`. It uses deterministic rules (Security Override, Fact Supremacy, Functionality Weight) to ensure the verdict is grounded in forensic evidence and strictly prioritized by security mandates, eliminating LLM non-determinism in the final scoring.
+This feature implements the final synthesis layer (Layer 3) of the Digital Courtroom. The `ChiefJusticeNode` will be a pure Python component responsible for consolidating opinions from the Prosecutor, Defense, and Tech Lead into a final `AuditReport`. It uses deterministic rules (Security Override, Fact Supremacy, Functionality Weight, Variance Re-evaluation) to ensure the verdict is grounded in forensic evidence and strictly prioritized by security mandates, eliminating LLM non-determinism in the final scoring.
 
 ## Technical Context
 

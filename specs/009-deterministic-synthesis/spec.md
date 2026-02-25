@@ -68,12 +68,13 @@ As a Forensic Expert, I want the Chief Justice to invalidate judicial claims tha
 - **FR-005**: System MUST apply the `FACT_SUPREMACY` rule: any judicial argument citing non-existent evidence (`found=False`) MUST have its score influence automatically suppressed or penalized.
 - **FR-006**: System MUST apply the `FUNCTIONALITY_WEIGHT` rule: the Tech Lead's score carries double weight (2.0x) for technical/architectural criteria. Calculations MUST use "round half up" logic for fractional scores.
 - **FR-007**: System MUST generate a `CriterionResult` model for every dimension, including the `final_score` and a `dissent_summary` if variance > 2.
-- **FR-008**: System MUST log detailed execution traces for every criterion, including raw scores, variance, specific rules applied, and intermediate calculation steps.
+- **FR-008**: System MUST log detailed execution traces for every criterion in a structured `execution_log` field, including raw scores, variance, specific rules applied, and intermediate calculation steps.
 - **FR-009**: System MUST handle cases where a judge's opinion is missing (due to node failure) by calculating the mean of the remaining two judge scores (using "round half up" logic) and logging a "Degraded Synthesis" state.
+- **FR-010**: System MUST apply the `VARIANCE_RE_EVALUATION` rule: if score variance > 2, the system MUST perform an automated secondary check of the cited evidence relevance vs the judge arguments and flag the result for manual verification with a `re_evaluation_required` flag.
 
 ### Key Entities _(include if feature involves data)_
 
-- **CriterionResult**: The final synthesized output for a rubric dimension. Contains the final integer score, list of judge opinions, and dissent summary.
+- **CriterionResult**: The final synthesized output for a rubric dimension. Contains the final integer score, list of judge opinions, dissent summary, execution log, and re-evaluation status.
 - **JudicialOpinion**: Input from Layer 2. Contains the judge ID, criterion ID, score (1-5), and evidence citations.
 - **Evidence**: Forensic facts from Layer 1. Used to validate judicial claims (Fact Supremacy) and confirm security violations (Security Override).
 

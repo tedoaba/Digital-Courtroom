@@ -28,8 +28,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 [P] Update `CriterionResult` in `src/state.py` with `judge_opinions`, `dissent_summary`, `remediation`, and `applied_rules`
-- [ ] T004 [P] Update `AuditReport` in `src/state.py` to include `global_score` and `results` per data model
+- [ ] T003 [P] Update `CriterionResult` in `src/state.py` with `judge_opinions`, `dissent_summary`, `remediation`, `applied_rules`, `execution_log`, and `re_evaluation_required`
+- [ ] T004 [P] Update `AuditReport` in `src/state.py` to include `global_score` and `results` per enhanced data model
 - [ ] T005 [P] Implement `round_half_up` helper function in `src/nodes/justice.py` using `decimal.ROUND_HALF_UP`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -96,15 +96,33 @@
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 6: User Story 4 - Variance Re-evaluation (Priority: P2)
+
+**Goal**: Automatically flag and re-evaluate criteria with high score variance (>2).
+
+**Independent Test**: Provide scores 1, 1, 5; verify `re_evaluation_required` is set to `True` and `execution_log` contains variance details.
+
+### Tests for User Story 4
+
+- [ ] T018 [P] [US4] Create unit tests for `VARIANCE_RE_EVALUATION` triggers and flag setting in `tests/unit/test_justice.py`
+
+### Implementation for User Story 4
+
+- [ ] T019 [US4] Implement variance calculation logic and flag triggering in `src/nodes/justice.py`
+- [ ] T020 [US4] Implement automated evidence quality check during re-evaluation in `src/nodes/justice.py`
+
+---
+
+## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T018 [P] Implement template-based `dissent_summary` generation for variance > 2 in `src/nodes/justice.py`
-- [ ] T019 [P] Implement detailed execution logging for traceability in `src/nodes/justice.py`
-- [ ] T020 [P] Create integration test for full synthesis workflow in `tests/integration/test_synthesis_workflow.py`
-- [ ] T021 [P] Update `docs/` and verify `quickstart.md` steps pass against current implementation
-- [ ] T022 Run full test suite with `uv run pytest`
+- [ ] T021 [P] Implement template-based `dissent_summary` generation for variance > 2 in `src/nodes/justice.py`
+- [ ] T022 [P] Implement detailed narrative `execution_log` generation in `src/nodes/justice.py`
+- [ ] T023 [P] Create integration test for full synthesis workflow in `tests/integration/test_synthesis_workflow.py`
+- [ ] T024 [P] Benchmark processing time to verify SC-004 (< 50ms) in `tests/performance/test_synthesis_perf.py`
+- [ ] T025 [P] Update `docs/` and verify `quickstart.md` steps pass against current implementation
+- [ ] T026 Run full test suite with `uv run pytest`
 
 ---
 

@@ -14,7 +14,9 @@
 | `dissent_summary`          | `Optional[str]`         | Summary of conflict if variance > 2       | Required if variance > 2    |
 | `remediation`              | `Optional[str]`         | Aggregated technical fix instructions     | Required for score < 5      |
 | `applied_rules`            | `list[str]`             | Rules triggered (e.g., SECURITY_OVERRIDE) | Required                    |
+| `execution_log`            | `list[str]`             | Narrative trace of calculation steps      | Required                    |
 | `security_violation_found` | `bool`                  | Flag for global score override            | Default: False              |
+| `re_evaluation_required`   | `bool`                  | Triggered if variance > 2                 | Default: False              |
 
 ## Entity: AuditReport (Final)
 

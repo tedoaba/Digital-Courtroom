@@ -40,6 +40,18 @@ def round_score(score):
 - Evidence ID extraction from opinions.
 - Mitigation/Charge extraction from opinions.
 
+## Decision: Variance Re-evaluation Logic
+
+**Rationale**: Principle XI.5 requires explicit re-evaluation when variance > 2.
+**Logic**:
+
+- Calculate `variance = max(scores) - min(scores)`.
+- If `variance > 2`:
+  - Set `re_evaluation_required = True`.
+  - Check if the high score citations are `found=True` but have low `confidence` (< 0.6).
+  - If evidence quality is low, add a warning to `execution_log`.
+  - Note: This is an automated flag; actual "reasoning" change remains deterministic.
+
 ## Decision: Fact Supremacy Nullification
 
 **Rationale**: If a judge cites non-existent evidence, their influence must be suppressed.
