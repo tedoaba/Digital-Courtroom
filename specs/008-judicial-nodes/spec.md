@@ -81,11 +81,12 @@ As a system operator, I want the judicial nodes to handle LLM schema violations 
 - **FR-008**: System MUST apply exponential backoff for HTTP timeouts during LLM calls.
 - **FR-009**: All judicial LLM calls MUST be constrained to `temperature=0` via `config.py`.
 - **FR-010**: Every generated `JudicialOpinion` MUST cite specific `evidence_id` values as justification.
-- **FR-011**: System MUST execute judicial nodes at the granularity of one LLM call per persona per rubric criterion to ensure failure isolation and prompt efficiency.
+- **FR-011**: System MUST execute judicial nodes at the granularity of one LLM call per persona per rubric criterion to ensure failure isolation and prompt context minimization.
 
 ### Key Entities _(include if feature involves data)_
 
 - **JudicialOpinion**: A Pydantic model representing a single judge's verdict on a single criterion.
+  - `opinion_id`: Unique ID (format: `{judge}_{criterion_id}_{timestamp}`).
   - `judge`: "Prosecutor", "Defense", or "TechLead".
   - `criterion_id`: ID from the rubric.
   - `score`: Integer (1-5).

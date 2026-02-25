@@ -13,7 +13,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create feature-specific checklist directory in `specs/008-judicial-nodes/checklists/`
+- [ ] T001 Create `specs/008-judicial-nodes/checklists/requirements.md` per implementation plan documentation structure
 
 ---
 
@@ -23,7 +23,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Update `src/state.py` with `JudicialOpinion` Pydantic model (including mandatory fields: `judge`, `criterion_id`, `score`, `argument`, `cited_evidence`)
+- [ ] T002 Update `src/state.py` with `JudicialOpinion` Pydantic model (including mandatory fields: `opinion_id`, `judge`, `criterion_id`, `score`, `argument`, `cited_evidence`)
 - [ ] T003 Update `AgentState` in `src/state.py` to include `opinions` list with `operator.add` reducer
 - [ ] T004 Define `JudicialTask` TypedDict in `src/nodes/judges.py` for LangGraph `Send` pattern
 - [ ] T005 [P] Ensure `src/config.py` enforces `temperature=0` for judicial LLM calls
@@ -89,7 +89,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Implement recursive retry helper with "schema reminder" prompt injection in `src/nodes/judges.py`
+- [ ] T018 [US3] Implement recursive retry helper with "schema reminder" prompt injection per Principle VII.3 in `src/nodes/judges.py`
 - [ ] T019 [US3] Implement exponential backoff for LLM calls in `src/nodes/judges.py`
 - [ ] T020 [US3] Implement final fallback `JudicialOpinion` (score 3, error argument) in `src/nodes/judges.py` for terminal failures
 
