@@ -8,6 +8,8 @@ Auto-generated from all feature plans. Last updated: 2026-02-24
 - Python 3.12+ + Pydantic v2, LangGraph, typing_extensions (003-pydantic-state-schema)
 - N/A (Internal state management) (003-pydantic-state-schema)
 - Python 3.12+ (Requires Generic Type hints and Pydantic v2) + `pydantic>=2.6.0`, `langgraph`, `typing_extensions` (003-pydantic-state-schema)
+- Python 3.12 + `docling`, `pydantic`, `git` (CLI) (004-forensic-tools-sandbox)
+- Transient files in `tempfile.TemporaryDirectory` (004-forensic-tools-sandbox)
 
 - Python 3.12+ (latest stable for optimal `uv` and Pydantic v2 support) + `langgraph`, `langchain`, `pydantic`, `python-dotenv`, `pytest`, `ruff` (001-foundational-scaffolding)
 
@@ -27,9 +29,9 @@ cd src; pytest; ruff check .
 Python 3.12+ (latest stable for optimal `uv` and Pydantic v2 support): Follow standard conventions
 
 ## Recent Changes
+- 004-forensic-tools-sandbox: Added Python 3.12 + `docling`, `pydantic`, `git` (CLI)
 - 003-pydantic-state-schema: Added Python 3.12+ (Requires Generic Type hints and Pydantic v2) + `pydantic>=2.6.0`, `langgraph`, `typing_extensions`
 - 003-pydantic-state-schema: Added Python 3.12+ + Pydantic v2, LangGraph, typing_extensions
-- 002-observability-error-handling: Added Python 3.11+ + `langgraph`, `pydantic`, `langchain` (for tracing), `python-json-logger` or standard `logging` with JSON formatter, `uv` (mandatory).
 
 
 <!-- MANUAL ADDITIONS START -->
