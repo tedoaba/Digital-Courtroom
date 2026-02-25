@@ -206,5 +206,14 @@ class AgentState(TypedDict):
     # Traceable execution errors.
     errors: Annotated[list[str], operator.add]
 
-    # The raw source text of the opinion.
-    opinion_text: str
+    # --- Orchestration Fields (E2E Wiring) ---
+
+    # Metadata manifest data (merged dictionary).
+    metadata: Annotated[dict[str, Any], operator.ior]
+
+    # Final report object.
+    final_report: AuditReport
+
+    # Re-evaluation tracking.
+    re_eval_count: int
+    re_eval_needed: bool
