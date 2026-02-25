@@ -39,5 +39,5 @@ Ensure all individual nodes are verified via their own unit tests:
 ## Running the End-to-End Audit
 
 ```bash
-uv run python src/graph.py --repo https://github.com/example/repo --spec ./my_report.pdf
+uv run audit --repo https://github.com/example/repo --spec ./my_report.pdf
 ```
