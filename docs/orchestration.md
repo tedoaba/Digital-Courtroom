@@ -43,7 +43,7 @@ The Digital Courtroom uses **LangGraph** to coordinate a multi-agent swarm. The 
 ### Basic Command
 
 ```bash
-uv run audit --repo <GITHUB_URL> --spec <PDF_PATH>
+uv run python -m src.main --repo <GITHUB_URL> --spec <PDF_PATH>
 ```
 
 ### Options
