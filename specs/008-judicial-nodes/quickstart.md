@@ -46,7 +46,7 @@ Execute the specific test suites for this feature:
 2. **Persona Overlap Check**:
 
    ```bash
-   uv run pytest tests/unit/test_judges.py -k "test_persona_divergence"
+   uv run pytest tests/unit/test_judges.py -k "test_prompt_divergence"
    ```
 
 3. **Integration Tests** (Fan-out/Fan-in):
