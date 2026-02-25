@@ -17,8 +17,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create source and test directories for nodes at `src/nodes/` and `tests/nodes/`
-- [ ] T002 [P] Verify project environment and dependencies (`langgraph`, `pydantic`, `python-json-logger`) using `uv sync` and `uv run pytest`
+- [x] T001 Create source and test directories for nodes at `src/nodes/` and `tests/nodes/`
+- [x] T002 [P] Verify project environment and dependencies (`langgraph`, `pydantic`, `python-json-logger`) using `uv sync` and `uv run pytest`
 
 ---
 
@@ -28,8 +28,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Define custom exception hierarchy (`ContextBuilderError`, `InvalidURLError`, `RubricLoadError`) in `src/exceptions.py`
-- [ ] T004 Define/Update `AgentState` schema in `src/state.py` to include `rubric_dimensions`, `synthesis_rules`, `evidences`, `opinions`, `criterion_results`, and `errors` per `data-model.md`
+- [x] T003 Define custom exception hierarchy (`ContextBuilderError`, `InvalidURLError`, `RubricLoadError`) in `src/exceptions.py`
+- [x] T004 Define/Update `AgentState` schema in `src/state.py` to include `rubric_dimensions`, `synthesis_rules`, `evidences`, `opinions`, `criterion_results`, and `errors` per `data-model.md`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -43,13 +43,13 @@
 
 ### Tests for User Story 1
 
-- [ ] T005 [P] [US1] Create unit test for successful rubric loading and state bootstrapping in `tests/nodes/test_context_builder.py`
+- [x] T005 [P] [US1] Create unit test for successful rubric loading and state bootstrapping in `tests/nodes/test_context_builder.py`
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] Implement `ContextBuilder` node function in `src/nodes/context_builder.py` with basic rubric loading logic (FR-001, FR-005: load dimensions and synthesis_rules)
-- [ ] T006b [US1] Implement rubric structural validation: verify `dimensions` key exists and is a non-empty array in `src/nodes/context_builder.py` (FR-010)
-- [ ] T007 [US1] Implement state initialization for `evidences`, `opinions`, and `criterion_results` as empty structures in `src/nodes/context_builder.py` (FR-009)
+- [x] T006 [US1] Implement `ContextBuilder` node function in `src/nodes/context_builder.py` with basic rubric loading logic (FR-001, FR-005: load dimensions and synthesis_rules)
+- [x] T006b [US1] Implement rubric structural validation: verify `dimensions` key exists and is a non-empty array in `src/nodes/context_builder.py` (FR-010)
+- [x] T007 [US1] Implement state initialization for `evidences`, `opinions`, and `criterion_results` as empty structures in `src/nodes/context_builder.py` (FR-009)
 
 **Checkpoint**: User Story 1 is functional (can load rubric and init state).
 
@@ -63,13 +63,13 @@
 
 ### Tests for User Story 2
 
-- [ ] T008 [P] [US2] Create unit tests for input validation (GitHub URL regex, local path existence) in `tests/nodes/test_context_builder.py`
+- [x] T008 [P] [US2] Create unit tests for input validation (GitHub URL regex, local path existence) in `tests/nodes/test_context_builder.py`
 
 ### Implementation for User Story 2
 
-- [ ] T009 [US2] Implement strict regex validation for `repo_url` in `src/nodes/context_builder.py` (FR-002, FR-003)
-- [ ] T010 [US2] Implement `pdf_path` existence check using `os.path.exists()` in `src/nodes/context_builder.py` (FR-004)
-- [ ] T011 [US2] Implement "fail gracefully" logic by appending descriptive messages to `state['errors']` in `src/nodes/context_builder.py` (FR-007)
+- [x] T009 [US2] Implement strict regex validation for `repo_url` in `src/nodes/context_builder.py` (FR-002, FR-003)
+- [x] T010 [US2] Implement `pdf_path` existence check using `os.path.exists()` in `src/nodes/context_builder.py` (FR-004)
+- [x] T011 [US2] Implement "fail gracefully" logic by appending descriptive messages to `state['errors']` in `src/nodes/context_builder.py` (FR-007)
 
 **Checkpoint**: User Story 2 is functional (validates inputs and handles errors).
 
@@ -83,11 +83,11 @@
 
 ### Tests for User Story 3
 
-- [ ] T012 [P] [US3] Create unit test for custom `rubric_path` loading in `tests/nodes/test_context_builder.py`
+- [x] T012 [P] [US3] Create unit test for custom `rubric_path` loading in `tests/nodes/test_context_builder.py`
 
 ### Implementation for User Story 3
 
-- [ ] T013 [US3] Update `ContextBuilder` to use `rubric_path` from the state with a default fallback in `src/nodes/context_builder.py` (FR-008)
+- [x] T013 [US3] Update `ContextBuilder` to use `rubric_path` from the state with a default fallback in `src/nodes/context_builder.py` (FR-008)
 
 **Checkpoint**: All user stories are functional.
 
@@ -97,10 +97,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T014 [P] Implement mandatory structured logging for `context_builder_entry` and `context_builder_exit` at `INFO` level with payload fields (`rubric_version`, `dimension_count`, `correlation_id`, `status`) in `src/nodes/context_builder.py` (FR-006, Const. XXII)
-- [ ] T015 Verify that the node execution (validation + loading) takes less than 500ms (SC-001)
-- [ ] T016 Ensure all node activities use the correct `correlation_id` and `event_type` in logs (SC-004)
-- [ ] T017 Final review of implementation against the Constitution and Architectural Notes
+- [x] T014 [P] Implement mandatory structured logging for `context_builder_entry` and `context_builder_exit` at `INFO` level with payload fields (`rubric_version`, `dimension_count`, `correlation_id`, `status`) in `src/nodes/context_builder.py` (FR-006, Const. XXII)
+- [x] T015 Verify that the node execution (validation + loading) takes less than 500ms (SC-001)
+- [x] T016 Ensure all node activities use the correct `correlation_id` and `event_type` in logs (SC-004)
+- [x] T017 Final review of implementation against the Constitution and Architectural Notes
 
 ---
 
