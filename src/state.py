@@ -33,3 +33,4 @@ class AppState(TypedDict):
     # Reducers for merging results from multiple parallel nodes
     evidences: Annotated[dict[str, list[Evidence]], operator.ior]
     opinions: Annotated[list[JudicialOpinion], operator.add]
+    errors: Annotated[list[dict], operator.add]
