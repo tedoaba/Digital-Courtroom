@@ -22,6 +22,8 @@ The `ReportGenerator` (Layer 4) will transform the synthesized `AuditReport` Pyd
 - Safe file I/O (no `os.system`).
 - Relative path stability via `pathlib`.
 - **LLM Determinism**: Any LLM calls within the node MUST use `temperature=0` (Principle XXIV).
+- **Safe Workspace**: Implement `sanitize_repo_name()` and use `ISO8601` timestamped subdirectories.
+- **GFM Compliance**: Native support for GFM tables and task lists using Jinja2 whitespace control.
   **Scale/Scope**: ~10 Criteria, 3 Judge Opinions per criterion, up to 100 Evidence objects.
 
 ## Constitution Check

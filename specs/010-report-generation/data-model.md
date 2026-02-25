@@ -11,6 +11,9 @@ The primary data object produced by Layer 3 (`ChiefJustice`) and consumed by Lay
 | Field               | Type                    | Description                             |
 | ------------------- | ----------------------- | --------------------------------------- |
 | `repo_url`          | `str`                   | URL of the audited repository.          |
+| `run_date`          | `str`                   | ISO8601 timestamp of the audit.         |
+| `git_hash`          | `str`                   | HEAD commit hash of the target repo.    |
+| `rubric_version`    | `str`                   | Version of the evaluation rubric used.  |
 | `executive_summary` | `str`                   | High-level synthesis of findings.       |
 | `overall_score`     | `float`                 | Weighted average score [1.0, 5.0].      |
 | `criteria`          | `List[CriterionResult]` | List of results per rubric dimension.   |

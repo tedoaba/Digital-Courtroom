@@ -75,6 +75,7 @@ As a system operator, I want the report generator to handle missing data gracefu
 - **FR-001**: System MUST translate the `AuditReport` Pydantic model into a structured Markdown document using a deterministic template.
 - **FR-002**: System MUST format the report headers in hierarchical order:
   - `# Audit Report: [Repo Name]`
+  - `## Metadata Table: Date (ISO8601), Git Hash, Rubric Version, and Aggregate Score.`
   - `## Executive Summary`
   - `## Criterion Breakdown`
   - `## Remediation Plan`
@@ -85,7 +86,14 @@ As a system operator, I want the report generator to handle missing data gracefu
 - **FR-006**: System MUST handle all file I/O using OS-agnostic path logic to ensure cross-platform compatibility.
 - **FR-007**: System MUST provide a `fallback_render` mode that catch-all exceptions during Markdown generation and returns a basic "System Fault Report" to prevent total pipeline failure.
 - **FR-008**: System MUST include a "Checksum Log" consisting of all `Evidence` objects serialized to JSON; this MUST be embedded as a collapsible `<details>` block in report and optionally output as a sibling file `run_manifest.json`.
-- **FR-009**: System MUST initialize the output workspace at `audit/reports/{repo_name}/` and store both the Markdown report and any auxiliary artifacts (manifests, logs) within this namespace.
+- **FR-009**: System MUST initialize the output workspace at `audit/reports/{repo_name}/{timestamp}/` where timestamp is `YYYYMMDD_HHMMSS` to prevent overwriting previous runs.
+- **FR-010**: System MUST format Markdown using GitHub Flavored Markdown (GFM) standards, ensuring all code blocks use triple backticks and tables have valid alignment headers.
+- **FR-011**: System MUST truncate `Evidence.content` if it exceeds 5000 characters, appending a `[TRUNCATED]` notice and directing users to the raw JSON manifest.
+- **FR-012**: System MUST format remediation instructions as `[file_path]:[line_number] - [action]` (e.g., `src/auth.py:22 - Add input validation`).
+- **FR-013**: System MUST render "No forensic evidence cited" placeholder if a criterion lacks supporting detective facts.
+- **FR-014**: System MUST sanitize the `repo_name` by removing special characters and path traversal sequences (`..`, `/`, `\`) before creating filesystem directories.
+- **FR-015**: System MUST render a "Judicial Note" block if `dissent_summary` is non-null but `final_score` variance is 0 (signaling nuanced consensus).
+- **FR-016**: System MUST ensure cross-platform path stability for Windows (NTFS) and Linux (Ext4) by avoiding reserved filename characters.
 
 ### Key Entities _(include if feature involves data)_
 
@@ -101,5 +109,6 @@ As a system operator, I want the report generator to handle missing data gracefu
 - **SC-001**: 100% of successful `ChiefJustice` synthesis outputs trigger the generation of a `.md` file.
 - **SC-002**: Rendered report matches the structural layout defined in `ARCHITECTURE_NOTES.md` Section 7.3.
 - **SC-003**: Report generation time is < 500ms for a standard 10-criterion audit once the synthesis is complete.
-- **SC-004**: All evidence citations in the Markdown body are resolvable to an entry in the "Forensic Evidence Manifest" section of the same document.
+- **SC-004**: All evidence citations in the Markdown body are resolvable to an entry in the "Forensic Evidence Manifest" section via exact ID matching regex `[a-z]+_[a-z]+_[0-9]+`.
 - **SC-005**: Partial reports are generated within 1s even if 50% of the judicial data is missing or malformed.
+- **SC-006**: Deterministic output MUST achieve 100% byte-for-byte identity when re-running the same `AgentState` on the same template version.

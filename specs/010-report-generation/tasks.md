@@ -28,8 +28,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Create base Jinja2 template `src/templates/report.md.j2` with basic GFM structure
-- [ ] T005 [P] Implement OS-agnostic path management using `pathlib` in `src/nodes/justice.py`
-- [ ] T006 Configure `StructuredLogger` for the `ReportGenerator` node in `src/nodes/justice.py`
+- [ ] T005 [P] Implement OS-agnostic path management and `sanitize_repo_name()` logic in `src/nodes/justice.py`
+- [ ] T006 Configure `StructuredLogger` and timestamped workspace logic (`audit/reports/{repo}/{timestamp}/`) in `src/nodes/justice.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -50,8 +50,8 @@
 
 - [ ] T009 [US1] Implement Executive Summary and Scorebox block in `src/templates/report.md.j2`
 - [ ] T010 [US1] Implement Criterion Breakdown loop with Dimension Name and Score in `src/templates/report.md.j2`
-- [ ] T011 [US1] Implement Judicial Debate (collapsible) and Dissenting Opinion logic in `src/templates/report.md.j2`
-- [ ] T012 [US1] Implement Remediation Plan section (grouped by `dimension_id`) in `src/templates/report.md.j2`
+- [ ] T011 [US1] Implement Judicial Debate (collapsible), Dissent/Judicial Note logic, and "No evidence" placeholders (FR-003, FR-013, FR-015) in `src/templates/report.md.j2`
+- [ ] T012 [US1] Implement Remediation Plan section with `[file]:[line] - [action]` formatting (FR-012) in `src/templates/report.md.j2`
 - [ ] T013 [US1] Implement `report_generator` node logic in `src/nodes/justice.py` to render the `report.md.j2` template
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
@@ -70,7 +70,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Implement Forensic Evidence Manifest table in `src/templates/report.md.j2`
+- [ ] T015 [US2] Implement Forensic Evidence Manifest table and `Evidence.content` truncation logic (FR-005, FR-011) in `src/templates/report.md.j2`
 - [ ] T016 [US2] Implement Checksum Log as a collapsible `<details>` block with raw JSON in `src/templates/report.md.j2`
 - [ ] T017 [US2] Implement `run_manifest.json` file generation in `src/nodes/justice.py`
 - [ ] T018 [US2] Ensure all `evidence_id` references in the report are consistent with the manifest
@@ -107,6 +107,8 @@
 - [ ] T024 Created integration test for full report generation pipeline in `tests/integration/test_full_pipeline.py`
 - [ ] T025 [P] Verify `quickstart.md` manual trigger instructions against final implementation
 - [ ] T026 Benchmark report generation time to ensure < 500ms (Requirement SC-003) in `tests/performance/test_report_speed.py`
+- [ ] T027 [P] Verify byte-for-byte determinism (SC-006) for identical inputs in `tests/unit/nodes/test_report.py`
+- [ ] T028 [P] Validate evidence ID regex `[a-z]+_[a-z]+_[0-9]+` in citations and manifest in `tests/unit/nodes/test_report.py`
 
 ---
 

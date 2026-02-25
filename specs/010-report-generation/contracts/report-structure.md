@@ -5,7 +5,7 @@ The `ReportGenerator` MUST produce a Markdown file following this structured con
 ## 1. Document Header
 
 - **Format**: `# Audit Report: {RepoName}`
-- **Metadata**: Table containing Run date, Git Hash, and Overall Score.
+- **Metadata Table**: Table containing Run Date (ISO8601), Git Hash, Rubric Version, and Aggregate Score.
 
 ## 2. Executive Summary
 
@@ -22,7 +22,8 @@ The `ReportGenerator` MUST produce a Markdown file following this structured con
     - `Prosecutor`: {Argument} (Cites: {EvidenceIDs})
     - `Defense`: {Argument} (Cites: {EvidenceIDs})
     - `Tech Lead`: {Argument} (Cites: {EvidenceIDs})
-  - **Dissenting Opinion** (If applicable): Blockquote with `dissent_summary`.
+  - **Dissent Summary** (If variance > 2): Blockquote with `dissent_summary`.
+- **Judicial Note** (If variance == 0 but dissent exists): Noted within judicial debate block.
 
 ## 4. Remediation Plan
 
