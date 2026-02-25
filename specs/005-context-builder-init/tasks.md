@@ -48,6 +48,7 @@
 ### Implementation for User Story 1
 
 - [ ] T006 [US1] Implement `ContextBuilder` node function in `src/nodes/context_builder.py` with basic rubric loading logic (FR-001, FR-005: load dimensions and synthesis_rules)
+- [ ] T006b [US1] Implement rubric structural validation: verify `dimensions` key exists and is a non-empty array in `src/nodes/context_builder.py` (FR-010)
 - [ ] T007 [US1] Implement state initialization for `evidences`, `opinions`, and `criterion_results` as empty structures in `src/nodes/context_builder.py` (FR-009)
 
 **Checkpoint**: User Story 1 is functional (can load rubric and init state).
@@ -96,7 +97,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T014 [P] Implement mandatory structured logging for `context_builder_entry` and `context_builder_exit` with rubric metadata in `src/nodes/context_builder.py` (FR-006, Const. XXII)
+- [ ] T014 [P] Implement mandatory structured logging for `context_builder_entry` and `context_builder_exit` at `INFO` level with payload fields (`rubric_version`, `dimension_count`, `correlation_id`, `status`) in `src/nodes/context_builder.py` (FR-006, Const. XXII)
 - [ ] T015 Verify that the node execution (validation + loading) takes less than 500ms (SC-001)
 - [ ] T016 Ensure all node activities use the correct `correlation_id` and `event_type` in logs (SC-004)
 - [ ] T017 Final review of implementation against the Constitution and Architectural Notes
