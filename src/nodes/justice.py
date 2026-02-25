@@ -7,31 +7,17 @@ from decimal import Decimal, ROUND_HALF_UP
 from jinja2 import Environment, FileSystemLoader
 from src.state import CriterionResult, JudicialOpinion, Evidence, AgentState, AuditReport
 from src.utils.logger import StructuredLogger
+from src.utils.orchestration import (
+    sanitize_repo_name, 
+    get_report_workspace, 
+    round_half_up, 
+    round_score, 
+    SynthesisError
+)
 
 logger = StructuredLogger("justice_node")
 
-class SynthesisError(Exception):
-    """Raised when synthesis fails due to missing inputs."""
-    pass
 
-
-def round_half_up(n: float, decimals: int = 0) -> float:
-    """
-    Standard "round half up" logic (2.5 -> 3, 2.49 -> 2).
-    Python's native round() uses "round half to even".
-    """
-    multiplier = 10**decimals
-    return float(math.floor(n * multiplier + 0.5) / multiplier)
-
-
-def round_score(score: float) -> int:
-    """
-    Deterministic score rounding to nearest integer (int 1-5).
-    Uses Decimal for absolute precision as per Principle XXIV.
-    """
-    return int(
-        Decimal(str(score)).quantize(Decimal("1"), rounding=ROUND_HALF_UP),
-    )
 
 
 def chief_justice_node(state: AgentState) -> AgentState:
@@ -55,11 +41,32 @@ def chief_justice_node(state: AgentState) -> AgentState:
     for criterion_id, ops in grouped_opinions.items():
         criterion_results[criterion_id] = synthesize_criterion(criterion_id, ops, evidences)
     
-    # 3. Calculate Global Audit Report (T004)
-    # Note: Report generation might be Phase 7, but we can do a preliminary one or just update state
+    # 3. Calculate Re-evaluation Needed (FR-005)
+    re_eval_needed = any(res.re_evaluation_required for res in criterion_results.values())
+    
+    # 4. Limit cycles (max 1)
+    current_re_eval_count = state.get("re_eval_count", 0)
+    if re_eval_needed and current_re_eval_count < 1:
+        state["re_eval_needed"] = True
+        state["re_eval_count"] = current_re_eval_count + 1
+        logger.info(f"Re-evaluation triggered (cycle {state['re_eval_count']})")
+    else:
+        state["re_eval_needed"] = False
+    
+    # 5. Update state
     state["criterion_results"] = criterion_results
     
     return state
+
+
+def route_after_justice(state: AgentState) -> str:
+    """
+    Conditional edge routing after Chief Justice synthesis.
+    Routes back to Judges if re-evaluation is needed, or proceed to Report.
+    """
+    if state.get("re_eval_needed", False):
+        return "judges"
+    return "report"
 
 
 def synthesize_criterion(
@@ -197,162 +204,8 @@ def synthesize_criterion(
     )
 
 
-def sanitize_repo_name(name: str) -> str:
-    r"""
-    Sanitizes repository name for use in filesystem paths.
-    
-    Removes traversal sequences (../), Windows reserved characters (\/:*?"<>|),
-    and reduces multiple dots to underscores to prevent security risks and 
-    ensure cross-platform path stability. (FR-014, FR-016)
-
-    Args:
-        name: The raw repository name (e.g., from URL).
-
-    Returns:
-        A filesystem-safe string with invalid characters replaced by underscores.
-    """
-    # Replace common traversal and special chars with underscore
-    # Aligned with Windows/Linux reserved character constraints
-    sanitized = re.sub(r'[\\/:*?"<>|]', '_', name)
-    sanitized = re.sub(r'\.\.+', '_', sanitized)
-    return sanitized.lstrip('_')
-
-
-def get_report_workspace(repo_name: str) -> pathlib.Path:
-    """
-    Initializes and returns a timestamped workspace directory for audit artifacts.
-    
-    Creates a directory at `audit/reports/{repo_name}/{YYYYMMDD_HHMMSS}/` relative 
-    to the project root. This ensures successive runs for the same repository 
-    do not overwrite each other. (FR-009)
-
-    Args:
-        repo_name: The name of the repository being audited.
-
-    Returns:
-        pathlib.Path: The absolute path to the newly created workspace.
-    """
-    sanitized_name = sanitize_repo_name(repo_name)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    # Root anchoring via pathlib - assumes this file is in src/nodes/
-    root = pathlib.Path(__file__).resolve().parent.parent.parent
-    workspace = root / "audit" / "reports" / sanitized_name / timestamp
-
-    workspace.mkdir(parents=True, exist_ok=True)
-    return workspace
-
-
-def report_generator(state: AgentState) -> AgentState:
-    """
-    Layer 4 Node: Transforms synthesized AuditReport into human-readable Markdown.
-    (FR-001, FR-007, US1)
-    """
-    logger.log_node_entry("report_generator")
-
-    try:
-        # 1. Prepare Metadata
-        repo_url = state.get("repo_url", "unknown")
-        repo_name = repo_url.split("/")[-1] if "/" in repo_url else repo_url
-        
-        # 2. Calculate Global Score
-        results = state.get("criterion_results", {})
-        scores = [r.numeric_score for r in results.values()]
-        global_score = round_half_up(sum(scores) / len(scores), 1) if scores else 0.0
-        
-        # 3. Create AuditReport Object
-        report = AuditReport(
-            repo_name=repo_name,
-            run_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            git_hash="HEAD", # Placeholder
-            rubric_version="1.0",
-            results=results,
-            summary=state.get("summary", "No summary provided."),
-            global_score=global_score,
-            remediation_plan=None # Derived in template for now
-        )
-        
-        # 4. Initialize Workspace
-        workspace = get_report_workspace(repo_name)
-        
-        # 5. Render Markdown
-        # Root is 3 levels up from src/nodes/justice.py (project root)
-        root = pathlib.Path(__file__).resolve().parent.parent.parent
-        template_dir = root / "src" / "templates"
-        
-        env = Environment(
-            loader=FileSystemLoader(str(template_dir)),
-            trim_blocks=True,
-            lstrip_blocks=True
-        )
-        template = env.get_template("report.md.j2")
-        
-        # FR-011: Truncate Evidence content for rendering
-        evidences = state.get("evidences", {})
-        display_evidences = {}
-        full_evidence_list = []
-        for src, e_list in evidences.items():
-            display_evidences[src] = []
-            for e in e_list:
-                full_evidence_list.append(e)
-                # Clone for display to avoid mutating state
-                e_display = e.model_copy()
-                if e_display.content and len(e_display.content) > 5000:
-                    e_display = e_display.model_copy(
-                        update={"content": e_display.content[:5000] + "\n\n[TRUNCATED]"}
-                    )
-                display_evidences[src].append(e_display)
-
-        # Prepare context for template
-        context = report.model_dump()
-        context["evidences"] = display_evidences
-        
-        # US2: Full JSON log for the collapsible block
-        import json
-        checksum_log = [e.model_dump(mode="json") for e in full_evidence_list]
-        context["checksum_log_json"] = json.dumps(checksum_log, indent=2)
-        
-        rendered = template.render(**context)
-        
-        # 6. Write to Files
-        report_path = workspace / "report.md"
-        report_path.write_text(rendered, encoding="utf-8")
-        
-        # US2: run_manifest.json (FR-008)
-        manifest_path = workspace / "run_manifest.json"
-        manifest_data = {
-            "report": report.model_dump(mode="json"),
-            "evidences": checksum_log,
-            "metadata": {
-                "timestamp": datetime.now().isoformat(),
-                "generator": "Digital-Courtroom/ReportGenerator"
-            }
-        }
-        manifest_path.write_text(json.dumps(manifest_data, indent=2), encoding="utf-8")
-        
-        logger.log_verdict_delivered(f"Report saved to {report_path}")
-        
-    except Exception as e:
-        logger.error(f"Report generation failed: {e}")
-        return fallback_render(state, e)
-
-    return state
-
 
 def fallback_render(state: AgentState, error: Exception) -> AgentState:
     """FR-007: Generates a basic error report if the main generator fails."""
-    logger.warning(f"Using fallback rendering due to error: {error}")
-    # Basic implementation for US1 reliability
-    repo_url = state.get("repo_url", "unknown")
-    repo_name = repo_url.split("/")[-1] if "/" in repo_url else repo_url
-    
-    workspace = get_report_workspace(repo_name)
-    report_path = workspace / "report_FAULT.md"
-    
-    content = f"# SYSTEM FAULT REPORT: {repo_name}\n\n"
-    content += "An error occurred during report generation.\n\n"
-    content += f"**Timestamp**: {datetime.now().isoformat()}\n"
-    content += f"**Error**: `{str(error)}`\n"
-    
-    report_path.write_text(content, encoding="utf-8")
+    # This logic will be moved to report_generator.py in next task
     return state
