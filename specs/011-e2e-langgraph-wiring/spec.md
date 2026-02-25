@@ -10,10 +10,10 @@
 ### Session 2026-02-25
 
 - Q: Where should the finalized audit report be stored? → A: `audit/reports/{repo_name}/{timestamp}/report_name.md`
-- Q: What should a "partial report" contain when a node fails catastrophically? → A: Append "Node [X] Failed: [Reason]" to the relevant section and proceed
-- Q: How should node execution be synchronized? → A: Strict Layer Synchronization (all nodes in Layer N must finish before Layer N+1 starts)
+- Q: What should a "partial report" contain when a node fails catastrophically? → A: Append "Node [X] Failed: [Reason]" to the relevant section and proceed.
+- Q: How should node execution be synchronized? → A: Strict Layer Synchronization (all nodes in Layer N must finish before Layer N+1 starts).
 - Q: Should the high-variance re-evaluation loop be implemented? → A: Yes, allow ChiefJustice to route back to Judges for re-evaluation as defined in Architecture Notes.
-- Q: Should the orchestrator enforce explicit timeouts? → A: Yes, a 300s timeout per major layer (Detectives / Judges) to ensure system reliability.
+- Q: Should the orchestrator enforce explicit timeouts? → A: Yes, a 120s timeout per major layer (Detectives / Judges) and a 300s global timeout.
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -62,11 +62,19 @@ As a developer, I want to ensure that the graph's fan-in/fan-out behavior is det
 
 ---
 
-### Edge Cases
+### Edge Cases & Fault Tolerance
 
-- **Empty Repository**: Repository is cloned successfully but contains zero code files. System should report "No Code Evidence Found" gracefully.
+- **Empty Repository**: Repository is cloned successfully but contains zero code files. System should report "No Code Evidence Found" gracefully in the report breakdown.
 - **Malformed PDF**: PDF is corrupt. `DocAnalyst` should return a "found=False" evidence item rather than crashing the whole graph.
-- **Judge Disagreement**: Judges return wildly different scores (variance > 2). `ChiefJustice` must trigger a re-evaluation loop back to the Judicial Layer with expanded context before generating the final "Dissent Summary".
+- **Judge Disagreement**: Judges return wildly different scores (variance > 2). `ChiefJustice` must trigger a re-evaluation loop back to the Judicial Layer with expanded context (dissenting reasons from the first pass) before generating the final "Dissent Summary".
+- **Total Layer Failure**: All nodes in a parallel layer fail (e.g., API outage). The orchestrator must abort with a "Fatal Error Report" including the error trace from the `ErrorHandler`.
+- **Termination Failure**: If report generation fails (e.g., disk full), the system must attempt to dump a JSON summary to `stdout` before exiting with Code 3.
+
+### Out of Scope
+
+- **Ad-hoc Agent Interaction**: No support for interactive user chat during the graph run.
+- **Automatic Fixes**: The system identifies remediation plans but MUST NOT modify the repository code.
+- **Support for Private Repos**: Only public GitHub URLs are supported in the initial version.
 
 ## Requirements _(mandatory)_
 
@@ -77,10 +85,14 @@ As a developer, I want to ensure that the graph's fan-in/fan-out behavior is det
 - **FR-003**: [REMOVED - Merged into FR-008]
 - **FR-004**: System MUST support parallel execution of multiple distinct judicial personas evaluating the same evidence.
 - **FR-005**: System MUST implement a deterministic synthesis process that resolves judicial conflicts according to predefined rules (the project "Constitution"), including a re-evaluation loop for high-variance opinions.
-- **FR-006**: System MUST implement a global error management system that prevents process hangs and ensures report generation even after non-fatal failures.
+  - **Security Override**: If any Security score (from Prosecutor/TechLead) is < 3, the overall criterion score cannot exceed 2.0.
+  - **Dissent Summary**: If variance > 2 after re-evaluation, the report must include a `Dissent Summary` listing Judge IDs, their scores, and the primary point of contention.
+- **FR-006**: System MUST implement a global error management system that prevents process hangs and ensures report generation even after non-fatal failures; all nodes MUST be wrapped in a "Deadman Switch" timeout.
 - **FR-007**: System MUST provide a unified command-line interface for initiating audits and specifying input artifacts.
 - **FR-008**: System MUST enforce synchronization at layer boundaries (e.g., Aggregator for detectives, ChiefJustice entry for judges) to ensure all parallel sub-tasks complete before dependent tasks begin.
 - **FR-009**: System MUST output a finalized audit report and a `run_manifest.json` to `audit/reports/{repo_name}/{timestamp}/`.
+- **FR-010**: System MUST perform Pydantic schema validation for every cross-node state transition to ensure state integrity.
+- **FR-011**: Nodes MUST NOT perform any side-effects that bypass the `AgentState` (e.g., writing directly to the final report folder), except for logging and temporary tool execution.
 
 ### Non-Functional Requirements
 
@@ -100,5 +112,5 @@ As a developer, I want to ensure that the graph's fan-in/fan-out behavior is det
 - **SC-001**: Successfully complete a full audit run (ContextBuilder to Report) in under 5 minutes for a standard repository (<100 files).
 - **SC-002**: 100% of graph runs against valid inputs must produce an `AuditReport` Markdown file.
 - **SC-003**: Topographical tests confirm that exactly 3 nodes are branched during the Detective phase and exactly 3 during the Judicial phase.
-- **SC-004**: System recovers from single-node timeouts by continuing with partial state after a logged retry failure; Layer-level execution is capped at a strict 300s deadline.
+- **SC-004**: System recovers from single-node timeouts by continuing with partial state after a logged retry failure; major layer execution (Detectives or Judges) is capped at a strict 120s deadline.
 - **SC-005**: Final report strictly respects "Constitution" override rules (e.g., Security flaws override Defense scores) with 100% deterministic accuracy.

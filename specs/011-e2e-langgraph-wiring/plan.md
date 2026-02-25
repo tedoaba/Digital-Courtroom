@@ -15,7 +15,7 @@ This feature involves the end-to-end orchestration of the Digital Courtroom swar
 **Testing**: `pytest`
 **Target Platform**: CLI / Python Runtime
 **Project Type**: CLI / AI Agent Orchestrator
-**Performance Goals**: Complete audit in < 5 minutes (standard repo); < 300s timeout per layer
+**Performance Goals**: Complete audit in < 5 minutes (standard repo); < 120s timeout per major layer
 **Constraints**: Deterministic routing, parallel-safe state merging, sandboxed tool calls
 **Scale/Scope**: Integration of 10+ distinct nodes into a single orchestrator
 

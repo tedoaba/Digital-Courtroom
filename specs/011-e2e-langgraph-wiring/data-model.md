@@ -6,17 +6,18 @@
 
 The central state object flowing through the LangGraph.
 
-| Field               | Type                        | Reducer        | Description                   |
-| ------------------- | --------------------------- | -------------- | ----------------------------- |
-| `repo_url`          | `str`                       | N/A            | Target Git URL                |
-| `pdf_path`          | `str`                       | N/A            | Target Specification PDF path |
-| `rubric_dimensions` | `List[Dict]`                | N/A            | Loaded from `rubric.json`     |
-| `evidences`         | `Dict[str, List[Evidence]]` | `operator.ior` | Merged detective evidence     |
-| `opinions`          | `List[JudicialOpinion]`     | `operator.add` | Appended judge opinions       |
-| `final_report`      | `AuditReport`               | N/A            | Final synthesis output        |
-| `re_eval_needed`    | `bool`                      | N/A            | Toggle for high-variance loop |
-| `errors`            | `List[str]`                 | `operator.add` | Global error log              |
-| `metadata`          | `Dict[str, Any]`            | `operator.ior` | Run manifest data             |
+| Field               | Type                        | Reducer        | Description                                                     |
+| ------------------- | --------------------------- | -------------- | --------------------------------------------------------------- |
+| `repo_url`          | `str`                       | N/A            | Target Git URL                                                  |
+| `pdf_path`          | `str`                       | N/A            | Target Specification PDF path                                   |
+| `rubric_dimensions` | `List[Dict]`                | N/A            | Loaded from `rubric.json` (see Constitution Annex B for schema) |
+| `evidences`         | `Dict[str, List[Evidence]]` | `operator.ior` | Merged detective evidence                                       |
+| `opinions`          | `List[JudicialOpinion]`     | `operator.add` | Appended judge opinions                                         |
+| `final_report`      | `AuditReport`               | N/A            | Final synthesis output                                          |
+| `re_eval_needed`    | `bool`                      | N/A            | Toggle for high-variance loop                                   |
+| `re_eval_count`     | `int`                       | N/A            | Counter to limit cycles (max 1)                                 |
+| `errors`            | `List[str]`                 | `operator.add` | Global error log                                                |
+| `metadata`          | `Dict[str, Any]`            | `operator.ior` | Run manifest data                                               |
 
 ## Core Entities
 
@@ -56,9 +57,26 @@ Serialized as Markdown for final deliverable.
 4. `EvidenceAggregator` -> `[Prosecutor, Defense, TechLead]` (Fan-Out)
 5. `[Judges]` -> `ChiefJustice` (Fan-In Sync)
 6. `ChiefJustice` -> **LOOP CHECK**:
-   - If variance > 2 AND re_eval_count < 1: `[Judges]`
+   - If variance > 2 AND re_eval_count < 1:
+     - `re_eval_needed = True`, `re_eval_count += 1`
+     - **STATE CLEANUP**: `opinions` list is preserved (for dissent analysis), but Judges are instructed in context to prioritize the high-variance dimension.
+     - Destination: `[Judges]`
    - Else: `ReportGenerator`
 7. `ReportGenerator` -> **END**
+
+## Node Field Access Mapping
+
+To satisfy CHK001, the following table defines which parts of the `AgentState` each node reads and writes.
+
+| Node                 | Reads                                                     | Writes                            |
+| -------------------- | --------------------------------------------------------- | --------------------------------- |
+| `ContextBuilder`     | `repo_url`, `pdf_path`                                    | `rubric_dimensions`, `metadata`   |
+| `[Detectors]`        | `repo_url`, `rubric_dimensions`                           | `evidences`                       |
+| `EvidenceAggregator` | `evidences`, `rubric_dimensions`                          | `errors` (if missing sources)     |
+| `[Judges]`           | `evidences`, `rubric_dimensions`, `opinions` (if re-eval) | `opinions`                        |
+| `ChiefJustice`       | `opinions`, `re_eval_count`                               | `re_eval_needed`, `re_eval_count` |
+| `ReportGenerator`    | `AgentState` (all)                                        | `final_report`                    |
+| `ErrorHandler`       | `errors`                                                  | `metadata` (mark as failed)       |
 
 ## Error Transitions
 
