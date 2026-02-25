@@ -20,6 +20,8 @@ Auto-generated from all feature plans. Last updated: 2026-02-24
 - N/A (Transient state resides in LangGraph `AgentState`) (008-judicial-nodes)
 - Python 3.12 + LangGraph, Pydantic, operator (for reducers) (009-deterministic-synthesis)
 - N/A (State-managed in LangGraph) (009-deterministic-synthesis)
+- Python 3.12 + `jinja2`, `pathlib`, `pydantic` (010-report-generation)
+- Local filesystem (`audit/reports/{repo_name}/`) (010-report-generation)
 
 - Python 3.12+ (latest stable for optimal `uv` and Pydantic v2 support) + `langgraph`, `langchain`, `pydantic`, `python-dotenv`, `pytest`, `ruff` (001-foundational-scaffolding)
 
@@ -39,9 +41,9 @@ cd src; pytest; ruff check .
 Python 3.12+ (latest stable for optimal `uv` and Pydantic v2 support): Follow standard conventions
 
 ## Recent Changes
+- 010-report-generation: Added Python 3.12 + `jinja2`, `pathlib`, `pydantic`
 - 009-deterministic-synthesis: Added Python 3.12 + LangGraph, Pydantic, operator (for reducers)
 - 008-judicial-nodes: Added Python 3.12 + LangGraph, Pydantic, LangChain (for LLM orchestration), `config.py` (internal configuration system)
-- 007-evidence-aggregator: Added Python 3.12 + LangGraph, Pydantic, `operator.ior` reducer
 
 
 <!-- MANUAL ADDITIONS START -->
