@@ -20,6 +20,9 @@ dependencies = [
     "typing-extensions>=4.15.0",
 ]
 
+[project.scripts]
+audit = "src.main:main"
+
 [tool.ruff]
 line-length = 88
 target-version = "py312"
