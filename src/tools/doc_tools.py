@@ -1,55 +1,64 @@
-import time
-from pathlib import Path
-from typing import Union
+import concurrent.futures
+import re
+from typing import List, Dict
 
-# Importing docling components safely
 try:
     from docling.document_converter import DocumentConverter
 except ImportError:
-    # Handle if docling is not successfully installed during some test steps
     DocumentConverter = None
 
-from src.tools.base import ToolResult
-from src.tools.utils import with_timeout, check_disk_limit
 
-@with_timeout(seconds=60)
-def ingest_pdf(pdf_path: Union[str, Path]) -> ToolResult[str]:
-    """
-    Ingest a PDF report and extract raw text safely without executing embedded scripts.
-    Ref: FR-005 (graceful failure), FR-009 (disk limit), FR-010 (password protected).
-    """
-    start_time = time.time()
-    pdf_path = Path(pdf_path)
+def _convert_pdf(pdf_path: str) -> str:
+    """Internal function to convert PDF; runs in isolated thread/process if possible."""
+    if not DocumentConverter:
+        return ""
+    converter = DocumentConverter()
+    result = converter.convert(pdf_path)
+    return result.document.export_to_markdown()
 
-    if not pdf_path.exists():
-        return ToolResult(status="failure", error="PDF path does not exist.")
 
-    if not check_disk_limit(pdf_path.parent):
-        return ToolResult(status="disk_limit_exceeded", error="Disk limit exceeded before reading PDF.")
+def extract_pdf_markdown(pdf_path: str, timeout: int = 60) -> str:
+    """Extracts text content from a PDF using Docling, wrapped in a timeout."""
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(_convert_pdf, pdf_path)
+        try:
+            return future.result(timeout=timeout)
+        except concurrent.futures.TimeoutError:
+            raise TimeoutError(f"PDF extraction timed out after {timeout} seconds.")
+        except Exception as e:
+            raise RuntimeError(f"PDF extraction failed: {str(e)}")
 
-    if DocumentConverter is None:
-         return ToolResult(status="failure", error="docling library is not installed.")
 
-    try:
-        converter = DocumentConverter()
-        doc_result = converter.convert(pdf_path)
-        markdown_text = doc_result.document.export_to_markdown()
+def find_architectural_claims(markdown_text: str, keywords: List[str] = None) -> List[Dict[str, str]]:
+    """Simple finding for claims around specific keywords."""
+    if not keywords:
+         keywords = ["StateGraph", "Parallel", "BaseModel", "LangGraph", "Gemini", "multimodal", "architecture"]
+         
+    findings = []
+    chunks = markdown_text.split('\n\n')
+    for idx, chunk in enumerate(chunks):
+        if not chunk.strip():
+            continue
+            
+        found_kws = [kw for kw in keywords if kw.lower() in chunk.lower()]
+        for kw in found_kws:
+            findings.append({
+                "keyword": kw,
+                "chunk": chunk.strip()[:250],
+                "location": f"chunk_{idx}"
+            })
+            
+    return findings
 
-        return ToolResult(
-            status="success",
-            data=[markdown_text],
-            execution_time=time.time() - start_time
-        )
-    except Exception as e:
-        error_msg = str(e).lower()
-        if "password" in error_msg or "encrypt" in error_msg:
-            return ToolResult(
-                status="access_denied",
-                error=f"Password or encryption detected: {e}",
-                execution_time=time.time() - start_time
-            )
-        return ToolResult(
-            status="failure",
-            error=f"Failed to parse PDF: {e}",
-            execution_time=time.time() - start_time
-        )
+
+def extract_file_paths(markdown_text: str) -> List[str]:
+    """Finds referenced file paths in the document (e.g., src/main.py, tests/)."""
+    # Look for patterns that look like paths (with / and an extension or just typical dir structures)
+    # Simple regex for common code path mentions.
+    pattern = r'`?((?:[a-zA-Z0-9_\-\.]+)?/[a-zA-Z0-9_\-\./]+(?:\.[a-zA-Z0-9]+)?)`?'
+    paths = set()
+    for match in re.finditer(pattern, markdown_text):
+        path = match.group(1)
+        if len(path) > 3 and "://" not in path:
+            paths.add(path)
+    return list(paths)

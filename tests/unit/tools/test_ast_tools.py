@@ -3,7 +3,7 @@ import os
 import tempfile
 from pathlib import Path
 from src.tools.ast_tools import scan_repository
-from src.models.forensic import ASTFinding
+from src.state import ASTFinding
 
 @pytest.fixture
 def mock_repo_with_code():

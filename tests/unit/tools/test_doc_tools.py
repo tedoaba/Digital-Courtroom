@@ -1,58 +1,36 @@
 import pytest
-from pathlib import Path
-import tempfile
-import os
-from src.tools.doc_tools import ingest_pdf
-from unittest.mock import patch, MagicMock
+import concurrent.futures
+from src.tools.doc_tools import extract_file_paths, find_architectural_claims, extract_pdf_markdown
 
+def test_extract_file_paths():
+    md = "Here we test `src/main.py` and also testing/dir/file.txt without ticks. Skip http://google.com."
+    paths = extract_file_paths(md)
+    assert "src/main.py" in paths
+    assert "testing/dir/file.txt" in paths
+    assert "http://google.com" not in paths
 
-@pytest.fixture
-def mock_workspace():
-    with tempfile.TemporaryDirectory() as temp_dir:
-        yield Path(temp_dir)
+def test_find_architectural_claims():
+    md = "This text doesn't have it.\\n\\nThis one uses a StateGraph to build out nodes.\\n\\nAnd some Multimodal behavior."
+    # Since find_architectural_claims splits by '\n\n', we need proper newlines
+    md = md.replace('\\n', '\n')
+    findings = find_architectural_claims(md)
+    assert len(findings) == 2
+    keys = {f["keyword"].lower() for f in findings}
+    assert "stategraph" in keys
+    assert "multimodal" in keys
 
-def test_ingest_pdf_success(mock_workspace):
-    """Test successful ingestion of a PDF document."""
-    pdf_path = mock_workspace / "test.pdf"
-    pdf_path.write_bytes(b"%PDF-1.4\n%Fake PDF content for test")
-    
-    # We mock DocumentConverter here as docling needs a real valid PDF for its parse method.
-    with patch("src.tools.doc_tools.DocumentConverter") as mock_converter:
-        mock_instance = mock_converter.return_value
-        mock_doc = MagicMock()
-        mock_doc.export_to_markdown.return_value = "Mock Markdown Content"
-        mock_instance.convert.return_value.document = mock_doc
+def test_extract_pdf_markdown_timeout(mocker):
+    # Mock _convert_pdf to sleep longer than timeout
+    def mock_convert(*args, **kwargs):
+        import time
+        time.sleep(2)
+        return "Not reached"
         
-        result = ingest_pdf(pdf_path)
-        
-        assert result.status == "success"
-        assert result.data is not None
-        assert "Mock Markdown Content" in result.data[0]
+    mocker.patch("src.tools.doc_tools._convert_pdf", side_effect=mock_convert)
+    with pytest.raises(TimeoutError, match="timed out"):
+        extract_pdf_markdown("fake.pdf", timeout=1)
 
-def test_ingest_pdf_corrupt_pdf(mock_workspace):
-    """Test behavior with a completely invalid/corrupt PDF."""
-    pdf_path = mock_workspace / "corrupt.pdf"
-    pdf_path.write_text("Not a pdf file")
-    
-    with patch("src.tools.doc_tools.DocumentConverter") as mock_converter:
-        mock_instance = mock_converter.return_value
-        mock_instance.convert.side_effect = Exception("Invalid PDF format")
-        
-        result = ingest_pdf(pdf_path)
-        
-        assert result.status == "failure"
-
-def test_ingest_pdf_password_protected(mock_workspace):
-    """Test password protected error state."""
-    pdf_path = mock_workspace / "locked.pdf"
-    pdf_path.write_bytes(b"%PDF-1.4\n")
-    
-    with patch("src.tools.doc_tools.DocumentConverter") as mock_converter:
-        mock_instance = mock_converter.return_value
-        # Docling raises a specific error for encryption/password
-        mock_instance.convert.side_effect = Exception("File is encrypted")
-        
-        result = ingest_pdf(pdf_path)
-        
-        assert result.status == "access_denied"
-        assert "encrypted" in result.error or "password" in result.error.lower()
+def test_extract_pdf_markdown_success(mocker):
+    mocker.patch("src.tools.doc_tools._convert_pdf", return_value="Extracted markdown")
+    res = extract_pdf_markdown("fake.pdf")
+    assert res == "Extracted markdown"
