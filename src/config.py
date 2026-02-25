@@ -32,5 +32,13 @@ class DetectiveSettings(BaseSettings):
     # Multimodal LLM parameters (FR-011)
     llm_temperature: float = 0.0
 
+class JudicialSettings(BaseSettings):
+    """Settings for Layer 2 Judicial nodes."""
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore')
+    
+    # Judicial LLM parameters (FR-009)
+    llm_temperature: float = 0.0
+
 settings = ObservabilitySettings()
 detective_settings = DetectiveSettings()
+judicial_settings = JudicialSettings()

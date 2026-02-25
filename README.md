@@ -8,6 +8,7 @@ This module provides isolated, deterministic tools for digital forensic extracti
 - **AST Code Scanning:** Scans for specific language syntax or patterns (e.g. `BaseModel`, `StateGraph`) without executing the code.
 - **Document & Visuals Parsing:** Uses `docling` to extract markdown and images from PDF reports. Ensures failure gracefully for password-protected files.
 - **Execution Isolation:** All outputs implement `ToolResult` interface, with hard timeout enforcing via a subthread.
+- **Dialectical Judicial Agents:** Three adversarial personas (Prosecutor, Defense, TechLead) evaluate evidence in parallel with < 10% prompt overlap and structured schema validation.
 - **Determinism:** Guarantees deterministic behavior for git commit extraction using UTC timestamps.
 
 _Refer to the [Quickstart Guide](specs/004-forensic-tools-sandbox/quickstart.md) for more usage examples._
