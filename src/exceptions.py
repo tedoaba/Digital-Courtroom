@@ -36,3 +36,21 @@ class SchemaViolationError(FatalException):
 class InvalidInputError(FatalException):
     """Raised when user input or configuration is invalid (Fatal)."""
     pass
+
+
+# --- ContextBuilder Node Exceptions ---
+
+
+class ContextBuilderError(FatalException):
+    """Base exception for all ContextBuilder node failures (Fatal)."""
+    pass
+
+
+class InvalidURLError(ContextBuilderError):
+    """Raised when the provided repository URL fails validation (Fatal)."""
+    pass
+
+
+class RubricLoadError(ContextBuilderError):
+    """Raised when the rubric file cannot be loaded or parsed (Fatal)."""
+    pass
