@@ -5,6 +5,14 @@
 **Status**: Draft  
 **Input**: User description: "Feature: Parallel Detective Agents (Layer 1)..."
 
+## Clarifications
+
+### Session 2026-02-25
+
+- Q: What is the maximum allowed execution time (timeout) for a single detective node before it must truncate and return `found=False`? → A: 60 seconds (Standard, matches architectural notes).
+- Q: Beyond the classification string, should the `VisionInspector` also include a brief textual description of the flow captured in the diagram? → A: Yes, include classification and structural description (matches architecture notes).
+- Q: What specific metrics must each detective node log upon completion to satisfy the requirement for high observability? → A: Operation duration and artifact count (files/pages/images).
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Run RepoInvestigator on a Repository (Priority: P1)
@@ -70,11 +78,12 @@ The system needs to instantiate a `VisionInspector` node capable of taking extra
 - **FR-005**: In the event of an anticipated failure, the failing node MUST log an error and return an `Evidence` object where `found=False`.
 - **FR-006**: Code within `detectives.py` MUST solely handle forensic collection, and MUST exclude synchronization logic (which is handled by `EvidenceAggregator`).
 - **FR-007**: The system MUST implement dependency abstractions for the detectives to allow full unit testability via mocks of LLMs, GitHub APIs, and local PDF files.
-- **FR-008**: The `VisionInspector` node MUST be controlled by an LLM-specific constraint configuration or timeout setting.
+- **FR-008**: The detectives MUST enforce a hard timeout of 60 seconds for all external operations (cloning, parsing, LLM calls).
+- **FR-009**: Each detective node MUST log structured observability metrics upon completion, specifically operation duration and the count of processed artifacts (files, pages, or images).
 
 ### Key Entities
 
-- **Evidence**: A strictly typed data structure capturing raw facts (found paths, presence of features, specific extracts).
+- **Evidence**: A strictly typed data structure capturing raw facts. For `VisionInspector`, this MUST include both a classification string and a structural description of the visualized flow.
 - **AgentState**: The shared dictionary where the detectives will append their respective evidence under the appropriate keys correctly.
 - **RubricDimension**: The specific rule set instructions driving the goal string inside each piece of Evidence.
 
@@ -86,3 +95,4 @@ The system needs to instantiate a `VisionInspector` node capable of taking extra
 - **SC-002**: Detectives return `Evidence` objects correctly formatted 100% of the time.
 - **SC-003**: Inducing a catastrophic failure (missing inputs, API connection drop) in at least one detective does not halt the overall pipeline execution (graceful degradation validated by tests).
 - **SC-004**: No interpretation or scoring details (e.g., assigning a grade out of 5) are included in the `Evidence` object content whatsoever.
+- **SC-005**: All detective nodes terminate and return results (or failure items) within the mandatory 60-second operational window.
