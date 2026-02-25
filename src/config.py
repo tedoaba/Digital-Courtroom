@@ -38,6 +38,8 @@ class JudicialSettings(BaseSettings):
     
     # Judicial LLM parameters (FR-009)
     llm_temperature: float = 0.0
+    gemini_api_key: Optional[str] = None
+    google_api_key: Optional[str] = None
 
 settings = ObservabilitySettings()
 detective_settings = DetectiveSettings()

@@ -43,7 +43,12 @@ def get_philosophy(judge_name: str) -> str:
 def get_llm():
     # Placeholder for LLM fetching logic
     from langchain_google_genai import ChatGoogleGenerativeAI
-    return ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=judicial_settings.llm_temperature)
+    api_key = judicial_settings.google_api_key or judicial_settings.gemini_api_key
+    return ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash", 
+        temperature=judicial_settings.llm_temperature,
+        google_api_key=api_key
+    )
 
 @retry(
     stop=stop_after_attempt(3), 
