@@ -109,9 +109,14 @@ class AuditReport(StrictModel):
     The final aggregated output of the judicial audit process.
     """
 
+    repo_name: str
+    run_date: str
+    git_hash: str
+    rubric_version: str
     results: dict[str, CriterionResult]
     summary: str
-    global_score: float = Field(ge=1.0, le=5.0, description="Weighted average score (1 decimal)")
+    remediation_plan: Optional[str] = None
+    global_score: float = Field(ge=0.0, le=5.0, description="Weighted average score (1 decimal)")
 
 
 # --- Reducers ---
