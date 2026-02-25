@@ -17,8 +17,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure for Chief Justice node in `src/nodes/justice.py`
-- [ ] T002 Ensure `uv` environment is ready and dependencies synced
+- [x] T001 Create project structure for Chief Justice node in `src/nodes/justice.py`
+- [x] T002 Ensure `uv` environment is ready and dependencies synced
 
 ---
 
@@ -28,9 +28,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 [P] Update `CriterionResult` in `src/state.py` with `judge_opinions`, `dissent_summary`, `remediation`, `applied_rules`, `execution_log`, and `re_evaluation_required`
-- [ ] T004 [P] Update `AuditReport` in `src/state.py` to include `global_score` and `results` per enhanced data model
-- [ ] T005 [P] Implement `round_half_up` helper function in `src/nodes/justice.py` using `decimal.ROUND_HALF_UP`
+- [x] T003 [P] Update `CriterionResult` in `src/state.py` with `judge_opinions`, `dissent_summary`, `remediation`, `applied_rules`, `execution_log`, and `re_evaluation_required`
+- [x] T004 [P] Update `AuditReport` in `src/state.py` to include `global_score` and `results` per enhanced data model
+- [x] T005 [P] Implement `round_half_up` helper function in `src/nodes/justice.py` using `decimal.ROUND_HALF_UP`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -44,14 +44,14 @@
 
 ### Tests for User Story 1
 
-- [ ] T006 [P] [US1] Create unit tests for `FUNCTIONALITY_WEIGHT` and deterministic rounding in `tests/unit/test_justice.py`
-- [ ] T007 [P] [US1] Create unit tests for missing judge fallback (mean of remaining two) in `tests/unit/test_justice.py`
+- [x] T006 [P] [US1] Create unit tests for `FUNCTIONALITY_WEIGHT` and deterministic rounding in `tests/unit/test_justice.py`
+- [x] T007 [P] [US1] Create unit tests for missing judge fallback (mean of remaining two) in `tests/unit/test_justice.py`
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Implement `ChiefJusticeNode` core orchestration loop in `src/nodes/justice.py`
-- [ ] T009 [US1] Implement `FUNCTIONALITY_WEIGHT` (TechLead = 2x) weighted average logic in `src/nodes/justice.py`
-- [ ] T010 [US1] Implement missing judge fallback logic and "Degraded Synthesis" logging in `src/nodes/justice.py`
+- [x] T008 [US1] Implement `ChiefJusticeNode` core orchestration loop in `src/nodes/justice.py`
+- [x] T009 [US1] Implement `FUNCTIONALITY_WEIGHT` (TechLead = 2x) weighted average logic in `src/nodes/justice.py`
+- [x] T010 [US1] Implement missing judge fallback logic and "Degraded Synthesis" logging in `src/nodes/justice.py`
 
 **Checkpoint**: User Story 1 (Core Synthesis) functional and testable.
 
@@ -65,13 +65,13 @@
 
 ### Tests for User Story 2
 
-- [ ] T011 [P] [US2] Create unit tests for `SECURITY_OVERRIDE` triggers (evidence vs judge keywords) in `tests/unit/test_justice.py`
+- [x] T011 [P] [US2] Create unit tests for `SECURITY_OVERRIDE` triggers (evidence vs judge keywords) in `tests/unit/test_justice.py`
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] Implement evidence search logic for security violations (e.g., `os.system`, `shell=True`) in `src/nodes/justice.py`
-- [ ] T013 [US2] Implement Prosecutor keyword scan for "Security Violation" signals in `src/nodes/justice.py`
-- [ ] T014 [US2] Apply score capping logic to override final calculations when security triggers are active in `src/nodes/justice.py`
+- [x] T012 [US2] Implement evidence search logic for security violations (e.g., `os.system`, `shell=True`) in `src/nodes/justice.py`
+- [x] T013 [US2] Implement Prosecutor keyword scan for "Security Violation" signals in `src/nodes/justice.py`
+- [x] T014 [US2] Apply score capping logic to override final calculations when security triggers are active in `src/nodes/justice.py`
 
 **Checkpoint**: Security overrides enforced.
 
@@ -85,12 +85,12 @@
 
 ### Tests for User Story 3
 
-- [ ] T015 [P] [US3] Create unit tests for `FACT_SUPREMACY` score penalization in `tests/unit/test_justice.py`
+- [x] T015 [P] [US3] Create unit tests for `FACT_SUPREMACY` score penalization in `tests/unit/test_justice.py`
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] Implement evidence cross-reference logic to validate citations against the state evidence pool in `src/nodes/justice.py`
-- [ ] T017 [US3] Implement score penalty logic (`adjusted_score = max(1, original_score - 2)`) for hallucinated citations in `src/nodes/justice.py`
+- [x] T016 [US3] Implement evidence cross-reference logic to validate citations against the state evidence pool in `src/nodes/justice.py`
+- [x] T017 [US3] Implement score penalty logic (`adjusted_score = max(1, original_score - 2)`) for hallucinated citations in `src/nodes/justice.py`
 
 **Checkpoint**: Fact supremacy enforced.
 
@@ -104,12 +104,12 @@
 
 ### Tests for User Story 4
 
-- [ ] T018 [P] [US4] Create unit tests for `VARIANCE_RE_EVALUATION` triggers and flag setting in `tests/unit/test_justice.py`
+- [x] T018 [P] [US4] Create unit tests for `VARIANCE_RE_EVALUATION` triggers and flag setting in `tests/unit/test_justice.py`
 
 ### Implementation for User Story 4
 
-- [ ] T019 [US4] Implement variance calculation logic and flag triggering in `src/nodes/justice.py`
-- [ ] T020 [US4] Implement automated evidence quality check during re-evaluation in `src/nodes/justice.py`
+- [x] T019 [US4] Implement variance calculation logic and flag triggering in `src/nodes/justice.py`
+- [x] T020 [US4] Implement automated evidence quality check during re-evaluation in `src/nodes/justice.py`
 
 ---
 
@@ -117,12 +117,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T021 [P] Implement template-based `dissent_summary` generation for variance > 2 in `src/nodes/justice.py`
-- [ ] T022 [P] Implement detailed narrative `execution_log` generation in `src/nodes/justice.py`
-- [ ] T023 [P] Create integration test for full synthesis workflow in `tests/integration/test_synthesis_workflow.py`
-- [ ] T024 [P] Benchmark processing time to verify SC-004 (< 50ms) in `tests/performance/test_synthesis_perf.py`
-- [ ] T025 [P] Update `docs/` and verify `quickstart.md` steps pass against current implementation
-- [ ] T026 Run full test suite with `uv run pytest`
+- [x] T021 [P] Implement template-based `dissent_summary` generation for variance > 2 in `src/nodes/justice.py`
+- [x] T022 [P] Implement detailed narrative `execution_log` generation in `src/nodes/justice.py`
+- [x] T023 [P] Create integration test for full synthesis workflow in `tests/integration/test_synthesis_workflow.py`
+- [x] T024 [P] Benchmark processing time to verify SC-004 (< 50ms) in `tests/performance/test_synthesis_perf.py`
+- [x] T025 [P] Update `docs/` and verify `quickstart.md` steps pass against current implementation
+- [x] T026 Run full test suite with `uv run pytest`
 
 ---
 
