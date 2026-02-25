@@ -53,13 +53,18 @@ class Evidence(StrictModel):
 
 class JudicialOpinion(StrictModel):
     """
-    The primary source document or a judge's summarized evaluation.
+    A Pydantic model representing a single judge's verdict on a single criterion.
     """
 
-    text: str
-    case_id: str = "Unknown"
-    court_name: str = "Unknown"
-    metadata: dict = Field(default_factory=dict)
+    opinion_id: str = Field(..., description="Unique ID (format: {judge}_{criterion_id}_{timestamp})")
+    judge: Literal["Prosecutor", "Defense", "TechLead"]
+    criterion_id: str = Field(..., description="ID from the rubric")
+    score: int = Field(..., ge=1, le=5)
+    argument: str = Field(..., description="Detailed reasoning text")
+    cited_evidence: list[str] = Field(..., description="List of evidence_id strings")
+    mitigations: Optional[list[str]] = Field(default=None, description="Optional list of strings (Defense only)")
+    charges: Optional[list[str]] = Field(default=None, description="Optional list of strings (Prosecutor only)")
+    remediation: Optional[str] = Field(default=None, description="Optional string recommendation (TechLead only)")
 
 
 class CriterionResult(StrictModel):
