@@ -17,9 +17,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Verify all existing node modules in `src/nodes/` are importable and functional
+- [ ] T001 [NFR-002] Verify all existing node modules in `src/nodes/` are importable by running `uv run python -c "import src.nodes.detectives; import src.nodes.judges"`
 - [ ] T002 Initialize `src/graph.py` with basic LangGraph imports and logger setup
-- [ ] T003 [P] Configure global `StructuredLogger` in `src/utils/logger.py` (if not already present) for node lifecycle events
+- [ ] T003 [P] [NFR-001] Configure global `StructuredLogger` in `src/utils/logger.py` (if not already present) for node lifecycle events
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -31,6 +31,7 @@
 - [ ] T005 Implement `timeout_wrapper` decorator in `src/utils/orchestration.py` to enforce 300s layer limits (Research Decision 4)
 - [ ] T006 Create `ErrorHandler` logic in `src/nodes/evidence_aggregator.py` (or new file) to capture and log non-fatal node errors
 - [ ] T007 Create initial `ReportGenerator` shell in `src/nodes/report_generator.py`
+- [ ] T008 [P] [FR-009] Implement `ManifestManager` in `src/utils/manifest.py` to handle `run_manifest.json` serialization per Constitution XVII.2
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -40,17 +41,18 @@
 
 **Goal**: Orchestrate the entire swarm (ContextBuilder -> Detectives -> Aggregator -> Judges -> Justice -> Report) via a single command.
 
-**Independent Test**: Invoke `uv run audit --repo <URL> --spec <PDF>` and verify `audit/reports/.../Report.md` is generated with all sections.
+**Independent Test**: Invoke `uv run audit --repo <URL> --spec <PDF>` and verify `audit/reports/.../Report.md` and `run_manifest.json` are generated.
 
 ### Implementation for User Story 1
 
-- [ ] T008 [P] [US1] Define nodes for all Layer 1-3 components in `src/graph.py`
-- [ ] T009 [US1] Wire Layer 1 Detective fan-out (ContextBuilder -> Detectives) and fan-in (Detectives -> Aggregator) in `src/graph.py`
-- [ ] T010 [US1] Wire Layer 2 Judge fan-out (Aggregator -> Judges) and fan-in (Judges -> ChiefJustice) in `src/graph.py`
-- [ ] T011 [US1] Wire Layer 3 (ChiefJustice -> ReportGenerator) final edges in `src/graph.py`
-- [ ] T012 [US1] Implement full Markdown report rendering in `src/nodes/report_generator.py` per `contracts/cli_and_report.md`
-- [ ] T013 [US1] Create CLI entry point in `src/main.py` using the command schema from `contracts/cli_and_report.md`
-- [ ] T014 [US1] Integration test for successful E2E run in `tests/integration/test_full_workflow.py`
+- [ ] T009 [P] [US1] Define nodes for all Layer 1-3 components in `src/graph.py`
+- [ ] T010 [US1] Wire Layer 1 Detective fan-out (ContextBuilder -> Detectives) and fan-in (Detectives -> Aggregator) in `src/graph.py`
+- [ ] T011 [US1] Wire Layer 2 Judge fan-out (Aggregator -> Judges) and fan-in (Judges -> ChiefJustice) in `src/graph.py`
+- [ ] T012 [US1] Wire Layer 3 (ChiefJustice -> ReportGenerator) final edges in `src/graph.py`
+- [ ] T013 [US1] Implement full Markdown report rendering in `src/nodes/report_generator.py` per `contracts/cli_and_report.md`
+- [ ] T014 [US1] Implement manifest serialization in `src/nodes/report_generator.py` using `ManifestManager` (from T008)
+- [ ] T015 [US1] Create CLI entry point in `src/main.py` using the command schema from `contracts/cli_and_report.md`
+- [ ] T016 [US1] Integration test for successful E2E run in `tests/integration/test_full_workflow.py`
 
 **Checkpoint**: At this point, the core audit pipeline is functional (MVP reached).
 
@@ -64,10 +66,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Add conditional edges in `src/graph.py` to route node/layer exceptions to the `ErrorHandler`
-- [ ] T016 [US2] Update `ReportGenerator` in `src/nodes/report_generator.py` to handle entries in `state["errors"]` and missing evidence
-- [ ] T017 [US2] Implement node-level timeout enforcement using the wrapper from T005 in `src/graph.py`
-- [ ] T018 [US2] Integration test for detective failure and partial report in `tests/integration/test_fault_tolerance.py`
+- [ ] T017 [US2] Add conditional edges in `src/graph.py` to route node/layer exceptions to the `ErrorHandler`
+- [ ] T018 [US2] Update `ReportGenerator` in `src/nodes/report_generator.py` to handle entries in `state["errors"]` and missing evidence
+- [ ] T019 [US2] Implement node-level timeout enforcement using the wrapper from T005 in `src/graph.py`
+- [ ] T020 [US2] Integration test for detective failure and partial report in `tests/integration/test_fault_tolerance.py`
+- [ ] T021 [US2] Integration test for "Empty Repository" edge case in `tests/integration/test_fault_tolerance.py`
 
 **Checkpoint**: System is robust against individual node failures.
 

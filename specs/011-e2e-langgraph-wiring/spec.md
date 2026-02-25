@@ -58,7 +58,7 @@ As a developer, I want to ensure that the graph's fan-in/fan-out behavior is det
 **Acceptance Scenarios**:
 
 1. **Given** the graph definition, **When** inspected via topology analysis, **Then** the edges must strictly follow the `ContextBuilder -> [Extractors] -> Aggregator` pattern.
-2. **Given** a `run_manifest.json` defining the execution rules, **When** the graph runs, **Then** the internal routing logic must apply the specific Constitution restrictions (e.g., Security Overrides) defined therein.
+2. **Given** a `run_manifest.json` (captured from `state["metadata"]`) defining the execution rules, **When** the graph runs, **Then** the internal routing logic must apply the specific Constitution restrictions (e.g., Security Overrides) defined therein.
 
 ---
 
@@ -74,13 +74,18 @@ As a developer, I want to ensure that the graph's fan-in/fan-out behavior is det
 
 - **FR-001**: System MUST implement a state-driven orchestrator that manages the transition between analysis and evaluation phases.
 - **FR-002**: System MUST support parallel execution of forensic investigation agents (investigating code, documents, and visual artifacts).
-- **FR-003**: System MUST include a synchronization mechanism to aggregate forensic findings before initiating the judicial phase.
+- **FR-003**: [REMOVED - Merged into FR-008]
 - **FR-004**: System MUST support parallel execution of multiple distinct judicial personas evaluating the same evidence.
 - **FR-005**: System MUST implement a deterministic synthesis process that resolves judicial conflicts according to predefined rules (the project "Constitution"), including a re-evaluation loop for high-variance opinions.
 - **FR-006**: System MUST implement a global error management system that prevents process hangs and ensures report generation even after non-fatal failures.
 - **FR-007**: System MUST provide a unified command-line interface for initiating audits and specifying input artifacts.
-- **FR-008**: System MUST enforce synchronization at layer boundaries to ensure all parallel sub-tasks complete before dependent tasks begin.
-- **FR-009**: System MUST output a finalized audit report in a human-readable structured document format to `audit/reports/{repo_name}/{timestamp}/report_name.md`.
+- **FR-008**: System MUST enforce synchronization at layer boundaries (e.g., Aggregator for detectives, ChiefJustice entry for judges) to ensure all parallel sub-tasks complete before dependent tasks begin.
+- **FR-009**: System MUST output a finalized audit report and a `run_manifest.json` to `audit/reports/{repo_name}/{timestamp}/`.
+
+### Non-Functional Requirements
+
+- **NFR-001**: System MUST implement structured JSON logging for all node entry, exit, and verdict events per Constitution XXII.
+- **NFR-002**: System MUST provide a mechanism to verify environment readiness and node availability before orchestration starts.
 
 ### Key Entities _(include if feature involves data)_
 
