@@ -5,6 +5,14 @@
 **Status**: Draft  
 **Input**: User description: "Implement three distinct persona-based LLM nodes (Prosecutor, Defense, TechLead) to interpret evidence objectively based on character philosophies."
 
+## Clarifications
+
+### Session 2026-02-25
+
+- Q: What specific default values should be used for the score and argument in this fallback JudicialOpinion? → A: Score 3 with argument: "System Error: Judicial evaluation failed after retries."
+- Q: How should the parallelization be executed? → A: One LLM call per persona per criterion (Granular).
+- Q: Should specialized fields like mitigations, charges, and remediation be included in the Pydantic schema? → A: Yes, include as Optional fields.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Multi-Perspective Adversarial Review (Priority: P1)
@@ -69,10 +77,11 @@ As a system operator, I want the judicial nodes to handle LLM schema violations 
 - **FR-004**: The `Defense` node MUST apply an "Optimistic Lens" (Philosophy: "Reward Effort and Intent.").
 - **FR-005**: The `TechLead` node MUST apply a "Pragmatic Lens" (Philosophy: "Does it work? Is it maintainable?").
 - **FR-006**: All judicial nodes MUST utilize `.with_structured_output(JudicialOpinion)` for LLM interaction.
-- **FR-007**: System MUST implement a fallback mechanism for schema validation errors with a maximum of 2 retries.
+- **FR-007**: System MUST implement a fallback mechanism for schema validation errors with a maximum of 2 retries. If failure persists, return a fallback opinion with `score=3` and `argument="System Error: Judicial evaluation failed after retries."`.
 - **FR-008**: System MUST apply exponential backoff for HTTP timeouts during LLM calls.
 - **FR-009**: All judicial LLM calls MUST be constrained to `temperature=0` via `config.py`.
 - **FR-010**: Every generated `JudicialOpinion` MUST cite specific `evidence_id` values as justification.
+- **FR-011**: System MUST execute judicial nodes at the granularity of one LLM call per persona per rubric criterion to ensure failure isolation and prompt efficiency.
 
 ### Key Entities _(include if feature involves data)_
 
@@ -82,6 +91,9 @@ As a system operator, I want the judicial nodes to handle LLM schema violations 
   - `score`: Integer (1-5).
   - `argument`: Detailed reasoning text.
   - `cited_evidence`: List of `evidence_id` strings.
+  - `mitigations`: Optional list of strings (Defense only).
+  - `charges`: Optional list of strings (Prosecutor only).
+  - `remediation`: Optional string recommendation (TechLead only).
 - **AgentState**: The shared LangGraph state containing the `opinions` list (accumulated via `operator.add`).
 
 ## Success Criteria _(mandatory)_
@@ -90,7 +102,7 @@ As a system operator, I want the judicial nodes to handle LLM schema violations 
 
 - **SC-001**: 100% of judicial nodes return valid objects adhering to the `JudicialOpinion` schema after at most 2 retries.
 - **SC-002**: Prompt similarity analysis shows < 10% overlap between the distinctive philosophy sections of the three judges.
-- **SC-003**: Audit execution continues without halting even if one judge node fails after 2 retries (returns a "neutral" fallback opinion).
+- **SC-003**: Audit execution continues without halting even if one judge node fails after 2 retries (returns a fallback `JudicialOpinion` with score 3 and standardized error argument).
 - **SC-004**: All cited `evidence_id` values in opinions are verifiable against the input `evidences` set.
 - **SC-005**: All LLM calls for judicial evaluations are verified to have been made with `temperature=0`.
 
