@@ -5,6 +5,16 @@
 **Status**: Draft  
 **Input**: User description: "E2E LangGraph Orchestration & Edge Wiring"
 
+## Clarifications
+
+### Session 2026-02-25
+
+- Q: Where should the finalized audit report be stored? → A: `audit/reports/{repo_name}/{timestamp}/report_name.md`
+- Q: What should a "partial report" contain when a node fails catastrophically? → A: Append "Node [X] Failed: [Reason]" to the relevant section and proceed
+- Q: How should node execution be synchronized? → A: Strict Layer Synchronization (all nodes in Layer N must finish before Layer N+1 starts)
+- Q: Should the high-variance re-evaluation loop be implemented? → A: Yes, allow ChiefJustice to route back to Judges for re-evaluation as defined in Architecture Notes.
+- Q: Should the orchestrator enforce explicit timeouts? → A: Yes, a 300s timeout per major layer (Detectives / Judges) to ensure system reliability.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Full Audit Pipeline Execution (Priority: P1)
@@ -56,7 +66,7 @@ As a developer, I want to ensure that the graph's fan-in/fan-out behavior is det
 
 - **Empty Repository**: Repository is cloned successfully but contains zero code files. System should report "No Code Evidence Found" gracefully.
 - **Malformed PDF**: PDF is corrupt. `DocAnalyst` should return a "found=False" evidence item rather than crashing the whole graph.
-- **Judge Disagreement**: Judges return wildly different scores (variance > 2). `ChiefJustice` must recognize this and generate a "Dissent Summary" as per the Constitution.
+- **Judge Disagreement**: Judges return wildly different scores (variance > 2). `ChiefJustice` must trigger a re-evaluation loop back to the Judicial Layer with expanded context before generating the final "Dissent Summary".
 
 ## Requirements _(mandatory)_
 
@@ -66,11 +76,11 @@ As a developer, I want to ensure that the graph's fan-in/fan-out behavior is det
 - **FR-002**: System MUST support parallel execution of forensic investigation agents (investigating code, documents, and visual artifacts).
 - **FR-003**: System MUST include a synchronization mechanism to aggregate forensic findings before initiating the judicial phase.
 - **FR-004**: System MUST support parallel execution of multiple distinct judicial personas evaluating the same evidence.
-- **FR-005**: System MUST implement a deterministic synthesis process that resolves judicial conflicts according to predefined rules (the project "Constitution").
+- **FR-005**: System MUST implement a deterministic synthesis process that resolves judicial conflicts according to predefined rules (the project "Constitution"), including a re-evaluation loop for high-variance opinions.
 - **FR-006**: System MUST implement a global error management system that prevents process hangs and ensures report generation even after non-fatal failures.
 - **FR-007**: System MUST provide a unified command-line interface for initiating audits and specifying input artifacts.
 - **FR-008**: System MUST enforce synchronization at layer boundaries to ensure all parallel sub-tasks complete before dependent tasks begin.
-- **FR-009**: System MUST output a finalized audit report in a human-readable structured document format.
+- **FR-009**: System MUST output a finalized audit report in a human-readable structured document format to `audit/reports/{repo_name}/{timestamp}/report_name.md`.
 
 ### Key Entities _(include if feature involves data)_
 
@@ -85,5 +95,5 @@ As a developer, I want to ensure that the graph's fan-in/fan-out behavior is det
 - **SC-001**: Successfully complete a full audit run (ContextBuilder to Report) in under 5 minutes for a standard repository (<100 files).
 - **SC-002**: 100% of graph runs against valid inputs must produce an `AuditReport` Markdown file.
 - **SC-003**: Topographical tests confirm that exactly 3 nodes are branched during the Detective phase and exactly 3 during the Judicial phase.
-- **SC-004**: System recovers from single-node timeouts by continuing with partial state after a logged retry failure.
+- **SC-004**: System recovers from single-node timeouts by continuing with partial state after a logged retry failure; Layer-level execution is capped at a strict 300s deadline.
 - **SC-005**: Final report strictly respects "Constitution" override rules (e.g., Security flaws override Defense scores) with 100% deterministic accuracy.
