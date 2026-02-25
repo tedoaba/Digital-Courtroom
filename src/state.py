@@ -163,6 +163,27 @@ class AgentState(TypedDict):
     LangGraph state definition for the Digital Courtroom.
     """
 
+    # --- ContextBuilder Input Fields ---
+
+    # Repository URL to audit (validated by ContextBuilder).
+    repo_url: str
+
+    # Path to the PDF report for analysis.
+    pdf_path: str
+
+    # Path to the rubric JSON file (defaults to rubric/week2_rubric.json).
+    rubric_path: str
+
+    # --- ContextBuilder Output Fields ---
+
+    # Loaded rubric dimensions from the JSON file.
+    rubric_dimensions: list[dict]
+
+    # Loaded synthesis rules from the JSON file.
+    synthesis_rules: dict[str, str]
+
+    # --- Parallel-Safe Collections (Const. VI) ---
+
     # Plural per Const. VI.1; Dict-based; Fatal on mismatch.
     evidences: Annotated[dict[str, list[Evidence]], merge_evidences]
 
