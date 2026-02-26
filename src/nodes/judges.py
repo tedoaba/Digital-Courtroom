@@ -12,7 +12,9 @@ from src.state import AgentState, JudicialOpinion
 from src.config import judicial_settings
 from src.nodes.judicial_nodes import get_concurrency_controller, bounded_llm_call
 
-logger = logging.getLogger(__name__)
+from src.utils.logger import StructuredLogger
+
+logger = StructuredLogger("judges")
 
 class JudicialTask(TypedDict):
     """
@@ -23,6 +25,7 @@ class JudicialTask(TypedDict):
     criterion_id: str
     criterion_description: str
     evidences: dict[str, Any] # dict[str, list[Evidence]]
+    correlation_id: str
 
 class JudicialBatchTask(TypedDict):
     """
@@ -32,6 +35,7 @@ class JudicialBatchTask(TypedDict):
     judge_name: str
     dimensions: list[dict]
     evidences: dict[str, Any]
+    correlation_id: str
 
 PROSECUTOR_PHILOSOPHY = """You apply a "Critical Lens" (Philosophy: "Trust No One. Assume Vibe Coding. Actively look for security vulnerabilities and code smells").
 Operate strictly as an adversary hunting anomalies. Target shortcuts, unhandled exceptions, hidden attack vectors, and brittle architecture. Demand perfection; interpret ambiguity automatically as fatal flaws. Expose hardcoded secrets or logical fallacies relentlessly."""
@@ -80,12 +84,18 @@ async def _invoke_llm_with_validation(llm, messages, retries=0):
             messages.append(schema_reminder)
             return await _invoke_llm_with_validation(llm, messages, retries=retries + 1)
         raise e
+    except Exception as e:
+        logger.error(f"LLM invocation failed: {str(e)}", payload={"messages_len": len(messages)})
+        raise e
 
 async def evaluate_criterion(task: JudicialTask) -> dict[str, list[JudicialOpinion]]:
     judge = task["judge_name"]
     criterion_id = task["criterion_id"]
     criterion_description = task["criterion_description"]
     evidences = task["evidences"]
+    correlation_id = task.get("correlation_id", "unknown")
+    
+    logger.log_node_entry("evaluate_criterion", judge=judge, criterion_id=criterion_id, correlation_id=correlation_id)
     
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     opinion_id = f"{judge}_{criterion_id}_{timestamp}"
@@ -124,9 +134,10 @@ Ensure you adhere to the schema strictly.
             llm_callable=llm_call
         )
         result = result.model_copy(update={"opinion_id": opinion_id}) # ensure opinion id is correct
+        logger.log_opinion_rendered(f"{judge} on {criterion_id}", correlation_id=correlation_id, score=result.score)
         return {"opinions": [result]}
     except Exception as e:
-        logger.error(f"Fallback {judge} for {criterion_id} due to persistent error: {e}")
+        logger.error(f"Fallback {judge} for {criterion_id} due to persistent error: {e}", correlation_id=correlation_id)
         fallback_opinion = JudicialOpinion(
             opinion_id=opinion_id,
             judge=judge, # type: ignore
@@ -152,6 +163,9 @@ async def evaluate_batch_criterion(task: JudicialBatchTask) -> dict[str, list[Ju
     judge = task["judge_name"]
     dimensions = task["dimensions"]
     evidences = task["evidences"]
+    correlation_id = task.get("correlation_id", "unknown")
+    
+    logger.log_node_entry("evaluate_batch_criterion", judge=judge, dimension_count=len(dimensions), correlation_id=correlation_id)
     
     evidence_text = _format_evidence(evidences)
     criteria_list = "\n".join([f"- {d['id']}: {d['description']}" for d in dimensions])
@@ -217,6 +231,7 @@ You MUST cite `evidence_id` values or `['NO_EVIDENCE']`.
                 res = await evaluate_criterion(retry_task)
                 final_opinions.extend(res["opinions"])
         
+        logger.log_opinion_rendered(f"{judge} BATCH", correlation_id=correlation_id, count=len(final_opinions))
         return {"opinions": final_opinions}
 
     except Exception as e:
@@ -232,6 +247,8 @@ You MUST cite `evidence_id` values or `['NO_EVIDENCE']`.
             )
             res = await evaluate_criterion(task)
             all_opinions.extend(res["opinions"])
+        
+        logger.log_opinion_rendered(f"{judge} BATCH FALLBACK", correlation_id=correlation_id, count=len(all_opinions))
         return {"opinions": all_opinions}
 
 def _format_evidence(evidences: dict) -> str:
@@ -257,6 +274,7 @@ def execute_judicial_layer(state: AgentState) -> list[Send]:
     
     dimensions = state.get("rubric_dimensions", [])
     evidences = state.get("evidences", {})
+    correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
     judges = ["Prosecutor", "Defense", "TechLead"]
     
     sends = []
@@ -267,7 +285,8 @@ def execute_judicial_layer(state: AgentState) -> list[Send]:
             task = JudicialBatchTask(
                 judge_name=judge,
                 dimensions=dimensions,
-                evidences=evidences
+                evidences=evidences,
+                correlation_id=correlation_id
             )
             sends.append(Send("evaluate_batch_criterion", task))
     else:
@@ -282,7 +301,8 @@ def execute_judicial_layer(state: AgentState) -> list[Send]:
                     judge_name=judge, 
                     criterion_id=crit_id,
                     criterion_description=crit_desc,
-                    evidences=evidences
+                    evidences=evidences,
+                    correlation_id=correlation_id
                 )
                 sends.append(Send("evaluate_criterion", task))
     

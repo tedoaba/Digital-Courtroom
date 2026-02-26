@@ -14,7 +14,9 @@ from src.state import AgentState, AuditReport
 from src.utils.orchestration import get_report_workspace, round_half_up
 from src.utils.manifest import ManifestManager
 
-logger = logging.getLogger("digital_courtroom.report_generator")
+from src.utils.logger import StructuredLogger
+
+logger = StructuredLogger("report_generator")
 
 def report_generator_node(state: AgentState) -> Dict[str, Any]:
     """
@@ -22,6 +24,9 @@ def report_generator_node(state: AgentState) -> Dict[str, Any]:
     Synthesizes the final verdict and renders the Markdown output.
     """
     try:
+        correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
+        logger.log_node_entry("report_generator", correlation_id=correlation_id)
+        
         # 1. Prepare Metadata
         repo_url = state.get("repo_url", "unknown")
         repo_name = repo_url.split("/")[-1] if "/" in repo_url else repo_url
@@ -91,14 +96,15 @@ def report_generator_node(state: AgentState) -> Dict[str, Any]:
         # 7. Save Manifest (T014)
         ManifestManager.save_manifest(str(workspace), state.get("metadata", {}), state.get("errors", []))
         
-        logger.info(f"Report and manifest saved to {workspace}")
+        logger.log_verdict_delivered(f"Audit completed: {repo_name}", correlation_id=correlation_id, workspace=str(workspace))
         
         return {
             "final_report": report
         }
 
     except Exception as e:
-        logger.error(f"Report generation failed: {e}")
+        correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
+        logger.error(f"Report generation failed: {e}", correlation_id=correlation_id)
         # In case of failure, we still want to save what we can
         return fallback_save(state, e)
 

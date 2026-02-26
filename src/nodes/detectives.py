@@ -2,7 +2,9 @@ import tempfile
 import time
 from typing import Dict, List, Any
 from datetime import datetime
-from loguru import logger
+from src.utils.logger import StructuredLogger
+
+logger = StructuredLogger("detectives")
 
 from src.state import AgentState, Evidence, EvidenceClass
 from src.tools.repo_tools import clone_repository, get_git_history, analyze_ast_for_patterns, check_tool_safety
@@ -12,6 +14,9 @@ def repo_investigator(state: AgentState) -> Dict[str, Any]:
     """RepoInvestigator node conforming to Layer 1 specifications."""
     repo_url = state.get("repo_url", "")
     rubric_dimensions = state.get("rubric_dimensions", [])
+    correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
+    
+    logger.log_node_entry("repo_investigator", repo_url=repo_url, correlation_id=correlation_id)
     
     # FR-012: Filter logic - Rubric uses 'target_artifact' instead of 'source'
     repo_dims = [d for d in rubric_dimensions if d.get("target_artifact") == "github_repo"]
@@ -44,7 +49,7 @@ def repo_investigator(state: AgentState) -> Dict[str, Any]:
                         confidence=1.0,
                         timestamp=datetime.now()
                     ))
-                logger.error("RepoInvestigator clone failed", duration=time.time()-start_time, error=str(e))
+                logger.error("RepoInvestigator clone failed", correlation_id=correlation_id, duration=time.time()-start_time, error=str(e))
                 return {"evidences": {"repo": evidences}, "errors": errors}
 
             # AST Analysis
@@ -128,7 +133,7 @@ def repo_investigator(state: AgentState) -> Dict[str, Any]:
         
     duration = time.time() - start_time
     # Logging for Observability (FR-009)
-    logger.info("RepoInvestigator complete", duration=duration, artifacts=len(evidences), source="repo")
+    logger.info("RepoInvestigator complete", correlation_id=correlation_id, duration=duration, artifacts=len(evidences), source="repo")
 
     return {"evidences": {"repo": evidences}, "errors": errors}
 
@@ -136,6 +141,9 @@ def doc_analyst(state: AgentState) -> Dict[str, Any]:
     """DocAnalyst node conforming to Layer 1 specifications."""
     pdf_path = state.get("pdf_path", "")
     rubric_dimensions = state.get("rubric_dimensions", [])
+    correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
+    
+    logger.log_node_entry("doc_analyst", pdf_path=pdf_path, correlation_id=correlation_id)
     
     # FR-012: Filter logic - Rubric uses 'target_artifact' instead of 'source'
     doc_dims = [d for d in rubric_dimensions if d.get("target_artifact") == "pdf_report"]
@@ -202,7 +210,7 @@ def doc_analyst(state: AgentState) -> Dict[str, Any]:
             ))
             
     duration = time.time() - start_time
-    logger.info("DocAnalyst complete", duration=duration, artifacts=len(evidences), source="docs")
+    logger.info("DocAnalyst complete", correlation_id=correlation_id, duration=duration, artifacts=len(evidences), source="docs")
 
     return {"evidences": {"docs": evidences}, "errors": errors}
 
@@ -210,6 +218,9 @@ def vision_inspector(state: AgentState) -> Dict[str, Any]:
     """VisionInspector node conforming to Layer 1 specifications."""
     pdf_path = state.get("pdf_path", "")
     rubric_dimensions = state.get("rubric_dimensions", [])
+    correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
+    
+    logger.log_node_entry("vision_inspector", pdf_path=pdf_path, correlation_id=correlation_id)
     
     # FR-012: Filter logic - Rubric uses 'target_artifact' instead of 'source'
     vision_dims = [d for d in rubric_dimensions if d.get("target_artifact") == "pdf_images"]
@@ -258,7 +269,7 @@ def vision_inspector(state: AgentState) -> Dict[str, Any]:
             ))
             
     duration = time.time() - start_time
-    logger.info("VisionInspector complete", duration=duration, artifacts=len(evidences), source="vision")
+    logger.info("VisionInspector complete", correlation_id=correlation_id, duration=duration, artifacts=len(evidences), source="vision")
 
     return {"evidences": {"vision": evidences}, "errors": errors}
 

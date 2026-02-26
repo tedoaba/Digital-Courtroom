@@ -6,7 +6,9 @@ from datetime import datetime, timezone
 
 from src.state import AgentState, Evidence, EvidenceClass
 
-logger = logging.getLogger("digital_courtroom.evidence_aggregator")
+from src.utils.logger import StructuredLogger
+
+logger = StructuredLogger("evidence_aggregator")
 
 def sanitize_path(path_str: str) -> Optional[str]:
     """
@@ -55,6 +57,9 @@ def aggregator_node(state: AgentState) -> dict:
     Evidence Aggregator Node (Layer 1.5).
     Syncs, deduplicates, and cross-references evidence from detectives.
     """
+    correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
+    logger.log_node_entry("aggregator_node", correlation_id=correlation_id)
+    
     evidences = state.get("evidences", {})
     if not isinstance(evidences, dict):
         # FR-005 error handling if malformed state
@@ -148,11 +153,10 @@ def aggregator_node(state: AgentState) -> dict:
     hallucination_count = sum(1 for e in clean_evidences.get("docs", []) 
                              if e.evidence_class == EvidenceClass.DOCUMENT_CLAIM and not e.found)
     
-    logger.info({
-        "event": "aggregation_complete",
-        "counts": {k: len(v) for k, v in clean_evidences.items()},
-        "hallucinations": hallucination_count
-    })
+    logger.info("Aggregation complete", 
+                correlation_id=correlation_id,
+                counts={k: len(v) for k, v in clean_evidences.items()},
+                hallucinations=hallucination_count)
 
     return {
         "evidences": clean_evidences,

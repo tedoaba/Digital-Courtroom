@@ -25,6 +25,9 @@ def chief_justice_node(state: AgentState) -> AgentState:
     Consolidates varying judicial opinions deterministically using strict precedence rules.
     (FR-001, FR-002, FR-008, FR-009)
     """
+    correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
+    logger.log_node_entry("chief_justice_node", correlation_id=correlation_id)
+    
     opinions = state.get("opinions", [])
     evidences = state.get("evidences", {})
     
@@ -49,7 +52,7 @@ def chief_justice_node(state: AgentState) -> AgentState:
     if re_eval_needed and current_re_eval_count < 1:
         state["re_eval_needed"] = True
         state["re_eval_count"] = current_re_eval_count + 1
-        logger.info(f"Re-evaluation triggered (cycle {state['re_eval_count']})")
+        logger.info(f"Re-evaluation triggered (cycle {state['re_eval_count']})", correlation_id=correlation_id)
     else:
         state["re_eval_needed"] = False
     
