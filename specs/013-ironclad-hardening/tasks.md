@@ -73,7 +73,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement real-time TUI dashboard using `rich.live` in `src/utils/observability.py`
+- [ ] T020 [P] [US2] Implement real-time TUI dashboard using `rich.live` with interactive keys (`p`, `r`, `c`) in `src/utils/observability.py`
 - [ ] T021 [US2] Apply `@traceable` instrumentation to all graph nodes in `src/nodes/`
 - [ ] T022 [US2] Implement structured JSON trace export in `src/utils/observability.py`
 - [ ] T023 [US2] Update `src/main.py` entry point to support the `--dashboard` flag
@@ -97,7 +97,7 @@
 ### Implementation for User Story 3
 
 - [ ] T027 [P] [US3] Implement sequential SHA-256 hash chain logic in `src/utils/security.py`
-- [ ] T028 [US3] Implement `CircuitBreaker` logic with 3-failure threshold in `src/utils/orchestration.py`
+- [ ] T028 [US3] Implement `CircuitBreaker` logic (3-failure threshold, 1-success recovery) in `src/utils/orchestration.py`
 - [ ] T029 [US3] Integrate `CircuitBreaker` into LangGraph orchestration nodes and implement cascading failure detection for core streams (FR-011) in `src/utils/orchestration.py`
 - [ ] T030 [US3] Implement automated state rollback for orchestration recovery in `src/utils/orchestration.py`
 - [ ] T031 [US3] Implement evidence verification utility method in `src/utils/security.py`
@@ -139,6 +139,8 @@
 - [ ] T042 [P] Cleanup temporary test files and artifacts
 - [ ] T043 Perform recovery performance benchmark to verify < 10s recovery (SC-006)
 - [ ] T044 Verify zero mock implementation in production node path (SC-007)
+- [ ] T045 [US3] Implement cryptographic mid-execution failure recovery and partial reporting in `src/utils/security.py`
+- [ ] T046 [US1] Implement 50ms latency check for cryptographic operations in security unit tests
 
 ---
 

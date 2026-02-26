@@ -10,7 +10,7 @@ This feature transitions the Digital Courtroom from a functional prototype to a 
 1.  **Zero-Hardcoded Config**: Migrating all configuration to environment variables and a secure local encrypted vault (AES-256).
 2.  **Safe Tooling**: Implementing resource-constrained sandboxes (512MB/1CPU) for detectives and a centralized input/output validation gate.
 3.  **Observability**: Mandatory LangSmith `@traceable` instrumentation for 100% trace coverage and a real-time CLI/TUI dashboard (1s refresh) using `rich`.
-4.  **Integrity & Resilience**: Implementing SHA-256 sequential cryptographic chains for evidence and circuit breaker patterns (3 failures/30s reset) for API stability.
+4.  **Integrity & Resilience**: Implementing SHA-256 sequential cryptographic chains for evidence and circuit breaker patterns (3 failures/30s reset) with cascading failure detection for core streams.
 5.  **Judicial Abstraction**: Creating a dedicated layer to separate reasoning strategies from graph orchestration.
 
 ## Technical Context
@@ -21,8 +21,8 @@ This feature transitions the Digital Courtroom from a functional prototype to a 
 **Testing**: `pytest` for unit and integration tests.
 **Target Platform**: Linux/Windows/macOS
 **Project Type**: CLI tool with TUI dashboard
-**Performance Goals**: <1s dashboard refresh rate, <10s recovery from orchestration crashes.
-**Constraints**: 512MB RAM and 1 CPU core per detective sandbox; 3 consecutive failures threshold for circuit breakers.
+**Performance Goals**: <1s dashboard refresh rate, <10s recovery from orchestration crashes, <50ms cryptographic overhead per operation.
+**Constraints**: 512MB RAM and 1 CPU core per detective sandbox; 3 consecutive failures threshold for circuit breakers; 1 successful call to close half-open breakers.
 **Scale/Scope**: Forensic swarm evaluation for multi-agent governance.
 
 ## Constitution Check

@@ -66,6 +66,31 @@ As a Developer, I want a dedicated abstraction layer for reasoning strategies an
 1. **Given** the judicial layer, **When** a judge evaluates a criterion, **Then** it uses a multi-factorial scoring rubric defined in the abstraction layer rather than ad-hoc logic.
 2. **Given** conflicting judge opinions, **When** the synthesis occurs, **Then** the reasoning strategies used are extracted from the judicial layer for the dissent summary.
 
+### Technical Constraints & Specifics
+
+- **HardenedConfig Details (CHK001)**:
+  - `COURTROOM_MODELS`: JSON string mapping agent roles to model IDs.
+  - `COURTROOM_ENDPOINTS`: JSON string mapping services to base URLs (must match `^https?://`).
+  - `COURTROOM_TIMEOUTS`: JSON string (int range 1-300s).
+  - `COURTROOM_VAULT_KEY`: 32-byte base64 encoded Fernet key.
+- **Dashboard Controls (CHK002)**:
+  - Interactive keys: `p` (Pause swarm), `r` (Resume), `c` (Manual Reset all Circuit Breakers).
+- **Validation Rules (CHK003)**:
+  - Tool URL inputs: Regex `^https?://[a-zA-Z0-9\-\.]+\.[a-z]{2,}`.
+  - Evidence File Size: Max 100MB per artifact.
+- **Circuit Breaker Recovery (CHK004)**:
+  - A single (1) successful execution in `HALF_OPEN` state transitions the breaker back to `CLOSED`.
+- **Cryptographic Genesis (CHK005)**:
+  - Initial hash derived from: `manifest.input_url` + `manifest.pdf_hash` + `manifest.timestamp`.
+- **Error Behavior (CHK014-CHK016)**:
+  - **Vault Unavailability**: 3 retries with 5s backoff, then Fatal Halt (`exit(1)`).
+  - **Dashboard Failure**: Background thread logs to `logs/tui_error.log`; swarm execution continues unaffected.
+  - **Crypto Chain Failure**: Immediate halt of the affected branch; log `SECURITY_ALERT`; partial report generated.
+- **Observability Fields (CHK017)**:
+  - LangSmith traces MUST capture: `node_id`, `state_diff`, `tool_call_payload`, `latency_ms`.
+- **Performance Overhead (CHK018)**:
+  - Cryptographic operations MUST NOT exceed 50ms per transaction.
+
 ### Edge Cases
 
 - **Hallucinated Evidences**: If a detective claims evidence exists but the cryptographic chain indicates tampering or missing data.

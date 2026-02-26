@@ -34,6 +34,11 @@
   - `content_hash: str` (SHA-256 of the current evidence contents)
   - `aggregate_hash: str` (SHA-256(previous_hash + content_hash))
 
+### DashboardInteraction (Internal)
+
+- **Purpose**: Controls for real-time TUI engagement.
+- **Commands**: `PAUSE`, `RESUME`, `RESET_CB`.
+
 ### SandboxEnvironment (Pydantic Model)
 
 - **Purpose**: Configuration and metadata for ephemeral execution.
