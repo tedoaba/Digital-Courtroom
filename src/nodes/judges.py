@@ -65,7 +65,7 @@ def get_ollama_llm():
     from langchain_ollama import ChatOllama
     
     return ChatOllama(
-        model="qwen2.5-coder:14b",
+        model="qwen3-coder:480b-cloud",
         temperature=judicial_settings.llm_temperature,
     )
 
