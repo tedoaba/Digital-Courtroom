@@ -141,17 +141,28 @@ def get_circuit_breaker(name: str) -> CircuitBreaker:
 # --- Restored Orchestration Helpers ---
 
 def sanitize_repo_name(url: str) -> str:
-    """Extracts a filesystem-safe name from a GitHub URL."""
-    name = url.split('/')[-1]
+    """Extracts a filesystem-safe name from a GitHub URL (FR-014, FR-016)."""
+    # 1. Strip protocol and common domains if present
+    name = re.sub(r'^https?://[^/]+/', '', url)
+    # 2. Strip .git suffix
     if name.endswith('.git'):
         name = name[:-4]
+    
+    # 3. Handle special delimiters to match test requirements
+    name = name.replace('..', '_')
+    name = name.replace('/', '_')
+    
+    # 4. Strip leading/trailing underscores and dots (filesystem protection)
+    name = name.lstrip('_').lstrip('.')
+    
+    # 5. Replace all remaining non-alphanumeric (except - and _) with underscores
     return re.sub(r'[^a-zA-Z0-9_\-]', '_', name)
 
-def get_report_workspace(base_dir: str, repo_url: str) -> pathlib.Path:
-    """Creates a dedicated output directory for the audit run."""
+def get_report_workspace(repo_url: str, base_dir: str = "audit/reports") -> pathlib.Path:
+    """Creates a dedicated output directory for the audit run (FR-014)."""
     repo_name = sanitize_repo_name(repo_url)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = pathlib.Path(base_dir) / f"{repo_name}_{timestamp}"
+    path = pathlib.Path(base_dir) / repo_name / timestamp
     path.mkdir(parents=True, exist_ok=True)
     return path
 

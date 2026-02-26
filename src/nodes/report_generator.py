@@ -51,7 +51,8 @@ def report_generator_node(state: AgentState) -> Dict[str, Any]:
         )
         
         # 4. Initialize Workspace
-        workspace = get_report_workspace(repo_name)
+        root = pathlib.Path(__file__).resolve().parent.parent.parent
+        workspace = get_report_workspace(repo_url, base_dir=str(root / "audit" / "reports"))
         
         # 5. Render Markdown
         root = pathlib.Path(__file__).resolve().parent.parent.parent
@@ -116,7 +117,8 @@ def fallback_save(state: AgentState, error: Exception) -> Dict[str, Any]:
     repo_name = repo_url.split("/")[-1] if "/" in repo_url else repo_url
     
     try:
-        workspace = get_report_workspace(repo_name)
+        root = pathlib.Path(__file__).resolve().parent.parent.parent
+        workspace = get_report_workspace(repo_url, base_dir=str(root / "audit" / "reports"))
         report_path = workspace / "report_ERROR.md"
         
         content = f"# SYSTEM FAULT REPORT: {repo_name}\n\n"
