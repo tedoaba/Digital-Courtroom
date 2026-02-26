@@ -24,24 +24,24 @@ from src.nodes.error_handler import error_handler_node
 # Initialize global logger
 logger = StructuredLogger("orchestrator")
 
-# Apply Timeouts (SC-004: 120s per major layer)
-# Note: In synchronous LangGraph, wrapping the node function is the cleanest way.
-timed_repo_investigator = timeout_wrapper(120)(repo_investigator)
-timed_doc_analyst = timeout_wrapper(120)(doc_analyst)
-timed_vision_inspector = timeout_wrapper(120)(vision_inspector)
+# Apply Timeouts (SC-004: increased to 300s for first-run stability)
+timed_repo_investigator = timeout_wrapper(300)(repo_investigator)
+timed_doc_analyst = timeout_wrapper(300)(doc_analyst)
+timed_vision_inspector = timeout_wrapper(300)(vision_inspector)
 timed_evaluate_criterion = timeout_wrapper(120)(evaluate_criterion)
 
 # Routing Functions for US2 (Fault Tolerance)
 def route_after_aggregator(state: AgentState) -> Union[List[Send], str]:
     """Routes to judicial layer (parallel) or error handler."""
-    if state.get("errors"):
+    # US2: Proceed to judicial layer even if partial errors occurred.
+    # We only stop if there's a truly catastrophic failure (e.g. no dimensions)
+    if not state.get("rubric_dimensions"):
         return "error_handler"
     return execute_judicial_layer(state)
 
 def route_after_justice_with_errors(state: AgentState) -> str:
     """Routes after justice, checking for errors first."""
-    if state.get("errors"):
-        return "error_handler"
+    # US2: Proceed to report/re-eval even if errors occurred (they will be in the log)
     return route_after_justice(state)
 
 def create_graph() -> StateGraph:

@@ -40,14 +40,28 @@ def get_philosophy(judge_name: str) -> str:
         return TECHLEAD_PHILOSOPHY
     return TECHLEAD_PHILOSOPHY # Fallback
 
-def get_llm():
+def get_google_llm():
     # Placeholder for LLM fetching logic
     from langchain_google_genai import ChatGoogleGenerativeAI
-    return ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=judicial_settings.llm_temperature)
+    api_key = judicial_settings.google_api_key or judicial_settings.gemini_api_key
+    return ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash", 
+        temperature=judicial_settings.llm_temperature,
+        google_api_key=api_key
+    )
+
+def get_ollama_llm():
+    from langchain_ollama import ChatOllama
+    
+    return ChatOllama(
+        model="qwen3-coder:480b-cloud",
+        temperature=judicial_settings.llm_temperature,
+        # base_url="http://localhost:11434" # Optional: clarify if Ollama is running elsewhere
+    )
 
 @retry(
-    stop=stop_after_attempt(3), 
-    wait=wait_exponential(multiplier=1, min=1, max=10),
+    stop=stop_after_attempt(5), 
+    wait=wait_exponential(multiplier=2, min=2, max=30),
     retry=retry_if_exception_type(Exception),
     reraise=True
 )
@@ -110,7 +124,7 @@ Ensure you adhere to the schema strictly.
     
     logger.info(f"Entry {judge} for {criterion_id}")
     try:
-        llm = get_llm()
+        llm = get_ollama_llm()
         result = invoke_llm_with_retry(llm, messages)
         result = result.model_copy(update={"opinion_id": opinion_id}) # ensure opinion id is correct
         logger.info(f"Exit {judge} for {criterion_id} with score {result.score}")
