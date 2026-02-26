@@ -192,10 +192,40 @@ def synthesize_criterion(
         if op.remediation:
             remediations.append(op.remediation)
     
+    # --- FR-010: Final Narrative Reasoning (SC-004) ---
+    p_op = next((op for op in opinions if op.judge == "Prosecutor"), None)
+    d_op = next((op for op in opinions if op.judge == "Defense"), None)
+    t_op = next((op for op in opinions if op.judge == "TechLead"), None)
+    
+    reasoning_parts = []
+    
+    # Prefix based on consensus
+    if variance == 0:
+        reasoning_parts.append(f"Unanimous consensus at {final_int}/5.")
+    elif variance <= 2:
+        reasoning_parts.append(f"Nuanced consensus reached at {final_int}/5.")
+    else:
+        reasoning_parts.append(f"Significant judicial conflict detected (Variance: {variance}).")
+
+    # Add specific judge signals
+    if p_op and p_op.score < 3 and p_op.charges:
+        reasoning_parts.append(f"Prosecutor flagged critical risks: {'; '.join(p_op.charges[:2])}.")
+    
+    if d_op and d_op.score > 3 and d_op.mitigations:
+        reasoning_parts.append(f"Defense highlighted mitigating factors: {'; '.join(d_op.mitigations[:2])}.")
+        
+    if security_violation:
+        reasoning_parts.append("CRITICAL: Score capped due to verified security violations.")
+    
+    if t_op:
+        reasoning_parts.append(f"Tech Lead weighted synthesis prioritized architectural { 'stability' if t_op.score >= 3 else 'risks' }.")
+
+    final_reasoning = " ".join(reasoning_parts)
+
     return CriterionResult(
         criterion_id=criterion_id,
         numeric_score=final_int,
-        reasoning="Synthesis report generated deterministically.",
+        reasoning=final_reasoning,
         relevance_confidence=1.0,
         judge_opinions=opinions,
         dissent_summary=dissent,

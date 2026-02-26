@@ -1,4 +1,5 @@
 import asyncio
+import re
 import datetime
 import json
 import logging
@@ -8,7 +9,7 @@ from pydantic import ValidationError
 
 from pydantic import BaseModel, Field
 from langgraph.types import Send
-from src.state import AgentState, JudicialOpinion
+from src.state import AgentState, JudicialOpinion, JudicialOutcome
 from src.config import judicial_settings
 from src.nodes.judicial_nodes import get_concurrency_controller, bounded_llm_call
 
@@ -73,16 +74,16 @@ def get_ollama_llm():
         temperature=judicial_settings.llm_temperature,
     )
 
-async def _invoke_llm_with_validation(llm, messages, retries=0):
+async def _invoke_llm_with_validation(llm, messages, retries=0, schema=JudicialOutcome):
     """Internal helper to invoke LLM with schema retry (separate from 429 retries)."""
-    structured_llm = llm.with_structured_output(JudicialOpinion)
+    structured_llm = llm.with_structured_output(schema)
     try:
         return await structured_llm.ainvoke(messages)
     except ValidationError as e:
         if retries < 2:
             schema_reminder = HumanMessage(content=f"Your previous response failed schema validation. Please fix these errors and try again: {e}")
             messages.append(schema_reminder)
-            return await _invoke_llm_with_validation(llm, messages, retries=retries + 1)
+            return await _invoke_llm_with_validation(llm, messages, retries=retries + 1, schema=schema)
         raise e
     except Exception as e:
         logger.error(f"LLM invocation failed: {str(e)}", payload={"messages_len": len(messages)})
@@ -135,7 +136,14 @@ Ensure you return ONLY the JSON object. Do not add markdown wrappers around the 
     
     async def llm_call():
         llm = get_ollama_llm()
-        return await _invoke_llm_with_validation(llm, messages)
+        # Use JudicialOutcome for structured output parsing
+        outcome = await _invoke_llm_with_validation(llm, messages, schema=JudicialOutcome)
+        
+        # Transform JudicialOutcome -> JudicialOpinion by injecting the ID
+        return JudicialOpinion(
+            opinion_id=opinion_id,
+            **outcome.model_dump()
+        )
 
     try:
         result = await bounded_llm_call(
@@ -144,17 +152,32 @@ Ensure you return ONLY the JSON object. Do not add markdown wrappers around the 
             dimension=criterion_id,
             llm_callable=llm_call
         )
-        result = result.model_copy(update={"opinion_id": opinion_id}) # ensure opinion id is correct
         logger.log_opinion_rendered(f"{judge} on {criterion_id}", correlation_id=correlation_id, score=result.score)
         return {"opinions": [result]}
     except Exception as e:
         logger.error(f"Fallback {judge} for {criterion_id} due to persistent error: {e}", correlation_id=correlation_id)
+        
+        # ATTEMPT: Manual extraction from the raw error if possible (for non-compliant JSON)
+        err_msg = str(e)
+        extracted_score = 3
+        extracted_argument = f"System Error: Judicial evaluation failed after retries. Error: {err_msg[:200]}"
+        
+        # If the error contains a partial response (typical in Pydantic/LangChain error messages)
+        score_match = re.search(r"'score':\s*(\d+)", err_msg)
+        if score_match:
+            try: extracted_score = int(score_match.group(1))
+            except: pass
+        
+        arg_match = re.search(r"'argument':\s*'([^']*)'", err_msg)
+        if arg_match:
+            extracted_argument = f"[PARTIAL_VALIDATION] {arg_match.group(1)}"
+            
         fallback_opinion = JudicialOpinion(
             opinion_id=opinion_id,
             judge=judge, # type: ignore
             criterion_id=criterion_id,
-            score=3,
-            argument=f"System Error: Judicial evaluation failed after retries. Error: {str(e)[:100]}",
+            score=extracted_score,
+            argument=extracted_argument,
             cited_evidence=[],
             mitigations=None,
             charges=None,
@@ -162,7 +185,7 @@ Ensure you return ONLY the JSON object. Do not add markdown wrappers around the 
         )
         return {
             "opinions": [fallback_opinion],
-            "errors": [f"Persistent failure for judge {judge} on criterion {criterion_id}: {str(e)}"]
+            "errors": [f"Persistent failure for judge {judge} on criterion {criterion_id}: {err_msg}"]
         }
 
 async def evaluate_batch_criterion(task: JudicialBatchTask) -> dict[str, list[JudicialOpinion]]:
@@ -211,24 +234,41 @@ Example: {{"opinions": [{{"criterion_id": "DIM1", "judge": "{judge}", "score": 4
     
     async def llm_call():
         llm = get_ollama_llm()
-        # FR-004: Providers that don't support structured output for lists might fail here
-        # We wrap in a list model for validation
-        class BatchOpinionResponse(BaseModel):
-            opinions: list[JudicialOpinion]
+        
+        class BatchOutcomeResponse(BaseModel):
+            opinions: list[JudicialOutcome]
             
-        structured_llm = llm.with_structured_output(BatchOpinionResponse)
+        structured_llm = llm.with_structured_output(BatchOutcomeResponse)
         return await structured_llm.ainvoke(messages)
 
     try:
-        # FR-004 Fallback: If BATCHING fails (e.g. timeout or context window), it might raise Exception
+        # Create a custom settings object with longer timeout for the batch call
+        class BatchSettingsWrapper:
+            def __init__(self, original):
+                for k, v in original.__dict__.items():
+                    setattr(self, k, v)
+                # Override timeout if batch specific timeout exists
+                self.llm_call_timeout = getattr(original, "batch_llm_call_timeout", 300.0)
+        
+        batch_settings = BatchSettingsWrapper(judicial_settings)
+        
         batch_result = await bounded_llm_call(
             controller=controller,
             agent=judge,
             dimension="BATCH",
-            llm_callable=llm_call
+            llm_callable=llm_call,
+            settings=batch_settings
         )
         
-        received_opinions = batch_result.opinions
+        received_outcomes = batch_result.opinions
+        
+        # Transform JudicialOutcomes -> JudicialOpinions
+        received_opinions = []
+        for i, outcome in enumerate(received_outcomes):
+            ts = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+            op_id = f"{judge}_{outcome.criterion_id}_{ts}_{i}"
+            received_opinions.append(JudicialOpinion(opinion_id=op_id, **outcome.model_dump()))
+        
         received_ids = {op.criterion_id for op in received_opinions}
         
         # FR-005: Handle Missing or Corrupt items (partial success logic)

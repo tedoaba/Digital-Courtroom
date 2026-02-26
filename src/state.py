@@ -51,9 +51,25 @@ class Evidence(StrictModel):
     timestamp: datetime
 
 
+class JudicialOutcome(BaseModel):
+    """
+    Schema for LLM output ONLY. Does not include system fields like opinion_id.
+    This prevents Pydantic validation errors when the LLM omits metadata.
+    """
+    criterion_id: str
+    judge: Literal["Prosecutor", "Defense", "TechLead"]
+    score: int = Field(..., ge=1, le=5)
+    argument: str
+    cited_evidence: list[str] = Field(default_factory=list)
+    mitigations: Optional[list[str]] = Field(default=None)
+    charges: Optional[list[str]] = Field(default=None)
+    remediation: Optional[str] = Field(default=None)
+
+
 class JudicialOpinion(StrictModel):
     """
     A Pydantic model representing a single judge's verdict on a single criterion.
+    This is the INTERNAL state model.
     """
 
     opinion_id: str = Field(..., description="Unique ID (format: {judge}_{criterion_id}_{timestamp})")
@@ -75,25 +91,25 @@ class JudicialOpinion(StrictModel):
         - Common wrapper keys ('judicial_opinion', 'opinion', etc.)
         - Field name synonyms (rationale -> argument, criteria -> criterion_id)
         - Score normalization (0-1 float -> 1-5 int)
+        - Markdown code blocks in strings
         - Missing optional fields
         """
         if not isinstance(data, dict):
             return data
 
-        # 1. Handle common wrapper keys
+        # 1. Handle common wrapper keys or single-key dicts
         wrappers = ["judicial_opinion", "opinion", "judicial_opinion_result", "result", "evaluation"]
         if len(data) == 1:
             key = list(data.keys())[0]
-            # If the only key is in wrappers OR it matches a likely criterion name (e.g. 'state_management_rigor')
             if (key in wrappers or "_" in key) and isinstance(data[key], dict):
                 data = data[key]
 
         # 2. Map synonyms for critical fields
         field_mappings = {
             "criterion_id": ["criteria", "criterion", "dimension", "criterion_id", "criterion_name"],
-            "argument": ["rationale", "reasoning", "explanation", "justification", "analysis", "argument"],
-            "score": ["rating", "verdict", "numeric_score", "point", "score"],
-            "cited_evidence": ["cited_evidence_ids", "citations", "evidence_cited", "relevant_evidence", "cited_evidence"]
+            "argument": ["rationale", "reasoning", "explanation", "justification", "analysis", "argument", "verdict_text"],
+            "score": ["rating", "verdict", "numeric_score", "point", "score", "grade"],
+            "cited_evidence": ["cited_evidence_ids", "citations", "evidence_cited", "relevant_evidence", "cited_evidence", "evidence"]
         }
 
         normalized_data = data.copy()
@@ -108,9 +124,14 @@ class JudicialOpinion(StrictModel):
         if "score" in normalized_data:
             val = normalized_data["score"]
             try:
+                # If it's a string like "4/5" or "Score: 4"
+                if isinstance(val, str):
+                    match = re.search(r"(\d+)", val)
+                    if match:
+                        val = int(match.group(1))
+                
                 # If it's a float like 0.6 or 0.85
-                if isinstance(val, (float, str)) and float(val) <= 1.0 and float(val) >= 0:
-                    # Scale 0-1 to 1-5: round(val * 4 + 1)
+                if isinstance(val, (float, int)) and float(val) <= 1.0 and float(val) > 0:
                     normalized_data["score"] = int(round(float(val) * 4 + 1))
                 else:
                     normalized_data["score"] = int(float(val))
@@ -120,15 +141,30 @@ class JudicialOpinion(StrictModel):
             except (ValueError, TypeError):
                 normalized_data["score"] = 3 # Neutral fallback for unparseable scores
 
-        # 4. Ensure cited_evidence is a list
+        # 4. Ensure cited_evidence is a list of strings
         if "cited_evidence" in normalized_data:
-            if isinstance(normalized_data["cited_evidence"], str):
-                normalized_data["cited_evidence"] = [normalized_data["cited_evidence"]]
-            elif not isinstance(normalized_data["cited_evidence"], list):
+            ce = normalized_data["cited_evidence"]
+            if isinstance(ce, str):
+                # Handle comma-separated string
+                normalized_data["cited_evidence"] = [s.strip() for s in ce.split(",") if s.strip()]
+            elif not isinstance(ce, list):
                 normalized_data["cited_evidence"] = []
+            else:
+                # Clean up list items
+                normalized_data["cited_evidence"] = [str(x) for x in ce if x]
 
-        # 5. Filter out extra fields to prevent 'extra="forbid"' errors if LLM added stuff
-        # We only keep fields defined in the model
+        # 5. Clean up string fields (strip markdown etc)
+        for field in ["argument", "remediation"]:
+            if field in normalized_data and isinstance(normalized_data[field], str):
+                # Remove markdown code blocks if the LLM wrapped the whole text
+                val = normalized_data[field].strip()
+                if val.startswith("```"):
+                    lines = val.split("\n")
+                    if len(lines) > 2:
+                        val = "\n".join(lines[1:-1]).strip()
+                normalized_data[field] = val
+
+        # 6. Filter out extra fields to prevent 'extra="forbid"' errors
         allowed_fields = cls.model_fields.keys()
         final_data = {k: v for k, v in normalized_data.items() if k in allowed_fields}
         

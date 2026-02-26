@@ -57,6 +57,7 @@ class JudicialSettings(BaseSettings):
 
     # FR-008: Per-request timeout for hung calls (seconds)
     llm_call_timeout: float = 120.0
+    batch_llm_call_timeout: float = 300.0
 
     # FR-005: Toggle for structured batching mode
     batching_enabled: bool = False
