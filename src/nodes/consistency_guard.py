@@ -62,11 +62,23 @@ def analyze_graph_consistency() -> dict:
 def consistency_guard_node(state: AgentState) -> AgentState:
     """
     Final architectural check before report finalization.
+    (013-ironclad-hardening)
     """
     logger.info("Running architectural consistency guard...")
     
     analysis = analyze_graph_consistency()
     
+    # SC-005: Architectural Reconciliation (Vision-to-Code Linkage)
+    vision_findings = state.get("evidences", {}).get("vision", [])
+    if vision_findings:
+        logger.info(f"Reconciling AST with {len(vision_findings)} vision findings...")
+        for vf in vision_findings:
+            if "SMA" in (vf.content or "").upper() or "STATE" in (vf.content or "").upper():
+                # If vision detected a state machine, verify AST also found one
+                if len(analysis.get("nodes", [])) < 5:
+                    analysis["status"] = "fail"
+                    analysis["violations"].append("Vision detected StateMachine but AST verification shows insufficient node complexity.")
+
     if "metadata" not in state:
         state["metadata"] = {}
     

@@ -28,7 +28,7 @@ from src.utils.logging import (
     log_retry,
     log_timeout,
 )
-from src.utils.orchestration import get_circuit_breaker
+from src.utils.orchestration import get_circuit_breaker, get_global_rate_limiter
 
 logger = logging.getLogger(__name__)
 
@@ -130,6 +130,8 @@ async def bounded_llm_call(
     try:
         await controller.acquire(agent, dimension)
         try:
+            # SC-004: Apply traffic shaping (token bucket)
+            await get_global_rate_limiter().consume()
             return await retrying_call()
         finally:
             await controller.release(agent, dimension)

@@ -128,7 +128,7 @@ def trigger_rollback(last_valid_state: Dict[str, Any], error: str) -> Dict[str, 
 def detect_cascading_failure(errors: List[str]) -> bool:
     """FR-011: Check if core streams are failing."""
     forensic_count = sum(1 for e in errors if any(kw in e for kw in ["FORENSIC", "CRITICAL", "FATAL"]))
-    return forensic_count > 3
+    return forensic_count >= 3
 
 _cb_registry: Dict[str, CircuitBreaker] = {}
 
@@ -137,6 +137,41 @@ def get_circuit_breaker(name: str) -> CircuitBreaker:
     if name not in _cb_registry:
         _cb_registry[name] = CircuitBreaker(name)
     return _cb_registry[name]
+
+class TokenBucketRateLimiter:
+    """
+    FR-011: Traffic shaping for outbound API bursts.
+    Ensures we don't exceed model tier quotas.
+    """
+    def __init__(self, rate: float, capacity: float):
+        self.rate = rate
+        self.capacity = capacity
+        self.tokens = capacity
+        self.last_refill = time.time()
+        self._lock = asyncio.Lock()
+
+    async def consume(self, amount: float = 1.0):
+        async with self._lock:
+            now = time.time()
+            elapsed = now - self.last_refill
+            self.tokens = min(self.capacity, self.tokens + elapsed * self.rate)
+            self.last_refill = now
+            
+            if self.tokens < amount:
+                wait_time = (amount - self.tokens) / self.rate
+                await asyncio.sleep(wait_time)
+                self.tokens = 0
+            else:
+                self.tokens -= amount
+
+_limiter: Optional[TokenBucketRateLimiter] = None
+
+def get_global_rate_limiter() -> TokenBucketRateLimiter:
+    global _limiter
+    if _limiter is None:
+        # Defaults to 2 calls per second with burst of 5
+        _limiter = TokenBucketRateLimiter(rate=2.0, capacity=5.0)
+    return _limiter
 
 # --- Restored Orchestration Helpers ---
 

@@ -22,7 +22,7 @@ def test_synthesis_performance():
     # Run 100 times to get a stable average
     iterations = 100
     for _ in range(iterations):
-        synthesize_criterion("crit1", [op1, op2, op3], {})
+        synthesize_criterion("crit1", "Criterion 1", [op1, op2, op3], {})
     end_time = time.perf_counter()
     
     avg_duration_ms = ((end_time - start_time) / iterations) * 1000

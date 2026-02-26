@@ -80,6 +80,15 @@ def run_checks():
     pre_commit = pathlib.Path(".pre-commit-config.yaml").exists()
     env_table.add_row("Pre-commit Configuration", "[green]FOUND[/green]" if pre_commit else "[red]MISSING[/red]")
 
+    # Check for conventional commits in last 3 messages
+    import subprocess
+    try:
+        log = subprocess.check_output(["git", "log", "-n", "3", "--pretty=format:%s"], text=True)
+        compliant = all(re.match(r"^(feat|fix|chore|docs|style|refactor|perf|test)(\(.*\))?: .*", l) for l in log.splitlines())
+        env_table.add_row("Recent Commit Compliance", "[green]PASS[/green]" if compliant else "[yellow]WARN (Non-standard commits)[/yellow]")
+    except:
+        env_table.add_row("Recent Commit Compliance", "[blue]N/A (No Git)[/blue]")
+
     console.print(env_table)
 
 if __name__ == "__main__":
