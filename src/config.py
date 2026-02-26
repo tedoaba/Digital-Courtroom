@@ -34,6 +34,7 @@ class DetectiveSettings(BaseSettings):
 
     # Multimodal LLM parameters (FR-011)
     llm_temperature: float = 0.0
+    vision_model: str = "gemini-2.0-flash"
 
 
 class JudicialSettings(BaseSettings):
@@ -44,11 +45,18 @@ class JudicialSettings(BaseSettings):
     llm_temperature: float = 0.0
     gemini_api_key: Optional[str] = None
     google_api_key: Optional[str] = None
+    
+    # Model Selection
+    prosecutor_model: str = "deepseek-v3.1:671b-cloud"
+    defense_model: str = "deepseek-v3.1:671b-cloud"
+    techlead_model: str = "deepseek-v3.1:671b-cloud"
 
     # --- Bounded Concurrency Settings (012-bounded-agent-eval) ---
+    root_node: Optional[str] = None
 
     # FR-001: Global semaphore limit for active LLM requests (range 1–50)
     max_concurrent_llm_calls: int = 5
+
 
     # FR-002: Retry / Exponential Backoff
     retry_initial_delay: float = 1.0

@@ -24,12 +24,10 @@ from typing import Any
 
 from src.state import AgentState
 from src.utils.logger import StructuredLogger
+from src.utils.security import sanitize_repo_url
 
 # --- Constants (Const. XX.5: No hardcoded values) ---
 
-GITHUB_URL_PATTERN: str = r"^https://github\.com/[\w\-\.]+/[\w\-\.]+(?:\.git)?$"
-FORBIDDEN_URL_HOSTS: list[str] = ["localhost", "127.0.0.1"]
-FORBIDDEN_URL_SCHEMES: list[str] = ["file://"]
 DEFAULT_RUBRIC_PATH: str = "rubric/week2_rubric.json"
 
 # Module-level logger
@@ -39,27 +37,13 @@ _logger = StructuredLogger(name="context_builder", level=logging.INFO)
 def _validate_repo_url(url: str) -> str | None:
     """
     Validate the repository URL against the GitHub HTTPS pattern.
-
-    Args:
-        url: The repository URL to validate.
-
-    Returns:
-        Error message string if invalid, None if valid.
     """
-    # FR-003: Check forbidden schemes and hosts first
-    for scheme in FORBIDDEN_URL_SCHEMES:
-        if url.startswith(scheme):
-            return f"Invalid URL format: {url}"
+    try:
+        sanitize_repo_url(url)
+        return None
+    except ValueError as e:
+        return str(e)
 
-    for host in FORBIDDEN_URL_HOSTS:
-        if host in url:
-            return f"Invalid URL format: {url}"
-
-    # FR-002: Strict regex validation
-    if not re.match(GITHUB_URL_PATTERN, url):
-        return f"Invalid URL format: {url}"
-
-    return None
 
 
 def _validate_pdf_path(pdf_path: str) -> str | None:

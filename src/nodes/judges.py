@@ -66,11 +66,11 @@ def get_google_llm():
         google_api_key=api_key
     )
 
-def get_ollama_llm():
+def get_ollama_llm(model_name: str):
     from langchain_ollama import ChatOllama
     
     return ChatOllama(
-        model="deepseek-v3.1:671b-cloud", # "qwen3-coder:480b-cloud",
+        model=model_name,
         temperature=judicial_settings.llm_temperature,
     )
 
@@ -102,6 +102,8 @@ async def evaluate_criterion(task: JudicialTask) -> dict[str, list[JudicialOpini
     opinion_id = f"{judge}_{criterion_id}_{timestamp}"
     
     evidence_text = _format_evidence(evidences)
+
+    model_name = getattr(judicial_settings, f"{judge.lower()}_model", judicial_settings.techlead_model)
                 
     system_prompt = f"""You are the {judge} in a digital courtroom.
 {get_philosophy(judge)}
@@ -135,7 +137,7 @@ Ensure you return ONLY the JSON object. Do not add markdown wrappers around the 
     controller = get_concurrency_controller()
     
     async def llm_call():
-        llm = get_ollama_llm()
+        llm = get_ollama_llm(model_name)
         # Use JudicialOutcome for structured output parsing
         outcome = await _invoke_llm_with_validation(llm, messages, schema=JudicialOutcome)
         
@@ -144,6 +146,7 @@ Ensure you return ONLY the JSON object. Do not add markdown wrappers around the 
             opinion_id=opinion_id,
             **outcome.model_dump()
         )
+
 
     try:
         result = await bounded_llm_call(
@@ -232,14 +235,17 @@ Example: {{"opinions": [{{"criterion_id": "DIM1", "judge": "{judge}", "score": 4
     
     controller = get_concurrency_controller()
     
+    model_name = getattr(judicial_settings, f"{judge.lower()}_model", judicial_settings.techlead_model)
+    
     async def llm_call():
-        llm = get_ollama_llm()
+        llm = get_ollama_llm(model_name)
         
         class BatchOutcomeResponse(BaseModel):
             opinions: list[JudicialOutcome]
             
         structured_llm = llm.with_structured_output(BatchOutcomeResponse)
         return await structured_llm.ainvoke(messages)
+
 
     try:
         # Create a custom settings object with longer timeout for the batch call

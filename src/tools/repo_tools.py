@@ -5,12 +5,17 @@ from datetime import datetime
 from typing import List
 
 from src.state import ASTFinding, Commit
+from src.utils.security import sanitize_repo_url
 
 def clone_repository(repo_url: str, dest_dir: str, timeout: int = 60) -> None:
     """Clones a git repository to a specific directory with a timeout."""
+    # Defense in depth: sanitize URL again before shell interaction
+    repo_url = sanitize_repo_url(repo_url)
+    
     try:
         subprocess.run(
             ["git", "clone", repo_url, dest_dir],
+
             check=True,
             timeout=timeout,
             capture_output=True,

@@ -89,6 +89,12 @@ LLM_CALL_TIMEOUT=120.0
 
 # Performance: Enable structured evaluation batching
 BATCHING_ENABLED=false
+
+# --- Model Selection ---
+PROSECUTOR_MODEL=deepseek-v3.1:671b-cloud
+DEFENSE_MODEL=deepseek-v3.1:671b-cloud
+TECHLEAD_MODEL=deepseek-v3.1:671b-cloud
+VISION_MODEL=gemini-2.0-flash
 ```
 
 ### **Basic Usage**

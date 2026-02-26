@@ -1,36 +1,95 @@
+import base64
 import concurrent.futures
+import io
+import os
 from typing import List, Dict, Any
 
-from src.config import detective_settings
+try:
+    import fitz  # PyMuPDF
+except ImportError:
+    fitz = None
+
+from langchain_google_genai import ChatGoogleGenerativeAI
+from src.config import detective_settings, judicial_settings
 
 def extract_images_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
     """
-    Mock implementation since full multimodal/image extraction 
-    is complex and often relies on specific external setups.
-    This simulates extracting base64 images from a PDF.
+    Extracts images from a PDF using PyMuPDF.
     """
-    # In a real scenario, docling could be used to export images.
-    # We return a dummy image for testing orchestration logic.
-    return [{"base64": "dummy", "page": 1}]
+    if not fitz:
+        return []
+    
+    if not os.path.exists(pdf_path):
+        return []
+
+    images = []
+    try:
+        doc = fitz.open(pdf_path)
+        for page_index in range(len(doc)):
+            page = doc[page_index]
+            image_list = page.get_images(full=True)
+            
+            for img_index, img in enumerate(image_list):
+                xref = img[0]
+                base_image = doc.extract_image(xref)
+                image_bytes = base_image["image"]
+                
+                # Convert to base64
+                encoded = base64.b64encode(image_bytes).decode("utf-8")
+                
+                images.append({
+                    "base64": encoded,
+                    "page": page_index + 1,
+                    "index": img_index
+                })
+        doc.close()
+    except Exception as e:
+        # Log error or raise
+        pass
+        
+    return images
 
 
 def classify_diagram(image_base64: str) -> str:
     """
-    Simulates sending an image to Gemini Pro Vision for classification.
+    Sends an image to Gemini Pro Vision for classification.
     """
-    # Placeholder for LLM logic
-    # Real implementation would use langchain-google-genai and pass
-    # detective_settings.llm_temperature
+    api_key = judicial_settings.google_api_key or judicial_settings.gemini_api_key
+    if not api_key:
+        return "Image analysis skipped: Missing Google API Key."
+
+    llm = ChatGoogleGenerativeAI(
+        model=detective_settings.vision_model,
+        temperature=detective_settings.llm_temperature,
+        google_api_key=api_key
+    )
     
-    # Return a mocked deterministic string for tests/orchestration
-    return "Parallel Flow. The diagram shows multiple parallel detective nodes executing simultaneously."
+    # Construct multimodal message
+    from langchain_core.messages import HumanMessage
+    
+    message = HumanMessage(
+        content=[
+            {"type": "text", "text": "Analyze this architectural diagram from a software engineering perspective. Identify if it shows a LangGraph StateMachine with parallel branches (fan-out/fan-in) for Detectives and Judges. Describe the flow accurately."},
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
+            },
+        ]
+    )
+    
+    try:
+        response = llm.invoke([message])
+        return str(response.content)
+    except Exception as e:
+        return f"Image classification failed: {str(e)}"
 
 
 def _run_vision_classification(pdf_path: str) -> List[Dict[str, Any]]:
     images = extract_images_from_pdf(pdf_path)
     results = []
     
-    for idx, img in enumerate(images):
+    # Limit number of images to avoid token limits / 429
+    for idx, img in enumerate(images[:5]): 
         cls = classify_diagram(img["base64"])
         results.append({
             "image_index": idx,
@@ -39,6 +98,7 @@ def _run_vision_classification(pdf_path: str) -> List[Dict[str, Any]]:
         })
         
     return results
+
 
 
 def run_vision_classification(pdf_path: str, timeout: int = 60) -> List[Dict[str, Any]]:
