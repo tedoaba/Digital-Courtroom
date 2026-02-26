@@ -15,6 +15,16 @@ The current evaluation architecture executes 3 agents, each evaluating 10 dimens
 
 The refactor introduces a bounded concurrency model to ensure that total parallel LLM calls are explicitly limited, regardless of the number of agents or dimensions.
 
+## Clarifications
+
+### Session 2026-02-26
+
+- Q: What are the specific parameters for the exponential backoff (Initial delay and Maximum delay)? → A: Standard: Initial 1s → Exp. Max 60s (with jitter).
+- Q: Which specific mechanism should be used to enforce the global concurrency limit? → A: Semaphore: Use `asyncio.Semaphore` for direct throttling.
+- Q: When using Structured Batching, how should validation be handled if the model fails to return evaluations for all 10 dimensions in the single call? → A: Partial Success: Accept returned items, retry missing ones separately.
+- Q: Where should the concurrency and retry settings be stored? → A: Environment Variables: Primary source, e.g., in `.env`.
+- Q: What level of detail should the concurrency logging include by default? → A: Standard: Log "Queueing" and "Acquired" events.
+
 ## Execution Flow (Refactored)
 
 ```mermaid
@@ -91,15 +101,15 @@ As a user, I want the option to consolidate dimension evaluations into single st
 ### Functional Requirements
 
 - **FR-001**: System MUST enforce a strictly bounded **Global Concurrency Limit** on the total number of outstanding LLM requests across all agents. The limit N represents the absolute ceiling for simultaneous network requests to the LLM backend.
-- **FR-002**: System MUST implement a retry mechanism with exponential backoff for transient provider failures (e.g., 429 Rate Limit, 502/503 Gateway errors).
-- **FR-003**: System MUST provide a centralized configuration interface for `MAX_CONCURENT_LLM_CALLS`.
+- **FR-002**: System MUST implement a retry mechanism with exponential backoff for transient provider failures (initial delay: 1s, maximum delay: 60s, including randomized jitter).
+- **FR-003**: System MUST provide a centralized configuration interface via **environment variables** (e.g., in `.env`) for `MAX_CONCURRENT_LLM_CALLS` and retry parameters.
 - **FR-004**: System MUST be architecture-agnostic, supporting any LLM backend (Ollama, OpenAI, Anthropic, etc.) through a unified concurrency bridge.
-- **FR-005**: System MUST support "Structured Batching" where 10 dimensions are grouped into a single structured output request to minimize call volume.
+- **FR-005**: System MUST support "Structured Batching" where dimensions are grouped into a single structured output request. If a batched response is incomplete, the system MUST accept the valid dimensions and automatically retry missing dimensions individually.
 - **FR-006**: System MUST degrade gracefully, increasing job duration instead of failing when the concurrency limit is reached.
 
 ### Key Entities
 
-- **Concurrency Controller**: The central manager (Semaphore or Task Queue) responsible for throttling requests.
+- **Concurrency Controller**: The central manager using an `asyncio.Semaphore` to strictly throttle parallel requests.
 - **Evaluation Task**: A single unit of work (one dimension evaluation or one agent batch).
 - **Retry Policy**: The configuration defining backoff multipliers, jitter, and maximum retry attempts.
 
@@ -121,5 +131,5 @@ As a user, I want the option to consolidate dimension evaluations into single st
 
 - **SC-001**: **Zero 429 Errors**: Benchmarked evaluations of 3 agents x 10 dimensions must complete with zero rate-limit failures under standard provider quotas.
 - **SC-002**: **Predictable Load**: The number of concurrent network requests MUST NOT exceed the user-defined limit at any timestamp.
-- **SC-003**: **Observability**: System logs must clearly indicate when requests are being throttled or retried due to concurrency bounds.
+- **SC-003**: **Observability**: System logs MUST clearly indicate when requests are being throttled (e.g., "Queueing...") and when they are released (e.g., "Acquired..."), in addition to retry attempt markers.
 - **SC-004**: **Scalability**: The design must allow increasing the number of agents without a corresponding linear increase in parallel network requests.
