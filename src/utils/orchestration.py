@@ -3,55 +3,83 @@ Orchestration utilities for layer synchronization, timeouts, and error handling.
 """
 import functools
 import threading
+import logging
 from typing import Any, Callable, Dict, TypeVar
 
 T = TypeVar("T")
 
+import asyncio
+import inspect
+
+logger = logging.getLogger(__name__)
+
 def timeout_wrapper(seconds: int = 120):
     """
-    Decorator to enforce a timeout on a synchronous function.
+    Decorator to enforce a timeout on both synchronous and asynchronous functions.
     Returns the original state with an error message appended if the timeout is hit.
     """
+    def is_async(f):
+        return asyncio.iscoroutinefunction(f) or inspect.iscoroutinefunction(f) or (hasattr(f, "__code__") and f.__code__.co_flags & 0x80)
+
     def decorator(func: Callable[[Dict[str, Any]], Dict[str, Any]]):
-        @functools.wraps(func)
-        def wrapper(state: Dict[str, Any]) -> Dict[str, Any]:
-            result_container = []
-            exception_container = []
-
-            def target():
+        if is_async(func):
+            @functools.wraps(func)
+            async def async_wrapper(state: Dict[str, Any]) -> Dict[str, Any]:
                 try:
-                    res = func(state)
-                    result_container.append(res)
+                    return await asyncio.wait_for(func(state), timeout=seconds)
+                except asyncio.TimeoutError:
+                    node_name = func.__name__
+                    error_msg = f"TimeoutError: Node '{node_name}' exceeded {seconds}s limit."
+                    logger.error(error_msg)
+                    new_errors = state.get("errors", []) + [error_msg]
+                    return {**state, "errors": new_errors}
                 except Exception as e:
-                    exception_container.append(e)
+                    node_name = func.__name__
+                    error_msg = f"Exception in '{node_name}': {str(e)}"
+                    logger.error(error_msg)
+                    new_errors = state.get("errors", []) + [error_msg]
+                    return {**state, "errors": new_errors}
+            return async_wrapper
+        else:
+            @functools.wraps(func)
+            def sync_wrapper(state: Dict[str, Any]) -> Dict[str, Any]:
+                result_container = []
+                exception_container = []
 
-            thread = threading.Thread(target=target)
-            thread.daemon = True
-            thread.start()
-            thread.join(timeout=seconds)
+                def target():
+                    try:
+                        res = func(state)
+                        result_container.append(res)
+                    except Exception as e:
+                        exception_container.append(e)
 
-            if thread.is_alive():
-                # Timeout occurred
-                node_name = func.__name__
-                error_msg = f"TimeoutError: Node '{node_name}' exceeded {seconds}s limit."
-                new_errors = state.get("errors", []) + [error_msg]
-                # Return state with error to trigger ErrorHandler routing
-                return {**state, "errors": new_errors}
-            
-            if exception_container:
-                # Re-raise or handle internal exception
-                e = exception_container[0]
-                node_name = func.__name__
-                error_msg = f"Exception in '{node_name}': {str(e)}"
-                new_errors = state.get("errors", []) + [error_msg]
-                return {**state, "errors": new_errors}
+                thread = threading.Thread(target=target)
+                thread.daemon = True
+                thread.start()
+                thread.join(timeout=seconds)
 
-            if result_container:
-                return result_container[0]
-            
-            return state
+                if thread.is_alive():
+                    # Timeout occurred
+                    node_name = func.__name__
+                    error_msg = f"TimeoutError: Node '{node_name}' exceeded {seconds}s limit."
+                    new_errors = state.get("errors", []) + [error_msg]
+                    # Return state with error to trigger ErrorHandler routing
+                    return {**state, "errors": new_errors}
+                
+                if exception_container:
+                    # Re-raise or handle internal exception
+                    e = exception_container[0]
+                    node_name = func.__name__
+                    error_msg = f"Exception in '{node_name}': {str(e)}"
+                    new_errors = state.get("errors", []) + [error_msg]
+                    return {**state, "errors": new_errors}
 
-        return wrapper
+                if result_container:
+                    return result_container[0]
+                
+                return state
+            return sync_wrapper
+
     return decorator
 
 
