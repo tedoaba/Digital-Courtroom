@@ -50,8 +50,8 @@
 ### Implementation for User Story 1
 
 - [ ] T012 [P] [US1] Implement `HardenedVault` with AES-256 (Fernet) in `src/utils/security.py`
-- [ ] T013 [P] [US1] Implement `SandboxEnvironment` with `psutil` resource monitoring in `src/utils/security.py`
-- [ ] T014 [US1] Implement input/output sanitization logic in `src/utils/security.py`
+- [ ] T013 [P] [US1] Implement `SandboxEnvironment` with `psutil` resource monitoring (512MB RAM, 1 CPU core) in `src/utils/security.py`
+- [ ] T014 [US1] Implement Pydantic-based input/output validation and sanitization logic in `src/utils/security.py`
 - [ ] T015 [US1] Refactor `src/config.py` to pull all model names and endpoints from environment variables
 - [ ] T016 [US1] Audit and remove all hardcoded strings from existing nodes in `src/nodes/`
 - [ ] T017 [US1] Update detective nodes to execute tools via `SandboxEnvironment`
@@ -98,7 +98,7 @@
 
 - [ ] T027 [P] [US3] Implement sequential SHA-256 hash chain logic in `src/utils/security.py`
 - [ ] T028 [US3] Implement `CircuitBreaker` logic with 3-failure threshold in `src/utils/orchestration.py`
-- [ ] T029 [US3] Integrate `CircuitBreaker` into LangGraph orchestration nodes in `src/utils/orchestration.py`
+- [ ] T029 [US3] Integrate `CircuitBreaker` into LangGraph orchestration nodes and implement cascading failure detection for core streams (FR-011) in `src/utils/orchestration.py`
 - [ ] T030 [US3] Implement automated state rollback for orchestration recovery in `src/utils/orchestration.py`
 - [ ] T031 [US3] Implement evidence verification utility method in `src/utils/security.py`
 
@@ -137,6 +137,8 @@
 - [ ] T040 Perform final security audit for credential leakage in logs
 - [ ] T041 Run `quickstart.md` validation to ensure project is ready for handover
 - [ ] T042 [P] Cleanup temporary test files and artifacts
+- [ ] T043 Perform recovery performance benchmark to verify < 10s recovery (SC-006)
+- [ ] T044 Verify zero mock implementation in production node path (SC-007)
 
 ---
 

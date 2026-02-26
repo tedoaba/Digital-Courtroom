@@ -117,4 +117,4 @@ As a Developer, I want a dedicated abstraction layer for reasoning strategies an
 - **SC-004**: Circuit breaker successfully opens within exactly 3 consecutive failures of an external API.
 - **SC-005**: Cryptographic validation using SHA-256 detects 100% of manual tampering attempts in the evidence store.
 - **SC-006**: Execution recovery from a simulated orchestration crash completes in under 10 seconds.
-- **SC-007**: Zero mock components remain in the production execution path.
+- [ ] SC-007: Zero mock components remain in the production execution path (defined as the graph nodes: ContextBuilder → Detectives → EvidenceAggregator → Judges → ChiefJustice → ReportGenerator).
