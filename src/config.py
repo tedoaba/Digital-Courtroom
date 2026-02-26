@@ -134,6 +134,9 @@ class JudicialSettings(BaseSettings):
     # FR-005: Toggle for structured batching mode
     batching_enabled: bool = False
 
+    # (013-ironclad-hardening) Redundancy and Leader Election
+    judicial_redundancy_factor: int = Field(default=1, ge=1, le=5, validation_alias="JUDICIAL_REDUNDANCY_FACTOR")
+
     @field_validator("max_concurrent_llm_calls")
     @classmethod
     def validate_concurrency_limit(cls, v: int) -> int:
