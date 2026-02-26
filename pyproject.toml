@@ -29,6 +29,7 @@ dependencies = [
 
 [project.scripts]
 audit = "src.main:main"
+courtroom = "src.cli:main"
 
 [tool.ruff]
 line-length = 88
