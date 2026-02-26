@@ -36,36 +36,56 @@ class LogBufferHandler(logging.Handler):
     def __init__(self, buffer: List[Text]):
         super().__init__()
         self.buffer = buffer
-        self.max_size = 22
+        self.max_size = 40  # Increased for more detail
+        # Noisy loggers to ignore
+        self.blacklist = ["httpx", "httpcore", "asyncio", "urllib3", "openai", "anthropic", "google.ai"]
 
     def emit(self, record):
+        # 1. Noise Filtering
+        if any(name in record.name for name in self.blacklist):
+            return
+
         try:
-            msg = self.format(record)
-            # Try to parse as JSON first (our StructuredLogger format)
-            try:
-                data = json.loads(msg)
-                ts = data.get("timestamp", "").split("T")[-1][:8]
-                severity = data.get("severity", "INFO")
-                event = data.get("event_type", "event").replace("_", " ").title()
-                content = data.get("message", "")
-                
-                sev_color = "green" if severity == "INFO" else "yellow" if severity == "WARNING" else "bold red"
-                event_color = "cyan" if "node" in event.lower() else "magenta" if "opinion" in event.lower() else "blue"
-                
-                line = Text()
-                line.append(f"[{ts}] ", style="dim")
-                line.append(f"{severity:<7} ", style=sev_color)
-                line.append(f"» {event:<18} ", style=f"bold {event_color}")
-                line.append(content, style="white")
-            except:
-                # Fallback for plain text logs
-                ts = datetime.now().strftime("%H:%M:%S")
-                line = Text()
-                line.append(f"[{ts}] ", style="dim")
-                line.append(f"{record.levelname:<7} ", style="dim yellow")
-                line.append(f"{record.name:<18} ", style="dim cyan")
-                line.append(str(record.msg), style="dim white")
-                
+            # 2. Extract structured data directly from LogRecord attributes
+            # StructuredLogger puts these in 'extra' which become record attributes
+            event_raw = getattr(record, "event_type", "system_event")
+            correlation_id = getattr(record, "correlation_id", "unknown")
+            payload = getattr(record, "payload", {})
+            
+            # Formatting
+            ts = datetime.fromtimestamp(record.created).strftime("%H:%M:%S")
+            severity = record.levelname
+            event = event_raw.replace("_", " ").title()
+            
+            sev_color = "green" if severity == "INFO" else "yellow" if severity == "WARNING" else "bold red"
+            event_color = "cyan" if "node" in event.lower() else "magenta" if "opinion" in event.lower() else "blue"
+            
+            line = Text()
+            line.append(f"[{ts}] ", style="dim")
+            line.append(f"{severity:<7} ", style=sev_color)
+            line.append(f"» {event:<18} ", style=f"bold {event_color}")
+            
+            # 3. Judicial Insight Extraction
+            if event_raw == "opinion_rendered":
+                # Check for details in payload
+                judge = payload.get("judge_name", "Judge")
+                score = payload.get("score", "?")
+                opinion = payload.get("opinion", str(record.msg))
+                line.append(f"[{judge} Score: {score}/5] {opinion}", style="white")
+            elif event_raw == "verdict_delivered":
+                line.append(str(record.msg), style="bold yellow")
+            elif event_raw == "node_entry":
+                node = payload.get("node_name", "Unknown Node")
+                line.append(f"Proceeding to {node}", style="italic cyan")
+            else:
+                line.append(str(record.msg), style="white")
+            
+            # 4. Forensic Args Preview
+            if "arguments" in payload:
+                args = str(payload.get("arguments"))
+                if len(args) > 10:
+                    line.append(f"\n   ↳ Args: {args[:120]}...", style="dim italic")
+
             self.buffer.append(line)
             if len(self.buffer) > self.max_size:
                 self.buffer.pop(0)
@@ -82,6 +102,7 @@ class CourtroomDashboard:
         self.status = "INITIALIZING"
         self.node = "Idle"
         self.error_count = 0
+        self.completion_time = None
         
         self.layout.split_column(
             Layout(name="header", size=7),
@@ -111,8 +132,13 @@ class CourtroomDashboard:
         table = Table(box=box.SIMPLE, expand=True)
         table.add_column("Property", style="dim cyan")
         table.add_column("Value")
-        elapsed = str(datetime.now() - self.start_time).split(".")[0]
-        status_style = "bold green" if self.status == "RUNNING" else "bold yellow" if "FAILED" in self.status else "bold blue"
+        
+        if self.completion_time:
+            elapsed = str(self.completion_time - self.start_time).split(".")[0]
+        else:
+            elapsed = str(datetime.now() - self.start_time).split(".")[0]
+            
+        status_style = "bold green" if self.status == "COMPLETED" else "bold yellow" if "FAILED" in self.status else "bold blue"
         
         table.add_row("System Status", f"[{status_style}]{self.status}[/]")
         table.add_row("Current Node", f"[bold magenta]{self.node}[/]")
@@ -122,7 +148,11 @@ class CourtroomDashboard:
         return Panel(Align.center(table), title="[bold blue] 📊 SWARM VITALS [/bold blue]", border_style="blue")
 
     def make_footer(self) -> Panel:
-        return Panel(Align.center(Text("Press [Ctrl+C] to abort the audit Swarm • Secure Session ACTIVE", style="dim italic")), box=box.SIMPLE)
+        if self.status == "COMPLETED":
+            prompt = "[bold green]AUDIT COMPLETE[/bold green] • Press [ENTER] to exit or [Ctrl+C] to abort"
+        else:
+            prompt = "Press [Ctrl+C] to abort the audit Swarm • Secure Session ACTIVE"
+        return Panel(Align.center(Text(prompt, style="dim italic")), box=box.SIMPLE)
 
     def update(self):
         self.layout["header"].update(self.make_header())
@@ -135,21 +165,25 @@ async def execute_swarm_with_ui(repo_url: str, pdf_path: str, rubric_path: str, 
     correlation_id = str(uuid.uuid4())
     dashboard_ui.status = "RUNNING"
     
-    # Aggressive Log Interception
+    # 1. Capture and Silence Strategy
     log_handler = LogBufferHandler(dashboard_ui.logs)
+    root = logging.getLogger()
     
-    # Force propagation and capture on EVERY existing logger
-    original_config = {}
+    # Backup and Clear ALL existing loggers to prevent duplicates and terminal leakage
+    original_configs = {}
+    # Capture root first
+    original_configs[""] = (root.propagate, root.handlers[:], root.level)
+    root.handlers.clear()
+    root.addHandler(log_handler)
+    root.setLevel(logging.INFO)
+
     for name in logging.root.manager.loggerDict:
-        logger = logging.getLogger(name)
-        original_config[name] = (logger.propagate, logger.handlers[:])
-        logger.propagate = True
-        logger.handlers.clear()
-        
-    # Also capture the root logger
-    logging.root.handlers.clear()
-    logging.root.addHandler(log_handler)
-    logging.root.setLevel(logging.INFO)
+        lgr = logging.getLogger(name)
+        # Store original state for restoration
+        original_configs[name] = (lgr.propagate, lgr.handlers[:], lgr.level)
+        lgr.handlers.clear()
+        lgr.propagate = True  # Ensure everything flows to root
+        lgr.setLevel(logging.INFO)
 
     initial_state = {
         "repo_url": repo_url,
@@ -172,8 +206,6 @@ async def execute_swarm_with_ui(repo_url: str, pdf_path: str, rubric_path: str, 
     try:
         config = {"configurable": {"thread_id": correlation_id}}
         
-        # We also need to listen to terminal logs being printed by other tools
-        # But for now, we focus on LangGraph events
         async for event in courtroom_swarm.astream(initial_state, config=config):
             for node_name, state in event.items():
                 dashboard_ui.node = node_name.replace("_", " ").title()
@@ -182,18 +214,21 @@ async def execute_swarm_with_ui(repo_url: str, pdf_path: str, rubric_path: str, 
                 
         dashboard_ui.status = "COMPLETED"
         dashboard_ui.node = "Final Report"
+        dashboard_ui.completion_time = datetime.now()
+        dashboard_ui.update()
         return True
     except Exception as e:
         dashboard_ui.status = "CRITICAL FAIL"
         logging.error(f"Catastrophic failure: {e}")
         raise e
     finally:
-        # Restoration
-        logging.root.removeHandler(log_handler)
-        for name, (prop, handlers) in original_config.items():
-            lgr = logging.getLogger(name)
+        # Restoration of original logging state
+        root.removeHandler(log_handler)
+        for name, (prop, handlers, level) in original_configs.items():
+            lgr = logging.getLogger(name) if name else root
             lgr.propagate = prop
             lgr.handlers = handlers
+            lgr.setLevel(level)
 
 async def run_audit(args):
     """Subcommand: audit run"""
@@ -225,7 +260,8 @@ async def run_audit(args):
             )
             
             dashboard_ui.update()
-            await asyncio.sleep(3)
+            # Wait for user to press ENTER while the Live UI is still showing the COMPLETED state
+            await asyncio.to_thread(input)
             ticker_task.cancel()
             
         except KeyboardInterrupt:
@@ -265,6 +301,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
