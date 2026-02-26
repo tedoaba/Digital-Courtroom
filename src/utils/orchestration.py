@@ -31,14 +31,12 @@ def timeout_wrapper(seconds: int = 120):
                     node_name = func.__name__
                     error_msg = f"TimeoutError: Node '{node_name}' exceeded {seconds}s limit."
                     logger.error(error_msg)
-                    new_errors = state.get("errors", []) + [error_msg]
-                    return {**state, "errors": new_errors}
+                    return {"errors": [error_msg]}
                 except Exception as e:
                     node_name = func.__name__
                     error_msg = f"Exception in '{node_name}': {str(e)}"
                     logger.error(error_msg)
-                    new_errors = state.get("errors", []) + [error_msg]
-                    return {**state, "errors": new_errors}
+                    return {"errors": [error_msg]}
             return async_wrapper
         else:
             @functools.wraps(func)
@@ -62,22 +60,19 @@ def timeout_wrapper(seconds: int = 120):
                     # Timeout occurred
                     node_name = func.__name__
                     error_msg = f"TimeoutError: Node '{node_name}' exceeded {seconds}s limit."
-                    new_errors = state.get("errors", []) + [error_msg]
-                    # Return state with error to trigger ErrorHandler routing
-                    return {**state, "errors": new_errors}
+                    return {"errors": [error_msg]}
                 
                 if exception_container:
                     # Re-raise or handle internal exception
                     e = exception_container[0]
                     node_name = func.__name__
                     error_msg = f"Exception in '{node_name}': {str(e)}"
-                    new_errors = state.get("errors", []) + [error_msg]
-                    return {**state, "errors": new_errors}
+                    return {"errors": [error_msg]}
 
                 if result_container:
                     return result_container[0]
                 
-                return state
+                return {}
             return sync_wrapper
 
     return decorator
