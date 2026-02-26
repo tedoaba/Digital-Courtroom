@@ -12,7 +12,9 @@ from src.utils.logger import StructuredLogger
 
 logger = StructuredLogger("cli")
 
-def main():
+import asyncio
+
+async def main():
     parser = argparse.ArgumentParser(description="Digital Courtroom Audit CLI")
     parser.add_argument("--repo", required=True, help="GitHub Repository URL")
     parser.add_argument("--spec", required=True, help="Path to Specification PDF")
@@ -50,7 +52,8 @@ def main():
             "configurable": {"thread_id": correlation_id},
             "max_concurrency": 3  # Mitigate 429 Too Many Requests
         }
-        final_state = courtroom_swarm.invoke(initial_state, config=config)
+        # MUST use ainvoke because the graph now contains async nodes (Layer 2)
+        final_state = await courtroom_swarm.ainvoke(initial_state, config=config)
         
         # Check for errors in final state
         errors = final_state.get("errors", [])
@@ -72,4 +75,4 @@ def main():
         sys.exit(3)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
