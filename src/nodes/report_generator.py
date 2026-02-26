@@ -13,11 +13,13 @@ from typing import Dict, Any
 from src.state import AgentState, AuditReport
 from src.utils.orchestration import get_report_workspace, round_half_up
 from src.utils.manifest import ManifestManager
+from src.utils.observability import node_traceable
 
 from src.utils.logger import StructuredLogger
 
 logger = StructuredLogger("report_generator")
 
+@node_traceable
 def report_generator_node(state: AgentState) -> Dict[str, Any]:
     """
     Report Generator Node.

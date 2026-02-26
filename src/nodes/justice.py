@@ -14,12 +14,11 @@ from src.utils.orchestration import (
     round_score, 
     SynthesisError
 )
+from src.utils.observability import node_traceable
 
 logger = StructuredLogger("justice_node")
 
-
-
-
+@node_traceable
 def chief_justice_node(state: AgentState) -> AgentState:
     """
     Consolidates varying judicial opinions deterministically using strict precedence rules.
@@ -66,7 +65,6 @@ def chief_justice_node(state: AgentState) -> AgentState:
     
     return state
 
-
 def route_after_justice(state: AgentState) -> str:
     """
     Conditional edge routing after Chief Justice synthesis.
@@ -75,7 +73,6 @@ def route_after_justice(state: AgentState) -> str:
     if state.get("re_eval_needed", False):
         return "judges"
     return "report"
-
 
 def synthesize_criterion(
     criterion_id: str, 
@@ -261,9 +258,6 @@ def synthesize_criterion(
         re_evaluation_required=re_evaluation
     )
 
-
-
 def fallback_render(state: AgentState, error: Exception) -> AgentState:
     """FR-007: Generates a basic error report if the main generator fails."""
-    # This logic will be moved to report_generator.py in next task
     return state
