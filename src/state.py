@@ -4,7 +4,7 @@ import hashlib
 import operator
 from typing import Annotated, Any, Literal, Optional, TypedDict
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class StrictModel(BaseModel):
@@ -65,6 +65,33 @@ class JudicialOpinion(StrictModel):
     mitigations: Optional[list[str]] = Field(default=None, description="Optional list of strings (Defense only)")
     charges: Optional[list[str]] = Field(default=None, description="Optional list of strings (Prosecutor only)")
     remediation: Optional[str] = Field(default=None, description="Optional string recommendation (TechLead only)")
+    
+    @model_validator(mode="before")
+    @classmethod
+    def unwrap_judicial_opinion_keys(cls, data: Any) -> Any:
+        """
+        Robustly unwrap keys like 'judicial_opinion', 'opinion', 'judicial_opinion_result'
+        that some LLMs add even when asked for raw JSON.
+        """
+        if not isinstance(data, dict):
+            return data
+            
+        # Common wrapper keys
+        wrappers = ["judicial_opinion", "opinion", "judicial_opinion_result", "result", "evaluation"]
+        
+        # Check if only ONE key exists and it's in our wrapper list
+        if len(data) == 1:
+            key = list(data.keys())[0]
+            if key in wrappers and isinstance(data[key], dict):
+                return data[key]
+            
+        # Check if criterion_id or score is missing at top level but present in a nested dict
+        if "score" not in data or "criterion_id" not in data:
+            for val in data.values():
+                if isinstance(val, dict) and "score" in val and "criterion_id" in val:
+                    return val
+                    
+        return data
 
 
 class CriterionResult(StrictModel):
