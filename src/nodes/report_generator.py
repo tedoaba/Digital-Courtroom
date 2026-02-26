@@ -41,7 +41,7 @@ def report_generator_node(state: AgentState) -> Dict[str, Any]:
             repo_name=repo_name,
             run_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             git_hash="HEAD", # Placeholder for actual git hash if available
-            rubric_version="1.0",
+            rubric_version="1.1",
             results=results,
             summary="Full automated audit completed by Digital Courtroom swarm.",
             global_score=global_score,

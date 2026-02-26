@@ -1,75 +1,123 @@
-# Audit Report: {{ repo_name }}
+# ⚖️ Audit Report: {{ repo_name }}
 
-## Metadata Table
-| Field | Value |
-|-------|-------|
-| Run Date | {{ run_date }} |
-| Git Hash | {{ git_hash }} |
-| Rubric Version | {{ rubric_version }} |
-| Aggregate Score | **{{ global_score }} / 5.0** |
+## 📊 Summary & Grade
+| Metric | Status |
+|:---|:---|
+| **Run Date** | `{{ run_date }}` |
+| **Git Hash** | `{{ git_hash }}` |
+| **Rubric Version** | `v{{ rubric_version }}` |
+| **Overall Rating** | **{{ global_score }} / 5.0** |
 
-## Executive Summary
+{% if global_score >= 4.5 %}
+![Grade A](https://img.shields.io/badge/Grade-Master_Thinker-brightgreen?style=for-the-badge)
+{% elif global_score >= 3.0 %}
+![Grade B](https://img.shields.io/badge/Grade-Competent_Orchestrator-blue?style=for-the-badge)
+{% else %}
+![Grade C](https://img.shields.io/badge/Grade-Vibe_Coder-orange?style=for-the-badge)
+{% endif %}
+
+---
+
+## 📝 Executive Summary
 
 {{ summary }}
 
-> **Overall Score: [ {{ global_score }} / 5.0 ]**
-
-## Criterion Breakdown
-
-{% for criterion_id, result in results.items() -%}
-### {{ result.dimension_name if result.dimension_name else criterion_id }} - Score: {{ result.numeric_score }}/5
-
-**Verdict**: {{ result.reasoning }}
-
-{% if result.judge_opinions -%}
-<details>
-<summary>View Judicial Debate</summary>
-
-{% for opinion in result.judge_opinions -%}
-**{{ opinion.judge }}**: {{ opinion.argument }}
-(Cites: {{ opinion.cited_evidence | join(', ') if opinion.cited_evidence else 'None' }})
-{% if opinion.mitigations %}*Mitigations:* {{ opinion.mitigations | join('; ') }}{% endif %}
-{% if opinion.charges %}*Charges:* {{ opinion.charges | join('; ') }}{% endif %}
-{% if opinion.remediation %}*Remediation:* {{ opinion.remediation }}{% endif %}
+> **Verdict**: The Digital Courtroom swarm has concluded its forensic analysis. The following report details architectural soundness, forensic integrity, and judicial debate across all mandated dimensions.
 
 ---
-{% endfor -%}
+
+## 🏛️ Criterion Breakdown
+
+{% for criterion_id, result in results.items() %}
+### {{ loop.index }}. {{ result.dimension_name if result.dimension_name else criterion_id }}
+**Score**: `{{ result.numeric_score }}/5.0` 
+{% if result.numeric_score == 5 %} ✅ ![Master](https://img.shields.io/badge/-Master-brightgreen)
+{% elif result.numeric_score >= 3 %} ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
+{% else %} ❌ ![Failed](https://img.shields.io/badge/-Failed-red)
+{% endif %}
+
+**Synthesis Verdict**: 
+{{ result.reasoning }}
+
+{% if result.judge_opinions %}
+<details>
+<summary>📜 View Judicial Debate & Dialectics</summary>
+
+{% for opinion in result.judge_opinions %}
+#### 🎙️ {{ opinion.judge }} Opinion
+> {{ opinion.argument }}
+
+**Evidence Cited**: 
+{% if opinion.cited_evidence %}
+{% for eid in opinion.cited_evidence %}
+- [{{ eid }}](#{{ eid }})
+{% endfor %}
+{% else %}
+_No forensic evidence cited._
+{% endif %}
+
+{% if opinion.mitigations %}
+*   **Mitigations**: {{ opinion.mitigations | join('; ') }}
+{% endif %}
+{% if opinion.charges %}
+*   **Charges**: {{ opinion.charges | join('; ') }}
+{% endif %}
+
+---
+{% endfor %}
 </details>
-{%- endif %}
+{% endif %}
 
-{% if result.dissent_summary -%}
-> **{{ 'Dissent Summary' if result.execution_log.raw_variance > 2 else 'Judicial Note' }}**: {{ result.dissent_summary }}
-{%- endif %}
+{% if result.dissent_summary %}
+> **🚨 {{ 'Conflict Alert' if result.execution_log.raw_variance > 2 else 'Judicial Note' }}**: {{ result.dissent_summary }}
+{% endif %}
 
-{%- endfor %}
+#### ⚙️ Synthesis Transparency (Metacognition)
+- **Primary Path**: `{{ result.execution_log.synthesis_path }}`
+- **Applied Rules**: {{ result.applied_rules | join(', ') if result.applied_rules else 'Standard Weighted Average' }}
+- **Confidence**: `{{ (result.relevance_confidence * 100) | round(1) }}%`
 
-## Remediation Plan
+---
 
-{% for criterion_id, result in results.items() -%}
-{% if result.remediation -%}
-**{{ result.dimension_name if result.dimension_name else criterion_id }}**:
+{% endfor %}
+
+## 🛠️ Remediation Dashboard (Action Plan)
+
+> **Priority Guide**: 🔴 High (Security/Core Logic), 🟡 Medium (Architecture), 🔵 Low (Enhancement)
+
+{% for criterion_id, result in results.items() %}
+{% if result.remediation %}
+### 📍 {{ result.dimension_name if result.dimension_name else criterion_id }}
+{% set priority = "🔴 High" if result.numeric_score < 3 or result.security_violation_found else "🟡 Medium" %}
+**Priority**: {{ priority }}
+
 {{ result.remediation }}
 
-{% endif -%}
-{%- endfor %}
+{% endif %}
+{% endfor %}
 
-## Forensic Evidence Manifest
+---
 
-| ID | Source | Location | Rationale/Content |
-|----|--------|----------|-------------------|
-{% for source, evidence_list in evidences.items() -%}
-{% for e in evidence_list -%}
-| {{ e.evidence_id }} | {{ e.source | capitalize }} | `{{ e.location }}` | {{ e.rationale }}{% if e.content %}<br><br><details><summary>View Content</summary><pre>{{ e.content }}</pre></details>{% endif %} |
-{% endfor -%}
-{%- endfor %}
+## 🔍 Forensic Evidence Manifest
 
-## Checksum Log
+| ID | Source | Location | Rationale / Content |
+|:---|:---|:---|:---|
+{% for source, evidence_list in evidences.items() %}
+{% for e in evidence_list %}
+| <a name="{{ e.evidence_id }}"></a>`{{ e.evidence_id }}` | **{{ e.source | upper }}** | `{{ e.location }}` | **{{ e.goal }}**:<br>{{ e.rationale }}{% if e.content %}<br><br><details><summary>View Artifact Clip</summary><pre>{{ e.content }}</pre></details>{% endif %} |
+{% endfor %}
+{% endfor %}
+
+---
+
+## 🔒 Post-Mortem & Checksum
 
 <details>
-<summary>View Raw Forensic Data (JSON)</summary>
+<summary>View Raw Data Trace (JSON)</summary>
 
 ```json
 {{ checksum_log_json }}
 ```
-
 </details>
+
+_Generated by **Digital Courtroom v1.1.0** — Forensic Integrity Guaranteed._

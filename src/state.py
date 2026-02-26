@@ -177,6 +177,7 @@ class CriterionResult(StrictModel):
     """
 
     criterion_id: str
+    dimension_name: str = Field(..., description="Human-readable name of the criterion")
     numeric_score: int = Field(ge=1, le=5)
     reasoning: str
     relevance_confidence: float = Field(ge=0.0, le=1.0)
