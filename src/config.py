@@ -94,18 +94,22 @@ class JudicialSettings(BaseSettings):
     gemini_api_key: Optional[str] = None
     google_api_key: Optional[str] = None
     
-    # Model Selection
+    # Model Selection (picked up from ENV such as PROSECUTOR_MODEL)
+    prosecutor_model_id: str = Field(default="deepseek-v3.1:671b-cloud", validation_alias="PROSECUTOR_MODEL")
+    defense_model_id: str = Field(default="deepseek-v3.1:671b-cloud", validation_alias="DEFENSE_MODEL")
+    techlead_model_id: str = Field(default="deepseek-v3.1:671b-cloud", validation_alias="TECHLEAD_MODEL")
+
     @property
     def prosecutor_model(self) -> str:
-        return hardened_config.models.get("prosecutor", "deepseek-v3.1:671b-cloud")
+        return hardened_config.models.get("prosecutor", self.prosecutor_model_id)
     
     @property
     def defense_model(self) -> str:
-        return hardened_config.models.get("defense", "deepseek-v3.1:671b-cloud")
+        return hardened_config.models.get("defense", self.defense_model_id)
     
     @property
     def techlead_model(self) -> str:
-        return hardened_config.models.get("techlead", "deepseek-v3.1:671b-cloud")
+        return hardened_config.models.get("techlead", self.techlead_model_id)
 
     # --- Bounded Concurrency Settings (012-bounded-agent-eval) ---
     root_node: Optional[str] = None

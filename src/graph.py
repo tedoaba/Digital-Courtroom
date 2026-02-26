@@ -24,12 +24,12 @@ from src.nodes.error_handler import error_handler_node
 # Initialize global logger
 logger = StructuredLogger("orchestrator")
 
-# Apply Timeouts (SC-004: increased to 300s for first-run stability)
-timed_repo_investigator = timeout_wrapper(300)(repo_investigator)
-timed_doc_analyst = timeout_wrapper(300)(doc_analyst)
-timed_vision_inspector = timeout_wrapper(300)(vision_inspector)
-timed_evaluate_criterion = timeout_wrapper(300)(evaluate_criterion)
-timed_evaluate_batch_criterion = timeout_wrapper(300)(evaluate_batch_criterion)
+# Apply Timeouts (SC-004: increased to 900s to support slow models and multiple retries)
+timed_repo_investigator = timeout_wrapper(900)(repo_investigator)
+timed_doc_analyst = timeout_wrapper(900)(doc_analyst)
+timed_vision_inspector = timeout_wrapper(900)(vision_inspector)
+timed_evaluate_criterion = timeout_wrapper(900)(evaluate_criterion)
+timed_evaluate_batch_criterion = timeout_wrapper(900)(evaluate_batch_criterion)
 
 # Routing Functions for US2 (Fault Tolerance)
 def route_after_aggregator(state: AgentState) -> Union[List[Send], str]:

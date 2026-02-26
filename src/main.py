@@ -9,6 +9,11 @@ import asyncio
 import os
 from typing import Optional
 
+from dotenv import load_dotenv
+
+# Load environment variables from .env before any other imports that might depend on them
+load_dotenv()
+
 from src.graph import courtroom_swarm
 from src.utils.logger import StructuredLogger
 from src.config import settings, hardened_config
@@ -87,7 +92,8 @@ async def main():
              dashboard.stop()
         sys.exit(130)
     except Exception as e:
-        logger.critical(f"Catastrophic failure in orchestration: {e}")
+        err_type = type(e).__name__
+        logger.critical(f"Catastrophic failure in orchestration ({err_type}): {e}")
         if dashboard:
              dashboard.stop()
         sys.exit(3)
