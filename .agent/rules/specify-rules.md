@@ -25,6 +25,8 @@ Auto-generated from all feature plans. Last updated: 2026-02-24
 - Python 3.12 (standard for project) + `langgraph`, `pydantic`, `uv` (011-e2e-langgraph-wiring)
 - Filesystem (Markdown reports in `audit/reports/`) (011-e2e-langgraph-wiring)
 - Python 3.12 + `langgraph`, `pydantic`, `asyncio`, `uv` (012-bounded-agent-eval)
+- Python 3.12+ + `langgraph`, `pydantic`, `langsmith`, `rich`, `cryptography` (013-ironclad-hardening)
+- `.env` for standard config, AES-256 encrypted local store for secrets, SHA-256 hash chains for evidence integrity. (013-ironclad-hardening)
 
 - Python 3.12+ (latest stable for optimal `uv` and Pydantic v2 support) + `langgraph`, `langchain`, `pydantic`, `python-dotenv`, `pytest`, `ruff` (001-foundational-scaffolding)
 
@@ -44,9 +46,9 @@ cd src; pytest; ruff check .
 Python 3.12+ (latest stable for optimal `uv` and Pydantic v2 support): Follow standard conventions
 
 ## Recent Changes
+- 013-ironclad-hardening: Added Python 3.12+ + `langgraph`, `pydantic`, `langsmith`, `rich`, `cryptography`
 - 012-bounded-agent-eval: Added Python 3.12 + `langgraph`, `pydantic`, `asyncio`, `uv`
 - 011-e2e-langgraph-wiring: Added Python 3.12 (standard for project) + `langgraph`, `pydantic`, `uv`
-- 010-report-generation: Added Python 3.12 + `jinja2`, `pathlib`, `pydantic`
 
 
 <!-- MANUAL ADDITIONS START -->
