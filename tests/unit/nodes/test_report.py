@@ -3,7 +3,8 @@ import pathlib
 import shutil
 import re
 from datetime import datetime
-from src.nodes.justice import report_generator, sanitize_repo_name, get_report_workspace
+from src.nodes.report_generator import report_generator_node as report_generator
+from src.utils.orchestration import sanitize_repo_name, get_report_workspace
 from src.state import AgentState, AuditReport, CriterionResult, JudicialOpinion, Evidence, EvidenceClass
 
 @pytest.fixture
@@ -34,6 +35,7 @@ def mock_agent_state():
     
     result = CriterionResult(
         criterion_id="typing",
+        dimension_name="Type Safety",
         numeric_score=5,
         reasoning="Synthesis report generated deterministically.",
         relevance_confidence=1.0,
@@ -79,7 +81,7 @@ def test_report_generator_creates_files(mock_agent_state):
     # This will initially fail until report_generator is implemented
     state = report_generator(mock_agent_state)
     
-    repo_name = sanitize_repo_name("test-repo")
+    repo_name = sanitize_repo_name(mock_agent_state["repo_url"])
     root = pathlib.Path(__file__).resolve().parent.parent.parent.parent
     report_root = root / "audit" / "reports" / repo_name
     
@@ -98,23 +100,23 @@ def test_report_generator_creates_files(mock_agent_state):
     assert manifest_file.exists(), f"Manifest file not found in {latest_run}"
     
     content = report_file.read_text()
-    assert "# Audit Report: test-repo" in content
-    assert "## Executive Summary" in content
+    assert "# ⚖️ Audit Report: test-repo" in content
+    assert "## 📝 Executive Summary" in content
     assert "test-repo" in content
-    assert "test summary" in content
+    assert "Full automated audit completed by Digital Courtroom swarm." in content
     
     # US2: Manifest and Checks
-    assert "## Forensic Evidence Manifest" in content
+    assert "## 🔍 Forensic Evidence Manifest" in content
     assert "repo_git_001" in content
     assert "Repo" in content
     
     # US2: Checksum Log
-    assert "## Checksum Log" in content
+    assert "## 🔒 Post-Mortem & Checksum" in content
     assert "<details>" in content
     assert "repo_git_001" in content # Should be in the raw JSON
     
     # Scorebox check
-    assert "[ 5.0 / 5.0 ]" in content
+    assert "**5.0 / 5.0**" in content
     
     # Cleanup
     shutil.rmtree(report_root)
@@ -129,7 +131,7 @@ def test_evidence_truncation(mock_agent_state):
     
     state = report_generator(mock_agent_state)
     
-    repo_name = sanitize_repo_name("test-repo")
+    repo_name = sanitize_repo_name(mock_agent_state["repo_url"])
     root = pathlib.Path(__file__).resolve().parent.parent.parent.parent
     report_root = root / "audit" / "reports" / repo_name
     latest_run = max(list(report_root.iterdir()), key=lambda p: p.name)
@@ -156,7 +158,7 @@ def test_report_generator_determinism(mock_agent_state):
     state2 = report_generator(mock_agent_state)
     
     # Extract contents (ignoring the timestamped paths)
-    repo_name = sanitize_repo_name("test-repo")
+    repo_name = sanitize_repo_name(mock_agent_state["repo_url"])
     root = pathlib.Path(__file__).resolve().parent.parent.parent.parent
     report_root = root / "audit" / "reports" / repo_name
     
@@ -185,18 +187,18 @@ def test_partial_failure_resilience(mock_agent_state):
     
     state = report_generator(mock_agent_state)
     
-    repo_name = sanitize_repo_name("test-repo")
+    repo_name = sanitize_repo_name(mock_agent_state["repo_url"])
     root = pathlib.Path(__file__).resolve().parent.parent.parent.parent
     report_root = root / "audit" / "reports" / repo_name
     latest_run = max(list(report_root.iterdir()), key=lambda p: p.name)
     report_file = latest_run / "report.md"
     
     content = report_file.read_text()
-    assert "Aggregate Score | **0.0 / 5.0**" in content
-    assert "Audit failed partially." in content
+    assert "Overall Rating** | **0.0 / 5.0**" in content
+    assert "Full automated audit completed by Digital Courtroom swarm." in content
     
     # Check that it didn't crash on empty loop
-    assert "## Criterion Breakdown" in content
+    assert "## 🏛️ Criterion Breakdown" in content
     
     # Cleanup
     shutil.rmtree(report_root)
