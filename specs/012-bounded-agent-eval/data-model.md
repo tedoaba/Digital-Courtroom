@@ -11,7 +11,7 @@ The concurrency and retry settings are managed via the `JudicialSettings` Pydant
 | `max_concurrent_llm_calls` | `int`   | `5`     | Global semaphore limit for active LLM requests. |
 | `retry_initial_delay`      | `float` | `1.0`   | Initial exponential backoff delay in seconds.   |
 | `retry_max_delay`          | `float` | `60.0`  | Maximum cap for exponential backoff delay.      |
-| `retry_max_attempts`       | `int`   | `5`     | Maximum number of retry attempts per request.   |
+| `retry_max_attempts`       | `int`   | `3`     | Maximum number of retry attempts per request.   |
 | `batching_enabled`         | `bool`  | `False` | Toggle for "Structured Batching" mode.          |
 
 ## State Merging

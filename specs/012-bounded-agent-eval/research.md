@@ -30,7 +30,7 @@ The project already uses `tenacity`, which is highly compatible with `langchain`
 
 ```python
 @retry(
-    stop=stop_after_attempt(5),
+    stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=1, max=60), # multiplier=1, min=1 means starts at 1s
     retry=retry_if_exception_type((RateLimitError, APIError)), # Target specific LLM errors
     reraise=True

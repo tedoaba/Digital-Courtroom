@@ -11,7 +11,7 @@ MAX_CONCURRENT_LLM_CALLS=5
 # Retry & Backoff
 RETRY_INITIAL_DELAY=1.0
 RETRY_MAX_DELAY=60.0
-RETRY_MAX_ATTEMPTS=5
+RETRY_MAX_ATTEMPTS=3
 
 # Mode Selection
 BATCHING_ENABLED=true  # Set to true to consolidate evaluations

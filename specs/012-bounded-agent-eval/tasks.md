@@ -12,7 +12,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Initialize environment with `uv` and ensure `tenacity` is installed
-- [ ] T002 [P] Create placeholder files for new tests: `tests/unit/test_concurrency_controller.py` and `tests/integration/test_bounded_eval.py`
+- [ ] T002 [P] Create placeholder files for new tests: `tests/unit/test_concurrency_controller.py`, `tests/unit/test_config_sync.py`, and `tests/integration/test_bounded_eval.py`
 
 ---
 
@@ -22,8 +22,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Update `JudicialSettings` in `src/config.py` with new Pydantic fields from data-model.md
-- [ ] T004 Setup centralized logging for concurrency events ("Queueing", "Acquired", "Release") in `src/utils/logging.py`
+- [ ] T003 Update `JudicialSettings` in `src/config.py` with new Pydantic fields from data-model.md (Default `retry_max_attempts=3`)
+- [ ] T004 Setup centralized logging for concurrency events ("Queueing", "Acquired", "Release", "Timeout") in `src/utils/logging.py`
 - [ ] T005 [P] Define `ConcurrencyController` or shared semaphore in `src/nodes/judicial_nodes.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -32,24 +32,26 @@
 
 ## Phase 3: User Story 1 - Stable Parallel Evaluation (Priority: P1) 🎯 MVP
 
-**Goal**: Enforce global concurrency limit with semaphore and retry logic to prevent 429 errors.
+**Goal**: Enforce global concurrency limit with semaphore, retry logic (max 3), and timeouts to prevent 429 errors and hung requests.
 
-**Independent Test**: Configure concurrency to 5. Trigger 3 agents x 10 dimensions. Verify max 5 active calls in logs.
+**Independent Test**: Configure concurrency to 5. Trigger 3 agents x 10 dimensions. Verify max 5 active calls and proper timeout recovery.
 
 ### Tests for User Story 1
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T006 [P] [US1] Implement unit tests for semaphore lock/unlock in `tests/unit/test_concurrency_controller.py`
-- [ ] T007 [P] [US1] Implement integration test for 429 retry behavior in `tests/integration/test_bounded_eval.py`
+- [ ] T007 [P] [US1] Implement integration test for 429 retry behavior (verified at 3 attempts max) in `tests/integration/test_bounded_eval.py`
+- [ ] T008 [P] [US1] Implement unit test for request timeouts in `tests/unit/test_timeouts.py`
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Implement `asyncio.Semaphore` throttling in `src/nodes/judicial_nodes.py`
-- [ ] T009 [US1] Apply `tenacity` retry decorator with exponential backoff to LLM calls in `src/nodes/judicial_nodes.py`
-- [ ] T010 [US1] Add "Queueing..." and "Acquired..." log markers around semaphore blocks
+- [ ] T009 [US1] Implement `asyncio.Semaphore` throttling in `src/nodes/judicial_nodes.py`
+- [ ] T010 [US1] Apply `tenacity` retry decorator with exponential backoff (multiplier=1, min=1, max=60, stop=3) to LLM calls in `src/nodes/judicial_nodes.py`
+- [ ] T011 [US1] Wrap LLM calls in `asyncio.wait_for` with configurable timeout to handle hung requests
+- [ ] T012 [US1] Add "Queueing...", "Acquired...", and "Timeout" log markers around semaphore and LLM blocks
 
-**Checkpoint**: User Story 1 is functional: evaluations are throttled and retried on failure.
+**Checkpoint**: User Story 1 is functional: evaluations are throttled, retried (max 3), and timed out if hung.
 
 ---
 
@@ -59,10 +61,14 @@
 
 **Independent Test**: Modify `MAX_CONCURRENT_LLM_CALLS` in `.env` and verify scale of execution.
 
+### Tests for User Story 2
+
+- [ ] T013 [P] [US2] Implement unit tests in `tests/unit/test_config_sync.py` to verify `JudicialSettings` correctly loads and validates environment variables
+
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Create or update `.env` with variables from `quickstart.md`
-- [ ] T012 [US2] Ensure `JudicialSettings` correctly injects configuration into the concurrency semaphore
+- [ ] T014 [US2] Create or update `.env` with variables from `quickstart.md`
+- [ ] T015 [US2] Ensure `JudicialSettings` correctly injects configuration into the concurrency semaphore and retry policy
 
 **Checkpoint**: System is now tunable without code changes.
 
@@ -76,12 +82,12 @@
 
 ### Tests for User Story 3
 
-- [ ] T013 [P] [US3] Implement parsing tests for partial JSON responses in `tests/unit/test_batch_parsing.py`
+- [ ] T016 [P] [US3] Implement parsing tests for partial JSON responses in `tests/unit/test_batch_parsing.py`
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Update prompt template in `src/nodes/judicial_nodes.py` to request structured JSON list of opinions
-- [ ] T015 [US3] Implement partial success logic: accept returned dimensions and trigger individual retries for missing ones
+- [ ] T017 [US3] Update prompt template in `src/nodes/judicial_nodes.py` to request structured JSON list of opinions
+- [ ] T018 [US3] Implement partial success logic: accept returned dimensions and trigger individual retries for missing ones
 
 **Checkpoint**: Batching reduces request count while maintaining reliability for failed items.
 
@@ -91,9 +97,9 @@
 
 **Purpose**: Final validation and documentation
 
-- [ ] T016 [P] Update `README.md` with new `JudicialSettings` configuration documentation
-- [ ] T017 Run all validation steps outlined in `quickstart.md`
-- [ ] T018 Code cleanup: Ensure all semaphore releases happen in `finally` blocks
+- [ ] T019 [P] Update `README.md` with new `JudicialSettings` configuration documentation
+- [ ] T020 Run all validation steps outlined in `quickstart.md`
+- [ ] T021 Code cleanup: Ensure all semaphore releases and timeout handlers are robust
 
 ---
 
@@ -108,9 +114,7 @@
 
 ### Parallel Opportunities
 
-- T002, T005 can run in parallel with other tasks in their phases.
-- Once Phase 2 is done, US1 and US2 can be worked on in parallel (though US2 is small).
-- T006 and T007 (Tests for US1) can be written in parallel.
+- T002, T005, T006, T007, T008, T013, T016 can run in parallel with other tasks in their phases.
 
 ---
 
@@ -120,6 +124,7 @@
 # Writing tests in parallel:
 Task: "Implement unit tests for semaphore lock/unlock in tests/unit/test_concurrency_controller.py"
 Task: "Implement integration test for 429 retry behavior in tests/integration/test_bounded_eval.py"
+Task: "Implement unit test for request timeouts in tests/unit/test_timeouts.py"
 ```
 
 ---
@@ -129,5 +134,5 @@ Task: "Implement integration test for 429 retry behavior in tests/integration/te
 ### MVP First (User Story 1 Only)
 
 1. Complete Setup + Foundational.
-2. Complete US1 (Semaphore + Retry).
-3. **VALIDATE**: Run a full evaluation and check for zero 429 errors.
+2. Complete US1 (Semaphore + Retry + Timeouts).
+3. **VALIDATE**: Run a full evaluation and check for zero 429 errors and successful timeout recovery.

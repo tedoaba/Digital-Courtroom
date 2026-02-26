@@ -116,7 +116,7 @@ As a user, I want the option to consolidate dimension evaluations into single st
 ### Edge Cases
 
 - **Zero-Width Bound**: What happens if the concurrency limit is set to 0 or a negative number? (System MUST default to 1 or throw error).
-- **Persistent Failures**: How does the system handle an LLM that is down permanently? (System MUST reach a maximum retry count and fail gracefully).
+- **Persistent Failures**: How does the system handle an LLM that is down permanently? (System MUST reach a maximum retry count of 3 and fail gracefully).
 - **Hung Requests**: How does the system handle requests that never return? (System MUST implement timeouts for each dimension evaluation).
 
 ## Assumptions and Dependencies
