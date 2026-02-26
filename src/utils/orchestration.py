@@ -14,10 +14,27 @@ from src.state import CircuitBreakerStatus, CircuitBreakerState
 def timeout_wrapper(seconds: float):
     """Decorator to apply asyncio timeout to a node function."""
     def decorator(func: Callable):
+        import inspect
+        from functools import wraps
+
         @wraps(func)
         async def wrapper(*args, **kwargs):
             try:
-                return await asyncio.wait_for(func(*args, **kwargs), timeout=seconds)
+                # Check if it's definitely an async function
+                if inspect.iscoroutinefunction(func):
+                    coro = func(*args, **kwargs)
+                    return await asyncio.wait_for(coro, timeout=seconds)
+                
+                # Otherwise, it might be sync or a wrapper (like LangSmith)
+                # To avoid blocking the main loop for slow sync functions, we use to_thread.
+                # BUT if it's a wrapper for an async function, calling it in a thread
+                # will return a coroutine, which we then must await in the main loop.
+                result = await asyncio.to_thread(func, *args, **kwargs)
+                
+                if inspect.isawaitable(result):
+                    return await asyncio.wait_for(result, timeout=seconds)
+                return result
+
             except asyncio.TimeoutError:
                 # Log timeout and inject error into state if applicable
                 from src.utils.logger import StructuredLogger
@@ -72,7 +89,17 @@ class CircuitBreaker:
             raise RuntimeError(f"Circuit Breaker '{self.name}' is OPEN. Call rejected.")
         
         try:
-            result = await func(*args, **kwargs)
+            import inspect
+            if inspect.iscoroutinefunction(func):
+                res = func(*args, **kwargs)
+            else:
+                # Use to_thread to support sync calls and avoid blocking loop
+                res = await asyncio.to_thread(func, *args, **kwargs)
+            
+            if inspect.isawaitable(res):
+                result = await res
+            else:
+                result = res
             self.record_success()
             return result
         except Exception as e:
