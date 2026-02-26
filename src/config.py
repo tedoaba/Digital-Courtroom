@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, Literal
 from pydantic import field_validator, SecretStr, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import json
@@ -79,10 +79,14 @@ class DetectiveSettings(BaseSettings):
     # Multimodal LLM parameters (FR-011)
     llm_temperature: float = 0.0
     
+    # Vision Config
+    vision_provider: Literal["google", "ollama"] = Field(default="google", validation_alias="VISION_PROVIDER")
+    vision_model_id: str = Field(default="gemini-2.0-flash", validation_alias="VISION_MODEL")
+
     @property
     def vision_model(self) -> str:
         """Pull from hardened_config or fallback to default."""
-        return hardened_config.models.get("vision", "gemini-2.0-flash")
+        return hardened_config.models.get("vision", self.vision_model_id)
 
 
 class JudicialSettings(BaseSettings):
