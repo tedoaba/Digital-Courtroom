@@ -72,18 +72,28 @@ As a Developer, I want a dedicated abstraction layer for reasoning strategies an
 - **Cascading API Failure**: If the circuit breaker opens for a core service, the system must trigger a "Descent into Safe Mode" and generate a partial report rather than crashing.
 - **Vault Unavailability**: If the secure storage is unreachable, the system must halt and log a high-priority security alert.
 
+## Clarifications
+
+### Session 2026-02-26
+
+- Q: What are the concrete resource limits for the detective sandboxes to ensure they are truly "constrained"? → A: Fixed strict limits (e.g., 512MB RAM, 1 CPU core)
+- Q: Which encryption algorithm should be used for the "local encrypted store"? → A: AES-256 (with environment-stored key)
+- Q: What should be the default thresholds for the "Circuit Breaker"? → A: 3 failures / 30s reset window
+- Q: Which hashing algorithm should be used for the "sequential hash chain"? → A: SHA-256
+- Q: How frequently should the CLI/TUI dashboard refresh? → A: Real-time / 1s polling
+
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
 - **FR-001**: System MUST migrate all remaining hardcoded strings (model names, API endpoints, timeouts) to external environment configuration.
-- **FR-002**: System MUST implement a secure credential management system for all tool secrets.
+- **FR-002**: System MUST implement a secure credential management system (AES-256 local encrypted store) for all tool secrets.
 - **FR-003**: System MUST enforce input/output validation and sanitization for all external tool calls.
-- **FR-004**: Detectives MUST operate in resource-constrained sandboxes (cpu/memory/tmp limits).
+- **FR-004**: Detectives MUST operate in resource-constrained sandboxes with fixed strict limits (512MB RAM, 1 CPU core).
 - **FR-005**: All graph nodes MUST be instrumented for 100% trace coverage in a centralized tracing system.
-- **FR-006**: System MUST implement a real-time visualization dashboard tracking node health and performance.
-- **FR-007**: System MUST implement cryptographic validation chains for all evidence.
-- **FR-008**: System MUST implement circuit breaker patterns for all external API dependencies.
+- **FR-006**: System MUST implement a real-time visualization dashboard (1s refresh) tracking node health and performance.
+- **FR-007**: System MUST implement SHA-256 sequential cryptographic validation chains for all evidence.
+- **FR-008**: System MUST implement circuit breaker patterns for all external API dependencies with a default threshold of 3 failures and a 30s reset window.
 - **FR-009**: System MUST support automated rollback testing for state recovery during orchestration crashes.
 - **FR-010**: System MUST implement a dedicated 'judicial layer' abstraction to separate reasoning strategies from graph nodes.
 - **FR-011**: System MUST implement cascading failure detection that halts processing when core evidence streams (e.g., RepoInvestigator) fail.
@@ -91,7 +101,7 @@ As a Developer, I want a dedicated abstraction layer for reasoning strategies an
 ### Key Entities _(include if feature involves data)_
 
 - **HardenedConfig**: The data structure managing environment and secure storage parameters.
-- **SandboxEnvironment**: The ephemeral, constrained execution space for tools.
+- **SandboxEnvironment**: The ephemeral, constrained execution space for tools with fixed resource limits.
 - **TraceAuditTrail**: The structured JSON logs exported to the tracing system.
 - **CryptographicChain**: The set of hashes linking raw evidence to the final verdict.
 - **CircuitBreakerState**: The status (Closed, Open, Half-Open) of external integrations.
@@ -103,8 +113,8 @@ As a Developer, I want a dedicated abstraction layer for reasoning strategies an
 
 - **SC-001**: 100% of hardcoded configuration strings are removed and moved to external configuration.
 - **SC-002**: 100% graph node coverage in execution traces.
-- **SC-003**: Tool executions in sandboxes show 0% leakage to the host file system outside allowed ephemeral storage.
-- **SC-004**: Circuit breaker successfully opens within a configurable threshold of consecutive failures of an external API.
-- **SC-005**: Cryptographic validation detects 100% of manual tampering attempts in the evidence store.
+- **SC-003**: Tool executions in sandboxes show 0% leakage to the host file system outside allowed ephemeral storage and do not exceed 512MB RAM / 1 CPU.
+- **SC-004**: Circuit breaker successfully opens within exactly 3 consecutive failures of an external API.
+- **SC-005**: Cryptographic validation using SHA-256 detects 100% of manual tampering attempts in the evidence store.
 - **SC-006**: Execution recovery from a simulated orchestration crash completes in under 10 seconds.
 - **SC-007**: Zero mock components remain in the production execution path.
