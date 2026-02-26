@@ -11,8 +11,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize environment with `uv` and ensure `tenacity` is installed
-- [ ] T002 [P] Create placeholder files for new tests: `tests/unit/test_concurrency_controller.py`, `tests/unit/test_config_sync.py`, `tests/unit/test_timeouts.py`, `tests/unit/test_batch_parsing.py`, and `tests/integration/test_bounded_eval.py`
+- [x] T001 Initialize environment with `uv` and ensure `tenacity` is installed
+- [x] T002 [P] Create placeholder files for new tests: `tests/unit/test_concurrency_controller.py`, `tests/unit/test_config_sync.py`, `tests/unit/test_timeouts.py`, `tests/unit/test_batch_parsing.py`, and `tests/integration/test_bounded_eval.py`
 
 ---
 
@@ -22,9 +22,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Update `JudicialSettings` in `src/config.py` with new Pydantic fields from data-model.md: add `max_concurrent_llm_calls` (int, default=5, `ge=1, le=50`), `retry_max_attempts` (int, default=3), `llm_call_timeout` (float, default=120.0), `batching_enabled` (bool, default=False). Raise `ValueError` at startup if `max_concurrent_llm_calls < 1` per FR-001
-- [ ] T004 Setup centralized logging helpers in `src/utils/logging.py` that emit structured JSON events per SC-003: `queueing`, `acquired`, `released`, `retry`, `timeout` — each with agent name, dimension ID, and slot/queue counters
-- [ ] T005 [P] Define `ConcurrencyController` or shared semaphore in `src/nodes/judicial_nodes.py`
+- [x] T003 Update `JudicialSettings` in `src/config.py` with new Pydantic fields from data-model.md: add `max_concurrent_llm_calls` (int, default=5, `ge=1, le=50`), `retry_max_attempts` (int, default=3), `llm_call_timeout` (float, default=120.0), `batching_enabled` (bool, default=False). Raise `ValueError` at startup if `max_concurrent_llm_calls < 1` per FR-001
+- [x] T004 Setup centralized logging helpers in `src/utils/logging.py` that emit structured JSON events per SC-003: `queueing`, `acquired`, `released`, `retry`, `timeout` — each with agent name, dimension ID, and slot/queue counters
+- [x] T005 [P] Define `ConcurrencyController` or shared semaphore in `src/nodes/judicial_nodes.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -40,17 +40,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T006 [P] [US1] Implement unit tests for semaphore lock/unlock in `tests/unit/test_concurrency_controller.py`
-- [ ] T007 [P] [US1] Implement integration test for 429 retry behavior (verified at 3 attempts max, targeting status codes 429/502/503/408) in `tests/integration/test_bounded_eval.py`
-- [ ] T008 [P] [US1] Implement unit test for request timeouts (`asyncio.TimeoutError` after `LLM_CALL_TIMEOUT`) in `tests/unit/test_timeouts.py`
+- [x] T006 [P] [US1] Implement unit tests for semaphore lock/unlock in `tests/unit/test_concurrency_controller.py`
+- [x] T007 [P] [US1] Implement integration test for 429 retry behavior (verified at 3 attempts max, targeting status codes 429/502/503/408) in `tests/integration/test_bounded_eval.py`
+- [x] T008 [P] [US1] Implement unit test for request timeouts (`asyncio.TimeoutError` after `LLM_CALL_TIMEOUT`) in `tests/unit/test_timeouts.py`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `asyncio.Semaphore` throttling using `async with` context manager (FR-007) to guarantee slot release on success, error, and timeout in `src/nodes/judicial_nodes.py`
-- [ ] T010 [US1] Apply `tenacity` retry decorator with exponential backoff (`delay = min(1s * 2^(n-1) + jitter, 60s)`, jitter ∈ [0, 0.5s], stop=3) targeting HTTP status codes 429, 502, 503, 408 in `src/nodes/judicial_nodes.py`
-- [ ] T011 [US1] Wrap LLM calls in `asyncio.wait_for(timeout=settings.llm_call_timeout)` to handle hung requests; on `TimeoutError`, log WARNING and retry per FR-002 in `src/nodes/judicial_nodes.py`
-- [ ] T012 [US1] Emit structured JSON log events (per SC-003 formats) for queueing, acquired, released, retry, and timeout via helpers from T004 in `src/nodes/judicial_nodes.py`
-- [ ] T013 [US1] Log active concurrency limit at job start (INFO) and enforce that `MAX_CONCURRENT_LLM_CALLS` is immutable during an active job per FR-009 in `src/nodes/judicial_nodes.py`
+- [x] T009 [US1] Implement `asyncio.Semaphore` throttling using `async with` context manager (FR-007) to guarantee slot release on success, error, and timeout in `src/nodes/judicial_nodes.py`
+- [x] T010 [US1] Apply `tenacity` retry decorator with exponential backoff (`delay = min(1s * 2^(n-1) + jitter, 60s)`, jitter ∈ [0, 0.5s], stop=3) targeting HTTP status codes 429, 502, 503, 408 in `src/nodes/judicial_nodes.py`
+- [x] T011 [US1] Wrap LLM calls in `asyncio.wait_for(timeout=settings.llm_call_timeout)` to handle hung requests; on `TimeoutError`, log WARNING and retry per FR-002 in `src/nodes/judicial_nodes.py`
+- [x] T012 [US1] Emit structured JSON log events (per SC-003 formats) for queueing, acquired, released, retry, and timeout via helpers from T004 in `src/nodes/judicial_nodes.py`
+- [x] T013 [US1] Log active concurrency limit at job start (INFO) and enforce that `MAX_CONCURRENT_LLM_CALLS` is immutable during an active job per FR-009 in `src/nodes/judicial_nodes.py`
 
 **Checkpoint**: User Story 1 is functional: evaluations are throttled, retried (max 3), timed out if hung, and fully observable via structured logs.
 
@@ -64,12 +64,12 @@
 
 ### Tests for User Story 2
 
-- [ ] T014 [P] [US2] Implement unit tests in `tests/unit/test_config_sync.py` to verify `JudicialSettings` correctly loads, validates (range 1–50), and rejects invalid environment variables
+- [x] T014 [P] [US2] Implement unit tests in `tests/unit/test_config_sync.py` to verify `JudicialSettings` correctly loads, validates (range 1–50), and rejects invalid environment variables
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Create or update `.env` with all 6 variables from `quickstart.md` (including `LLM_CALL_TIMEOUT`)
-- [ ] T016 [US2] Ensure `JudicialSettings` correctly injects configuration into the concurrency semaphore, retry policy, and timeout wrapper at initialization
+- [x] T015 [US2] Create or update `.env` with all 6 variables from `quickstart.md` (including `LLM_CALL_TIMEOUT`)
+- [x] T016 [US2] Ensure `JudicialSettings` correctly injects configuration into the concurrency semaphore, retry policy, and timeout wrapper at initialization
 
 **Checkpoint**: System is now tunable without code changes.
 
@@ -83,13 +83,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T017 [P] [US3] Implement parsing tests for partial JSON responses and corrupt/malformed entries in `tests/unit/test_batch_parsing.py`
+- [x] T017 [P] [US3] Implement parsing tests for partial JSON responses and corrupt/malformed entries in `tests/unit/test_batch_parsing.py`
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Update prompt template in `src/nodes/judicial_nodes.py` to request structured JSON list of opinions per `data-model.md § Batching Contract`
-- [ ] T019 [US3] Implement partial success logic: accept valid dimensions, discard malformed/corrupt entries (log WARNING with raw payload), and trigger individual retries for both missing and invalid dimensions in `src/nodes/judicial_nodes.py`
-- [ ] T020 [US3] Implement provider fallback: if provider does not support structured output, fall back to individual-dimension calls even when `BATCHING_ENABLED=true` per FR-004 in `src/nodes/judicial_nodes.py`
+- [x] T018 [US3] Update prompt template in `src/nodes/judicial_nodes.py` to request structured JSON list of opinions per `data-model.md § Batching Contract`
+- [x] T019 [US3] Implement partial success logic: accept valid dimensions, discard malformed/corrupt entries (log WARNING with raw payload), and trigger individual retries for both missing and invalid dimensions in `src/nodes/judicial_nodes.py`
+- [x] T020 [US3] Implement provider fallback: if provider does not support structured output, fall back to individual-dimension calls even when `BATCHING_ENABLED=true` per FR-004 in `src/nodes/judicial_nodes.py`
 
 **Checkpoint**: Batching reduces request count while maintaining reliability for failed and corrupt items.
 
@@ -99,9 +99,9 @@
 
 **Purpose**: Final validation and documentation
 
-- [ ] T021 [P] Update `README.md` with new `JudicialSettings` configuration documentation (all 6 env vars)
-- [ ] T022 Run all validation steps outlined in `quickstart.md`
-- [ ] T023 Code cleanup: Verify all semaphore releases use `async with` or `try/finally`, confirm structured JSON logs match SC-003 formats
+- [x] T021 [P] Update `README.md` with new `JudicialSettings` configuration documentation (all 6 env vars)
+- [x] T022 Run all validation steps outlined in `quickstart.md`
+- [x] T023 Code cleanup: Verify all semaphore releases use `async with` or `try/finally`, confirm structured JSON logs match SC-003 formats
 
 ---
 
