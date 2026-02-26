@@ -13,6 +13,7 @@ The concurrency and retry settings are managed via the `JudicialSettings` Pydant
 | `retry_max_delay`          | `float` | `60.0`  | Maximum cap for exponential backoff delay.      |
 | `retry_max_attempts`       | `int`   | `3`     | Maximum number of retry attempts per request.   |
 | `batching_enabled`         | `bool`  | `False` | Toggle for "Structured Batching" mode.          |
+| `llm_call_timeout`         | `float` | `120.0` | Per-request timeout in seconds for hung calls.  |
 
 ## State Merging
 

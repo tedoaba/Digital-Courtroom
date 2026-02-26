@@ -12,7 +12,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Initialize environment with `uv` and ensure `tenacity` is installed
-- [ ] T002 [P] Create placeholder files for new tests: `tests/unit/test_concurrency_controller.py`, `tests/unit/test_config_sync.py`, and `tests/integration/test_bounded_eval.py`
+- [ ] T002 [P] Create placeholder files for new tests: `tests/unit/test_concurrency_controller.py`, `tests/unit/test_config_sync.py`, `tests/unit/test_timeouts.py`, `tests/unit/test_batch_parsing.py`, and `tests/integration/test_bounded_eval.py`
 
 ---
 
@@ -22,8 +22,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Update `JudicialSettings` in `src/config.py` with new Pydantic fields from data-model.md (Default `retry_max_attempts=3`)
-- [ ] T004 Setup centralized logging for concurrency events ("Queueing", "Acquired", "Release", "Timeout") in `src/utils/logging.py`
+- [ ] T003 Update `JudicialSettings` in `src/config.py` with new Pydantic fields from data-model.md: add `max_concurrent_llm_calls` (int, default=5, `ge=1, le=50`), `retry_max_attempts` (int, default=3), `llm_call_timeout` (float, default=120.0), `batching_enabled` (bool, default=False). Raise `ValueError` at startup if `max_concurrent_llm_calls < 1` per FR-001
+- [ ] T004 Setup centralized logging helpers in `src/utils/logging.py` that emit structured JSON events per SC-003: `queueing`, `acquired`, `released`, `retry`, `timeout` — each with agent name, dimension ID, and slot/queue counters
 - [ ] T005 [P] Define `ConcurrencyController` or shared semaphore in `src/nodes/judicial_nodes.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -41,17 +41,18 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T006 [P] [US1] Implement unit tests for semaphore lock/unlock in `tests/unit/test_concurrency_controller.py`
-- [ ] T007 [P] [US1] Implement integration test for 429 retry behavior (verified at 3 attempts max) in `tests/integration/test_bounded_eval.py`
-- [ ] T008 [P] [US1] Implement unit test for request timeouts in `tests/unit/test_timeouts.py`
+- [ ] T007 [P] [US1] Implement integration test for 429 retry behavior (verified at 3 attempts max, targeting status codes 429/502/503/408) in `tests/integration/test_bounded_eval.py`
+- [ ] T008 [P] [US1] Implement unit test for request timeouts (`asyncio.TimeoutError` after `LLM_CALL_TIMEOUT`) in `tests/unit/test_timeouts.py`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `asyncio.Semaphore` throttling in `src/nodes/judicial_nodes.py`
-- [ ] T010 [US1] Apply `tenacity` retry decorator with exponential backoff (multiplier=1, min=1, max=60, stop=3) to LLM calls in `src/nodes/judicial_nodes.py`
-- [ ] T011 [US1] Wrap LLM calls in `asyncio.wait_for` with configurable timeout to handle hung requests
-- [ ] T012 [US1] Add "Queueing...", "Acquired...", and "Timeout" log markers around semaphore and LLM blocks
+- [ ] T009 [US1] Implement `asyncio.Semaphore` throttling using `async with` context manager (FR-007) to guarantee slot release on success, error, and timeout in `src/nodes/judicial_nodes.py`
+- [ ] T010 [US1] Apply `tenacity` retry decorator with exponential backoff (`delay = min(1s * 2^(n-1) + jitter, 60s)`, jitter ∈ [0, 0.5s], stop=3) targeting HTTP status codes 429, 502, 503, 408 in `src/nodes/judicial_nodes.py`
+- [ ] T011 [US1] Wrap LLM calls in `asyncio.wait_for(timeout=settings.llm_call_timeout)` to handle hung requests; on `TimeoutError`, log WARNING and retry per FR-002 in `src/nodes/judicial_nodes.py`
+- [ ] T012 [US1] Emit structured JSON log events (per SC-003 formats) for queueing, acquired, released, retry, and timeout via helpers from T004 in `src/nodes/judicial_nodes.py`
+- [ ] T013 [US1] Log active concurrency limit at job start (INFO) and enforce that `MAX_CONCURRENT_LLM_CALLS` is immutable during an active job per FR-009 in `src/nodes/judicial_nodes.py`
 
-**Checkpoint**: User Story 1 is functional: evaluations are throttled, retried (max 3), and timed out if hung.
+**Checkpoint**: User Story 1 is functional: evaluations are throttled, retried (max 3), timed out if hung, and fully observable via structured logs.
 
 ---
 
@@ -63,12 +64,12 @@
 
 ### Tests for User Story 2
 
-- [ ] T013 [P] [US2] Implement unit tests in `tests/unit/test_config_sync.py` to verify `JudicialSettings` correctly loads and validates environment variables
+- [ ] T014 [P] [US2] Implement unit tests in `tests/unit/test_config_sync.py` to verify `JudicialSettings` correctly loads, validates (range 1–50), and rejects invalid environment variables
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] Create or update `.env` with variables from `quickstart.md`
-- [ ] T015 [US2] Ensure `JudicialSettings` correctly injects configuration into the concurrency semaphore and retry policy
+- [ ] T015 [US2] Create or update `.env` with all 6 variables from `quickstart.md` (including `LLM_CALL_TIMEOUT`)
+- [ ] T016 [US2] Ensure `JudicialSettings` correctly injects configuration into the concurrency semaphore, retry policy, and timeout wrapper at initialization
 
 **Checkpoint**: System is now tunable without code changes.
 
@@ -82,14 +83,15 @@
 
 ### Tests for User Story 3
 
-- [ ] T016 [P] [US3] Implement parsing tests for partial JSON responses in `tests/unit/test_batch_parsing.py`
+- [ ] T017 [P] [US3] Implement parsing tests for partial JSON responses and corrupt/malformed entries in `tests/unit/test_batch_parsing.py`
 
 ### Implementation for User Story 3
 
-- [ ] T017 [US3] Update prompt template in `src/nodes/judicial_nodes.py` to request structured JSON list of opinions
-- [ ] T018 [US3] Implement partial success logic: accept returned dimensions and trigger individual retries for missing ones
+- [ ] T018 [US3] Update prompt template in `src/nodes/judicial_nodes.py` to request structured JSON list of opinions per `data-model.md § Batching Contract`
+- [ ] T019 [US3] Implement partial success logic: accept valid dimensions, discard malformed/corrupt entries (log WARNING with raw payload), and trigger individual retries for both missing and invalid dimensions in `src/nodes/judicial_nodes.py`
+- [ ] T020 [US3] Implement provider fallback: if provider does not support structured output, fall back to individual-dimension calls even when `BATCHING_ENABLED=true` per FR-004 in `src/nodes/judicial_nodes.py`
 
-**Checkpoint**: Batching reduces request count while maintaining reliability for failed items.
+**Checkpoint**: Batching reduces request count while maintaining reliability for failed and corrupt items.
 
 ---
 
@@ -97,9 +99,9 @@
 
 **Purpose**: Final validation and documentation
 
-- [ ] T019 [P] Update `README.md` with new `JudicialSettings` configuration documentation
-- [ ] T020 Run all validation steps outlined in `quickstart.md`
-- [ ] T021 Code cleanup: Ensure all semaphore releases and timeout handlers are robust
+- [ ] T021 [P] Update `README.md` with new `JudicialSettings` configuration documentation (all 6 env vars)
+- [ ] T022 Run all validation steps outlined in `quickstart.md`
+- [ ] T023 Code cleanup: Verify all semaphore releases use `async with` or `try/finally`, confirm structured JSON logs match SC-003 formats
 
 ---
 
@@ -114,7 +116,9 @@
 
 ### Parallel Opportunities
 
-- T002, T005, T006, T007, T008, T013, T016 can run in parallel with other tasks in their phases.
+- T002, T005 can run in parallel within their phases.
+- T006, T007, T008 (US1 tests) can all run in parallel.
+- T014 (US2 tests), T017 (US3 tests) can run in parallel with other tasks in their phases.
 
 ---
 
@@ -134,5 +138,5 @@ Task: "Implement unit test for request timeouts in tests/unit/test_timeouts.py"
 ### MVP First (User Story 1 Only)
 
 1. Complete Setup + Foundational.
-2. Complete US1 (Semaphore + Retry + Timeouts).
-3. **VALIDATE**: Run a full evaluation and check for zero 429 errors and successful timeout recovery.
+2. Complete US1 (Semaphore + Retry + Timeouts + Structured Logging + FR-009).
+3. **VALIDATE**: Run a full evaluation and check for zero 429 errors, successful timeout recovery, and correct structured JSON log output.

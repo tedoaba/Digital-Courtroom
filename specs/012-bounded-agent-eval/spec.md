@@ -100,12 +100,21 @@ As a user, I want the option to consolidate dimension evaluations into single st
 
 ### Functional Requirements
 
-- **FR-001**: System MUST enforce a strictly bounded **Global Concurrency Limit** on the total number of outstanding LLM requests across all agents. The limit N represents the absolute ceiling for simultaneous network requests to the LLM backend.
-- **FR-002**: System MUST implement a retry mechanism with exponential backoff for transient provider failures (initial delay: 1s, maximum delay: 60s, including randomized jitter).
-- **FR-003**: System MUST provide a centralized configuration interface via **environment variables** (e.g., in `.env`) for `MAX_CONCURRENT_LLM_CALLS` and retry parameters.
-- **FR-004**: System MUST be architecture-agnostic, supporting any LLM backend (Ollama, OpenAI, Anthropic, etc.) through a unified concurrency bridge.
-- **FR-005**: System MUST support "Structured Batching" where dimensions are grouped into a single structured output request. If a batched response is incomplete, the system MUST accept the valid dimensions and automatically retry missing dimensions individually.
+- **FR-001**: System MUST enforce a strictly bounded **Global Concurrency Limit** on the total number of outstanding LLM requests across all agents. The limit N (default: **5**, valid range: **1–50**) represents the absolute ceiling for simultaneous network requests to the LLM backend. If N is set to 0 or a negative number, the system MUST raise a `ValueError` at startup.
+- **FR-002**: System MUST implement a retry mechanism with **true exponential backoff** for transient provider failures. Retryable HTTP status codes: **429** (Rate Limit), **502** (Bad Gateway), **503** (Service Unavailable), **408** (Request Timeout). The backoff formula is: `delay = min(initial_delay * 2^(attempt-1) + random_jitter, max_delay)` where `initial_delay=1s`, `max_delay=60s`, `max_attempts=3`, and `jitter` is a random value in `[0, 0.5s]` to prevent thundering-herd synchronization.
+- **FR-003**: System MUST provide a centralized configuration interface via the following **environment variables** (read from `.env`):
+  - `MAX_CONCURRENT_LLM_CALLS` (int, default: 5) — Global semaphore limit.
+  - `RETRY_INITIAL_DELAY` (float, default: 1.0) — Initial backoff delay in seconds.
+  - `RETRY_MAX_DELAY` (float, default: 60.0) — Maximum backoff cap in seconds.
+  - `RETRY_MAX_ATTEMPTS` (int, default: 3) — Maximum retry attempts per request.
+  - `BATCHING_ENABLED` (bool, default: false) — Toggle for structured batching mode.
+  - `LLM_CALL_TIMEOUT` (float, default: 120.0) — Per-request timeout in seconds.
+- **FR-004**: System MUST be architecture-agnostic, supporting any LLM backend (Ollama, OpenAI, Anthropic, etc.) through a unified concurrency bridge. Providers that do not support structured output MUST fall back to individual-dimension calls even if `BATCHING_ENABLED=true`.
+- **FR-005**: System MUST support "Structured Batching" where dimensions are grouped into a single structured output request conforming to the JSON schema defined in `data-model.md § Batching Contract`. If a batched response is incomplete (missing `criterion_id` entries), the system MUST accept the valid dimensions and automatically retry missing dimensions individually. If a batched response contains **malformed or corrupt entries** (unparseable JSON, schema violations), the system MUST discard those entries, log a WARNING with the raw content, and retry them as individual dimension calls.
 - **FR-006**: System MUST degrade gracefully, increasing job duration instead of failing when the concurrency limit is reached.
+- **FR-007**: The semaphore MUST be released in **all exit paths**: successful completion, caught exceptions, and timeouts. This MUST be enforced via `async with` context manager or an equivalent `try/finally` block.
+- **FR-008**: Each individual LLM call MUST be wrapped in a timeout of `LLM_CALL_TIMEOUT` seconds (default: 120s). If the timeout expires, the call MUST be cancelled, the semaphore slot released, and the dimension retried according to the standard retry policy.
+- **FR-009**: The concurrency limit `MAX_CONCURRENT_LLM_CALLS` MUST NOT be modified during an active evaluation job. Changes to this value take effect only on the next job invocation. The system MUST log an INFO message at job start confirming the active concurrency limit.
 
 ### Key Entities
 
@@ -115,9 +124,10 @@ As a user, I want the option to consolidate dimension evaluations into single st
 
 ### Edge Cases
 
-- **Zero-Width Bound**: What happens if the concurrency limit is set to 0 or a negative number? (System MUST default to 1 or throw error).
-- **Persistent Failures**: How does the system handle an LLM that is down permanently? (System MUST reach a maximum retry count of 3 and fail gracefully).
-- **Hung Requests**: How does the system handle requests that never return? (System MUST implement timeouts for each dimension evaluation).
+- **Zero-Width Bound**: If `MAX_CONCURRENT_LLM_CALLS` is set to 0 or a negative number, the system MUST raise a `ValueError` at startup with the message: `"MAX_CONCURRENT_LLM_CALLS must be >= 1, got {value}"`.
+- **Persistent Failures**: After exhausting all 3 retry attempts, the system MUST log an ERROR with the dimension ID, agent name, last HTTP status code, and elapsed time. It MUST then record a `JudicialOpinion` with `score=None` and `argument="Evaluation failed after 3 retries"` and append the error to `state.errors`. The pipeline MUST continue processing remaining dimensions.
+- **Hung Requests**: Each LLM call MUST be wrapped in `asyncio.wait_for` with a timeout of `LLM_CALL_TIMEOUT` seconds (default: 120s). If the timeout fires, the call MUST be cancelled, an `asyncio.TimeoutError` logged at WARNING level, and the dimension retried per FR-002.
+- **Corrupt Batch Response**: If a batched LLM response contains entries that fail Pydantic schema validation, those entries MUST be discarded, logged at WARNING with the raw payload, and retried individually.
 
 ## Assumptions and Dependencies
 
@@ -129,7 +139,12 @@ As a user, I want the option to consolidate dimension evaluations into single st
 
 ## Success Criteria
 
-- **SC-001**: **Zero 429 Errors**: Benchmarked evaluations of 3 agents x 10 dimensions must complete with zero rate-limit failures under standard provider quotas.
-- **SC-002**: **Predictable Load**: The number of concurrent network requests MUST NOT exceed the user-defined limit at any timestamp.
-- **SC-003**: **Observability**: System logs MUST clearly indicate when requests are being throttled (e.g., "Queueing...") and when they are released (e.g., "Acquired..."), in addition to retry attempt markers.
+- **SC-001**: **Zero 429 Errors**: Benchmarked evaluations of 3 agents x 10 dimensions must complete with zero rate-limit failures under standard provider quotas. Measurement: Parse structured logs for any entry with `"status_code": 429` that was not subsequently resolved by a retry; count MUST be 0.
+- **SC-002**: **Predictable Load**: The number of concurrent network requests MUST NOT exceed the user-defined limit at any point during execution. Measurement: Count log entries where `"event": "acquired"` minus `"event": "released"` at any timestamp; the delta MUST never exceed `MAX_CONCURRENT_LLM_CALLS`.
+- **SC-003**: **Observability**: System logs MUST emit structured JSON events with the following formats:
+  - **Queueing**: `{"event": "queueing", "agent": "<name>", "dimension": "<id>", "queue_depth": <int>}`
+  - **Acquired**: `{"event": "acquired", "agent": "<name>", "dimension": "<id>", "active_slots": <int>}`
+  - **Released**: `{"event": "released", "agent": "<name>", "dimension": "<id>", "active_slots": <int>}`
+  - **Retry**: `{"event": "retry", "agent": "<name>", "dimension": "<id>", "attempt": <int>, "status_code": <int>, "delay_s": <float>}`
+  - **Timeout**: `{"event": "timeout", "agent": "<name>", "dimension": "<id>", "timeout_s": <float>}`
 - **SC-004**: **Scalability**: The design must allow increasing the number of agents without a corresponding linear increase in parallel network requests.

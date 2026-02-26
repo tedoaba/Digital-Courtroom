@@ -13,6 +13,9 @@ RETRY_INITIAL_DELAY=1.0
 RETRY_MAX_DELAY=60.0
 RETRY_MAX_ATTEMPTS=3
 
+# Timeouts
+LLM_CALL_TIMEOUT=120.0
+
 # Mode Selection
 BATCHING_ENABLED=true  # Set to true to consolidate evaluations
 ```
