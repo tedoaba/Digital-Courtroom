@@ -16,7 +16,7 @@ from src.utils.orchestration import timeout_wrapper
 from src.nodes.context_builder import build_context
 from src.nodes.detectives import repo_investigator, doc_analyst, vision_inspector
 from src.nodes.evidence_aggregator import aggregator_node
-from src.nodes.judges import evaluate_criterion, execute_judicial_layer
+from src.nodes.judges import evaluate_criterion, evaluate_batch_criterion, execute_judicial_layer
 from src.nodes.justice import chief_justice_node, route_after_justice
 from src.nodes.report_generator import report_generator_node
 from src.nodes.error_handler import error_handler_node
@@ -29,6 +29,7 @@ timed_repo_investigator = timeout_wrapper(300)(repo_investigator)
 timed_doc_analyst = timeout_wrapper(300)(doc_analyst)
 timed_vision_inspector = timeout_wrapper(300)(vision_inspector)
 timed_evaluate_criterion = timeout_wrapper(120)(evaluate_criterion)
+timed_evaluate_batch_criterion = timeout_wrapper(180)(evaluate_batch_criterion)
 
 # Routing Functions for US2 (Fault Tolerance)
 def route_after_aggregator(state: AgentState) -> Union[List[Send], str]:
@@ -61,6 +62,7 @@ def create_graph() -> StateGraph:
     
     # Layer 2: Judges (parallel via Send)
     builder.add_node("evaluate_criterion", timed_evaluate_criterion)
+    builder.add_node("evaluate_batch_criterion", timed_evaluate_batch_criterion)
     
     # Layer 3: Justice
     builder.add_node("chief_justice", chief_justice_node)
@@ -86,11 +88,12 @@ def create_graph() -> StateGraph:
     builder.add_conditional_edges(
         "aggregator",
         route_after_aggregator,
-        ["evaluate_criterion", "error_handler"]
+        ["evaluate_criterion", "evaluate_batch_criterion", "error_handler"]
     )
     
     # Judge Fan-In
     builder.add_edge("evaluate_criterion", "chief_justice")
+    builder.add_edge("evaluate_batch_criterion", "chief_justice")
     
     # Justice Routing (Re-evaluation Loop or Report)
     builder.add_conditional_edges(
