@@ -69,7 +69,7 @@ def get_ollama_llm():
     from langchain_ollama import ChatOllama
     
     return ChatOllama(
-        model="qwen3-coder:480b-cloud",
+        model="deepseek-v3.1:671b-cloud", # "qwen3-coder:480b-cloud",
         temperature=judicial_settings.llm_temperature,
     )
 
@@ -110,9 +110,20 @@ You are evaluating the criterion '{criterion_id}': {criterion_description}
 Review the following synchronized evidence collected by the detectives:
 {evidence_text}
 
-Provide your structured JudicialOpinion. 
-You MUST exclusively cite `evidence_id` values from the provided evidence. If no evidence was provided, cite `['NO_EVIDENCE']`.
-Ensure you adhere to the schema strictly.
+Provide your evaluation in a STRICT JSON format. 
+The following fields are REQUIRED:
+- `criterion_id`: MUST be exactly '{criterion_id}'
+- `judge`: MUST be exactly '{judge}'
+- `score`: An INTEGER from 1 (poor) to 5 (excellent)
+- `argument`: A detailed text string explaining your rationale
+- `cited_evidence`: A list of strings containing the `evidence_id` values you used. If none, use `['NO_EVIDENCE']`.
+
+Optional fields:
+- `mitigations`: (For Defense) List of strings
+- `charges`: (For Prosecutor) List of strings
+- `remediation`: (For TechLead) Strategy string
+
+Ensure you return ONLY the JSON object. Do not add markdown wrappers around the JSON.
 """
 
     messages = [
@@ -180,9 +191,15 @@ Review the following synchronized evidence collected by the detectives:
 Evaluate the following criteria:
 {criteria_list}
 
-Provide your response as a JSON LIST of JudicialOpinion results.
-Example: [{"opinion_id": "...", "judge": "{judge}", "criterion_id": "DIM1", "score": 4, ...}, ...]
-You MUST cite `evidence_id` values or `['NO_EVIDENCE']`.
+Provide your response as a JSON object containing a key 'opinions' which is a LIST of JudicialOpinion results.
+Each object in the 'opinions' list MUST have:
+- `criterion_id`: The ID of the criterion (e.g., 'DIM1')
+- `judge`: '{judge}'
+- `score`: INTEGER (1-5)
+- `argument`: Detailed rationale string
+- `cited_evidence`: List of `evidence_id` strings or `['NO_EVIDENCE']`
+
+Example: {{"opinions": [{{"criterion_id": "DIM1", "judge": "{judge}", "score": 4, "argument": "...", "cited_evidence": ["..."]}}, ...]}}
 """
 
     messages = [

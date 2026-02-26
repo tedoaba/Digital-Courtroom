@@ -70,28 +70,69 @@ class JudicialOpinion(StrictModel):
     @classmethod
     def unwrap_judicial_opinion_keys(cls, data: Any) -> Any:
         """
-        Robustly unwrap keys like 'judicial_opinion', 'opinion', 'judicial_opinion_result'
-        that some LLMs add even when asked for raw JSON.
+        Robustly unwrap and normalize LLM outputs.
+        Handles:
+        - Common wrapper keys ('judicial_opinion', 'opinion', etc.)
+        - Field name synonyms (rationale -> argument, criteria -> criterion_id)
+        - Score normalization (0-1 float -> 1-5 int)
+        - Missing optional fields
         """
         if not isinstance(data, dict):
             return data
-            
-        # Common wrapper keys
+
+        # 1. Handle common wrapper keys
         wrappers = ["judicial_opinion", "opinion", "judicial_opinion_result", "result", "evaluation"]
-        
-        # Check if only ONE key exists and it's in our wrapper list
         if len(data) == 1:
             key = list(data.keys())[0]
-            if key in wrappers and isinstance(data[key], dict):
-                return data[key]
-            
-        # Check if criterion_id or score is missing at top level but present in a nested dict
-        if "score" not in data or "criterion_id" not in data:
-            for val in data.values():
-                if isinstance(val, dict) and "score" in val and "criterion_id" in val:
-                    return val
-                    
-        return data
+            # If the only key is in wrappers OR it matches a likely criterion name (e.g. 'state_management_rigor')
+            if (key in wrappers or "_" in key) and isinstance(data[key], dict):
+                data = data[key]
+
+        # 2. Map synonyms for critical fields
+        field_mappings = {
+            "criterion_id": ["criteria", "criterion", "dimension", "criterion_id", "criterion_name"],
+            "argument": ["rationale", "reasoning", "explanation", "justification", "analysis", "argument"],
+            "score": ["rating", "verdict", "numeric_score", "point", "score"],
+            "cited_evidence": ["cited_evidence_ids", "citations", "evidence_cited", "relevant_evidence", "cited_evidence"]
+        }
+
+        normalized_data = data.copy()
+        for target, synonyms in field_mappings.items():
+            if target not in normalized_data or normalized_data[target] is None:
+                for syn in synonyms:
+                    if syn in data and data[syn] is not None:
+                        normalized_data[target] = data[syn]
+                        break
+
+        # 3. Normalize Score (handle 0-1 float or strings)
+        if "score" in normalized_data:
+            val = normalized_data["score"]
+            try:
+                # If it's a float like 0.6 or 0.85
+                if isinstance(val, (float, str)) and float(val) <= 1.0 and float(val) >= 0:
+                    # Scale 0-1 to 1-5: round(val * 4 + 1)
+                    normalized_data["score"] = int(round(float(val) * 4 + 1))
+                else:
+                    normalized_data["score"] = int(float(val))
+                
+                # Clamp to 1-5
+                normalized_data["score"] = max(1, min(5, normalized_data["score"]))
+            except (ValueError, TypeError):
+                normalized_data["score"] = 3 # Neutral fallback for unparseable scores
+
+        # 4. Ensure cited_evidence is a list
+        if "cited_evidence" in normalized_data:
+            if isinstance(normalized_data["cited_evidence"], str):
+                normalized_data["cited_evidence"] = [normalized_data["cited_evidence"]]
+            elif not isinstance(normalized_data["cited_evidence"], list):
+                normalized_data["cited_evidence"] = []
+
+        # 5. Filter out extra fields to prevent 'extra="forbid"' errors if LLM added stuff
+        # We only keep fields defined in the model
+        allowed_fields = cls.model_fields.keys()
+        final_data = {k: v for k, v in normalized_data.items() if k in allowed_fields}
+        
+        return final_data
 
 
 class CriterionResult(StrictModel):
