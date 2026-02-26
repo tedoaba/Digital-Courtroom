@@ -46,11 +46,23 @@ The **Chief Justice** node resolves conflicts using hardcoded Python rules:
 
 ---
 
+## 🛡️ Production Hardening (Operation Ironclad Swarm)
+
+The system is built for production environments with the following hardening features:
+
+- **🔒 Hardened Vault:** All sensitive credentials (API keys, repository tokens) are stored in an AES-256 encrypted vault.
+- **📦 Isolated Sandbox:** Detectives execute all Git and file operations within a resource-constrained `SandboxEnvironment` (512MB RAM, 1 CPU core) to prevent resource exhaustion and tool escapes.
+- **🧬 Evidence Hashing:** Every piece of evidence is cryptographically linked in a SHA-256 hash chain to ensure forensic integrity.
+- **🔌 Circuit Breakers:** Automatic "Circuit Breaker" patterns protect against API failures and cascading outages.
+- **📊 Live TUI Dashboard:** Real-time terminal monitoring of graph execution, node health, and circuit breaker states.
+
+---
+
 ## 🚀 Getting Started
 
 ### **Prerequisites**
 
-- [Python 3.11+](https://www.python.org/)
+- [Python 3.12+](https://www.python.org/)
 - [uv](https://github.com/astral-sh/uv) (Fast Python Package Manager)
 - API Keys for OpenAI, Google Gemini, and LangSmith.
 
@@ -61,40 +73,23 @@ Clone the repository and install dependencies using `uv`:
 ```bash
 git clone https://github.com/tedoaba/Digital-Courtroom.git
 cd Digital-Courtroom
-uv venv
-source .venv/bin/activate  # Or .venv\Scripts\activate on Windows
-uv pip install -e .
+uv sync
 ```
 
 ### **Environment Setup**
 
-Create a `.env` file and configure your API keys and the new **Judicial Performance** settings:
+Create a `.env` file from the example:
 
 ```bash
-# API Keys
-GEMINI_API_KEY=...
-LANGCHAIN_API_KEY=...
+cp .env.example .env
+```
 
-# --- Judicial Performance (012-bounded-agent-eval) ---
-# Global concurrency limit for LLM requests (1-50)
-MAX_CONCURRENT_LLM_CALLS=5
+Configure your API keys and the mandatory **Vault Key**:
 
-# Retry policy with exponential backoff
-RETRY_INITIAL_DELAY=1.0
-RETRY_MAX_DELAY=60.0
-RETRY_MAX_ATTEMPTS=3
-
-# Per-request timeout for hung calls
-LLM_CALL_TIMEOUT=120.0
-
-# Performance: Enable structured evaluation batching
-BATCHING_ENABLED=false
-
-# --- Model Selection ---
-PROSECUTOR_MODEL=deepseek-v3.1:671b-cloud
-DEFENSE_MODEL=deepseek-v3.1:671b-cloud
-TECHLEAD_MODEL=deepseek-v3.1:671b-cloud
-VISION_MODEL=gemini-2.0-flash
+```bash
+# Generate a vault key
+# python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+COURTROOM_VAULT_KEY=your-base64-key-here
 ```
 
 ### **Basic Usage**
@@ -105,32 +100,24 @@ Run the auditor against any GitHub repository and specification PDF:
 uv run python -m src.main \
   --repo https://github.com/target/repo-to-audit \
   --spec docs/design-spec.pdf \
-  --output audit/results/
+  --dashboard
 ```
 
 ---
 
-## 🛡️ Engineering Standards & Security
-
-- **Sandboxed Execution:** All repository cloning and analysis occur within transient `tempfile.TemporaryDirectory()` namespaces.
-- **No Code Execution:** The system uses **Abstract Syntax Tree (AST)** parsing to analyze code structure, ensuring that untrusted code is never imported or executed.
-- **Typed State Management:** Built on **Pydantic V2** to enforce strict schema validation for every agent transition.
-- **Full Traceability:** 100% LangSmith tracing coverage for every multi-agent interaction.
-
----
-
-## 📁 Project Structure
+## Folder Structure
 
 ```text
 Digital-Courtroom/
 ├── src/
-│   ├── nodes/              # LangGraph node definitions (Detectives, Judges, Justice)
-│   ├── tools/              # Forensic tools (Repo, AST, Doc, Vision)
+│   ├── nodes/              # LangGraph node definitions
+│   ├── judicial/           # Abstraction layer for reasoning & strategies
+│   ├── utils/              # Security, Observability, and Orchestration
 │   ├── state.py            # Pydantic models & AgentState
-│   └── graph.py            # StateGraph compilation & wiring
-├── rubric/                 # The "Constitution" (JSON-based evaluation rules)
-├── audit/                  # Generated results and manifest logs
-├── tests/                  # Unit & integration tests
+│   └── graph.py            # StateGraph compilation
+├── rubric/                 # The "Constitution"
+├── audit/                  # Generated reports and JSON traces
+├── tests/                  # 100% Coverage Unit & Integration tests
 └── pyproject.toml          # uv managed dependencies
 ```
 
@@ -138,7 +125,7 @@ Digital-Courtroom/
 
 ## 📈 Observability
 
-Monitor the swarm's reasoning in real-time via **LangSmith**. Every run produces a `run_manifest.json` that tracks the provenance of every piece of evidence and every judicial opinion, ensuring 100% reproducibility of the final verdict.
+Monitor the swarm's reasoning in real-time via the **TUI Dashboard** or **LangSmith**. Every run produces a `run_audit_trail.json` providing structured traceability of every node execution and state transition.
 
 ---
 

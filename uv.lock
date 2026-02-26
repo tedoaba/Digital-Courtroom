@@ -550,6 +550,7 @@ name = "digital-courtroom"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "cryptography" },
     { name = "docling" },
     { name = "gitingest" },
     { name = "hf-xet" },
@@ -560,11 +561,13 @@ dependencies = [
     { name = "langgraph" },
     { name = "langgraph-cli", extra = ["inmem"] },
     { name = "langsmith" },
+    { name = "psutil" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "pymupdf" },
     { name = "python-dotenv" },
     { name = "python-json-logger" },
+    { name = "rich" },
     { name = "tenacity" },
     { name = "typing-extensions" },
 ]
@@ -580,6 +583,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cryptography", specifier = ">=44.0.1" },
     { name = "docling", specifier = ">=2.75.0" },
     { name = "gitingest", specifier = ">=0.3.1" },
     { name = "hf-xet", specifier = ">=1.3.0" },
@@ -590,11 +594,13 @@ requires-dist = [
     { name = "langgraph", specifier = ">=1.0.9" },
     { name = "langgraph-cli", extras = ["inmem"], specifier = ">=0.4.12" },
     { name = "langsmith", specifier = ">=0.7.6" },
+    { name = "psutil", specifier = ">=6.1.1" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.13.1" },
     { name = "pymupdf", specifier = ">=1.27.1" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "python-json-logger", specifier = ">=4.0.0" },
+    { name = "rich", specifier = ">=13.9.4" },
     { name = "tenacity", specifier = ">=9.1.4" },
     { name = "typing-extensions", specifier = ">=4.15.0" },
 ]

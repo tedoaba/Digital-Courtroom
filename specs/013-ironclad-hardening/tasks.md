@@ -13,9 +13,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure for `src/judicial/` and `src/utils/` per `plan.md`
-- [ ] T002 [P] Update `pyproject.toml` with `cryptography`, `rich`, `psutil`, and `langsmith` dependencies
-- [ ] T003 [P] Configure LangSmith project environment variables in `.env.example`
+- [x] T001 Create project directory structure for `src/judicial/` and `src/utils/` per `plan.md`
+- [x] T002 [P] Update `pyproject.toml` with `cryptography`, `rich`, `psutil`, and `langsmith` dependencies
+- [x] T003 [P] Configure LangSmith project environment variables in `.env.example`
 
 ---
 
@@ -25,11 +25,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `HardenedConfig` Pydantic model in `src/config.py` per `data-model.md`
-- [ ] T005 Create `CircuitBreakerState` and `EvidenceChain` models in `src/state.py`
-- [ ] T006 [P] Create `TraceAuditTrail` schema in `src/utils/observability.py`
-- [ ] T007 [P] Initialize base `src/utils/security.py` with empty `HardenedVault` and `SandboxEnvironment` classes
-- [ ] T008 [P] Initialize `src/utils/orchestration.py` with `CircuitBreaker` skeleton
+- [x] T004 Implement `HardenedConfig` Pydantic model in `src/config.py` per `data-model.md`
+- [x] T005 Create `CircuitBreakerState` and `EvidenceChain` models in `src/state.py`
+- [x] T006 [P] Create `TraceAuditTrail` schema in `src/utils/observability.py`
+- [x] T007 [P] Initialize base `src/utils/security.py` with empty `HardenedVault` and `SandboxEnvironment` classes
+- [x] T008 [P] Initialize `src/utils/orchestration.py` with `CircuitBreaker` skeleton
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -43,18 +43,18 @@
 
 ### Tests for User Story 1
 
-- [ ] T009 [P] [US1] Create unit tests for vault encryption/decryption in `tests/unit/test_security.py`
-- [ ] T010 [P] [US1] Create unit tests for sandbox resource limiting in `tests/unit/test_security.py`
-- [ ] T011 [US1] Create integration test for config loading in `tests/integration/test_config.py`
+- [x] T009 [P] [US1] Create unit tests for vault encryption/decryption in `tests/unit/test_security.py`
+- [x] T010 [P] [US1] Create unit tests for sandbox resource limiting in `tests/unit/test_security.py`
+- [x] T011 [US1] Create integration test for config loading in `tests/integration/test_config.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `HardenedVault` with AES-256 (Fernet) in `src/utils/security.py`
-- [ ] T013 [P] [US1] Implement `SandboxEnvironment` with `psutil` resource monitoring (512MB RAM, 1 CPU core) in `src/utils/security.py`
-- [ ] T014 [US1] Implement Pydantic-based input/output validation and sanitization logic in `src/utils/security.py`
-- [ ] T015 [US1] Refactor `src/config.py` to pull all model names and endpoints from environment variables
-- [ ] T016 [US1] Audit and remove all hardcoded strings from existing nodes in `src/nodes/`
-- [ ] T017 [US1] Update detective nodes to execute tools via `SandboxEnvironment`
+- [x] T012 [P] [US1] Implement `HardenedVault` with AES-256 (Fernet) in `src/utils/security.py`
+- [x] T013 [P] [US1] Implement `SandboxEnvironment` with `psutil` resource monitoring (512MB RAM, 1 CPU core) in `src/utils/security.py`
+- [x] T014 [US1] Implement Pydantic-based input/output validation and sanitization logic in `src/utils/security.py`
+- [x] T015 [US1] Refactor `src/config.py` to pull all model names and endpoints from environment variables
+- [x] T016 [US1] Audit and remove all hardcoded strings from existing nodes in `src/nodes/`
+- [x] T017 [US1] Update detective nodes to execute tools via `SandboxEnvironment`
 
 **Checkpoint**: User Story 1 is functional. System is hardened against basic configuration leaks and tool escapes.
 
@@ -68,15 +68,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T018 [P] [US2] Create unit tests for dashboard state updates in `tests/unit/test_observability.py`
-- [ ] T019 [P] [US2] Verify LangSmith instrumentation wrapper in `tests/unit/test_observability.py`
+- [x] T018 [P] [US2] Create unit tests for dashboard state updates in `tests/unit/test_observability.py`
+- [x] T019 [P] [US2] Verify LangSmith instrumentation wrapper in `tests/unit/test_observability.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement real-time TUI dashboard using `rich.live` with interactive keys (`p`, `r`, `c`) in `src/utils/observability.py`
-- [ ] T021 [US2] Apply `@traceable` instrumentation to all graph nodes in `src/nodes/`
-- [ ] T022 [US2] Implement structured JSON trace export in `src/utils/observability.py`
-- [ ] T023 [US2] Update `src/main.py` entry point to support the `--dashboard` flag
+- [x] T020 [P] [US2] Implement real-time TUI dashboard using `rich.live` with interactive keys (`p`, `r`, `c`) in `src/utils/observability.py`
+- [x] T021 [US2] Apply `@traceable` instrumentation to all graph nodes in `src/nodes/`
+- [x] T022 [US2] Implement structured JSON trace export in `src/utils/observability.py`
+- [x] T023 [US2] Update `src/main.py` entry point to support the `--dashboard` flag
 
 **Checkpoint**: User Story 2 is functional. Swarm execution is fully transparent and auditable.
 
@@ -90,17 +90,17 @@
 
 ### Tests for User Story 3
 
-- [ ] T024 [P] [US3] Create unit tests for `CircuitBreaker` state transitions (Closed -> Open) in `tests/unit/test_resilience.py`
-- [ ] T025 [P] [US3] Create unit tests for sequential SHA-256 hashing in `tests/unit/test_security.py`
-- [ ] T026 [US3] Create integration test for disaster recovery rollback in `tests/integration/test_disaster_recovery.py`
+- [x] T024 [P] [US3] Create unit tests for `CircuitBreaker` state transitions (Closed -> Open) in `tests/unit/test_resilience.py`
+- [x] T025 [P] [US3] Create unit tests for sequential SHA-256 hashing in `tests/unit/test_security.py`
+- [x] T026 [US3] Create integration test for disaster recovery rollback in `tests/integration/test_disaster_recovery.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement sequential SHA-256 hash chain logic in `src/utils/security.py`
-- [ ] T028 [US3] Implement `CircuitBreaker` logic (3-failure threshold, 1-success recovery) in `src/utils/orchestration.py`
-- [ ] T029 [US3] Integrate `CircuitBreaker` into LangGraph orchestration nodes and implement cascading failure detection for core streams (FR-011) in `src/utils/orchestration.py`
-- [ ] T030 [US3] Implement automated state rollback for orchestration recovery in `src/utils/orchestration.py`
-- [ ] T031 [US3] Implement evidence verification utility method in `src/utils/security.py`
+- [x] T027 [P] [US3] Implement sequential SHA-256 hash chain logic in `src/utils/security.py`
+- [x] T028 [US3] Implement `CircuitBreaker` logic (3-failure threshold, 1-success recovery) in `src/utils/orchestration.py`
+- [x] T029 [US3] Integrate `CircuitBreaker` into LangGraph orchestration nodes and implement cascading failure detection for core streams (FR-011) in `src/utils/orchestration.py`
+- [x] T030 [US3] Implement automated state rollback for orchestration recovery in `src/utils/orchestration.py`
+- [x] T031 [US3] Implement evidence verification utility method in `src/utils/security.py`
 
 **Checkpoint**: User Story 3 is functional. The system is resilient to API outages and ensures evidence integrity.
 
@@ -114,15 +114,15 @@
 
 ### Tests for User Story 4
 
-- [ ] T032 [P] [US4] Create unit tests for strategy swapping in `tests/unit/test_judicial.py`
-- [ ] T033 [US4] Create unit tests for multi-factorial rubric scoring in `tests/unit/test_judicial.py`
+- [x] T032 [P] [US4] Create unit tests for strategy swapping in `tests/unit/test_judicial.py`
+- [x] T033 [US4] Create unit tests for multi-factorial rubric scoring in `tests/unit/test_judicial.py`
 
 ### Implementation for User Story 4
 
-- [ ] T034 [P] [US4] Implement `BaseReasoningStrategy` in `src/judicial/layer.py`
-- [ ] T035 [P] [US4] Implement concrete reasoning strategies in `src/judicial/strategies.py`
-- [ ] T036 [P] [US4] Implement rubric loading and scoring logic in `src/judicial/rubrics.py`
-- [ ] T037 [US4] Refactor `src/nodes/judicial_nodes.py` to delegate to `src/judicial/layer.py`
+- [x] T034 [P] [US4] Implement `BaseReasoningStrategy` in `src/judicial/layer.py`
+- [x] T035 [P] [US4] Implement concrete reasoning strategies in `src/judicial/strategies.py`
+- [x] T036 [P] [US4] Implement rubric loading and scoring logic in `src/judicial/rubrics.py`
+- [x] T037 [US4] Refactor `src/nodes/judicial_nodes.py` to delegate to `src/judicial/layer.py`
 
 **Checkpoint**: User Story 4 is functional. Judicial logic is modular and maintainable.
 
@@ -132,15 +132,15 @@
 
 **Purpose**: Final hardening, documentation, and performance tuning.
 
-- [ ] T038 [P] Update `README.md` with hardening features and CLI usage
-- [ ] T039 Optimize TUI refresh rate and resource consumption in `src/utils/observability.py`
-- [ ] T040 Perform final security audit for credential leakage in logs
-- [ ] T041 Run `quickstart.md` validation to ensure project is ready for handover
-- [ ] T042 [P] Cleanup temporary test files and artifacts
-- [ ] T043 Perform recovery performance benchmark to verify < 10s recovery (SC-006)
-- [ ] T044 Verify zero mock implementation in production node path (SC-007)
-- [ ] T045 [US3] Implement cryptographic mid-execution failure recovery and partial reporting in `src/utils/security.py`
-- [ ] T046 [US1] Implement 50ms latency check for cryptographic operations in security unit tests
+- [x] T038 [P] Update `README.md` with hardening features and CLI usage
+- [x] T039 Optimize TUI refresh rate and resource consumption in `src/utils/observability.py`
+- [x] T040 Perform final security audit for credential leakage in logs
+- [x] T041 Run `quickstart.md` validation to ensure project is ready for handover
+- [x] T042 [P] Cleanup temporary test files and artifacts
+- [x] T043 Perform recovery performance benchmark to verify < 10s recovery (SC-006)
+- [x] T044 Verify zero mock implementation in production node path (SC-007)
+- [x] T045 [US3] Implement cryptographic mid-execution failure recovery and partial reporting in `src/utils/security.py`
+- [x] T046 [US1] Implement 50ms latency check for cryptographic operations in security unit tests
 
 ---
 
