@@ -27,6 +27,16 @@ dependencies = [
     "psutil>=6.1.1",
 ]
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
 [project.scripts]
 audit = "src.main:main"
 courtroom = "src.cli:main"
@@ -36,7 +46,7 @@ line-length = 88
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "UP", "B", "A", "COM", "C4", "T20", "RET", "SIM", "ARG", "PTH", "ERA", "PL", "RUF"]
+select = ["E", "F", "I", "N", "UP", "B", "A", "COM", "C4", "T20", "RET", "SIM", "ARG", "PTH", "ERA", "PL", "RUF", "PT"]
 ignore = []
 
 [tool.pytest.ini_options]
