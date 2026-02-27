@@ -24,7 +24,8 @@ WORKDIR /app
 # Install dependencies in a separate stage for caching
 FROM base AS builder
 COPY pyproject.toml uv.lock README.md ./
-RUN uv sync --frozen --no-dev --no-install-project
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project
 
 # Final stage
 FROM base
@@ -38,7 +39,8 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY . .
 
 # Final sync to install the project itself (entrypoints)
-RUN uv sync --frozen --no-dev
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
 
 # Ensure entrypoint is executable
 RUN chmod +x scripts/docker-entrypoint.sh
