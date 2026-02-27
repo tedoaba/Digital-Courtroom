@@ -15,8 +15,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize `.dockerignore` file in repository root
-- [ ] T002 [P] Setup basic `Makefile` structure with variables (REPO, SPEC, RUBRIC) in repository root
+- [ ] T001 [P] Initialize `.dockerignore` file in repository root
+- [ ] T002 [P] Create `.hadolint.yaml` for Dockerfile quality standards in repository root
+- [ ] T003 [P] Setup basic `Makefile` structure with variables (REPO, SPEC, RUBRIC) in repository root
 
 ---
 
@@ -26,8 +27,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Implement hidden pre-flight check targets (`.check-uv`, `.check-env`, `.check-dirs`) in `Makefile`
-- [ ] T004 Ensure `ruff` configuration is present and consistent in `pyproject.toml`
+- [ ] T004 Create DevOps validation script in `tests/devops/test_infrastructure.py` to verify Makefile targets and Dockerfile existence (TDD Red Phase)
+- [ ] T005 Implement pre-flight check targets (`.check-uv`, `.check-env`, `.check-dirs`) in `Makefile` with fail-fast instructions for missing prerequisites
+- [ ] T006 [P] Configure `ruff` in `pyproject.toml` with strict rulesets aligning with Constitution Principle XXI
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -41,9 +43,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] Implement `run` and `cli` targets in `Makefile` using `uv run`
-- [ ] T006 [US1] Implement `test` and `lint` targets in `Makefile` using `pytest` and `ruff`
-- [ ] T007 [P] [US1] Implement `clean` target in `Makefile` to remove build artifacts and logs
+- [ ] T007 [US1] Implement `run` and `cli` targets in `Makefile` using `uv run`
+- [ ] T008 [US1] Implement `test` and `lint` targets in `Makefile` using `pytest` and `ruff`
+- [ ] T009 [P] [US1] Implement `clean` target in `Makefile` to remove build artifacts and logs
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
@@ -57,10 +59,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Create multi-stage `Dockerfile` using `ghcr.io/astral-sh/uv` binary copy and `python:3.12-slim`
-- [ ] T009 [US2] Configure non-root user `courtroom_user` and volume permissions in `Dockerfile`
-- [ ] T010 [US2] Implement `docker-build` target in `Makefile` tagging as `digital-courtroom:latest`
-- [ ] T011 [US2] Implement `docker-run` target in `Makefile` with volume mapping for `/audit` and `/reports`
+- [ ] T010 [US2] Create multi-stage `Dockerfile` using `ghcr.io/astral-sh/uv` binary copy and `python:3.12-slim`
+- [ ] T011 [US2] Configure non-root user `courtroom_user` and volume permissions in `Dockerfile`
+- [ ] T012 [US2] Implement `docker-build` target in `Makefile` tagging as `digital-courtroom:latest`
+- [ ] T013 [US2] Implement `docker-run` target in `Makefile` with volume mapping for `/audit` and `/reports`
 
 **Checkpoint**: User Story 2 is ready; the application can now run identical to production locally.
 
@@ -74,11 +76,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T012 [US3] Create GitHub Actions workflow at `.github/workflows/main.yml` triggering on `main`, `rc/*`, and PRs
-- [ ] T013 [P] [US3] Implement linting job in `main.yml` using `ruff` and `hadolint/hadolint-action`
-- [ ] T014 [US3] Implement security audit job in `main.yml` using `pypa/gh-action-pip-audit`
-- [ ] T015 [US3] Implement testing job in `main.yml` using `pytest`
-- [ ] T016 [US3] Implement Docker build verification job in `main.yml`
+- [ ] T014 [US3] Create GitHub Actions workflow at `.github/workflows/main.yml` triggering on `main`, `rc/*`, and PRs
+- [ ] T015 [P] [US3] Implement linting job in `main.yml` using `ruff` and `hadolint/hadolint-action`
+- [ ] T016 [US3] Implement security audit job in `main.yml` using `pypa/gh-action-pip-audit`
+- [ ] T017 [US3] Implement testing job in `main.yml` using `pytest`
+- [ ] T018 [US3] Implement Docker build verification job in `main.yml`
 
 **Checkpoint**: CI/CD pipeline is active and blocking regressions.
 
@@ -88,9 +90,9 @@
 
 **Purpose**: Final verification and documentation
 
-- [ ] T017 [P] Update `specs/014-devops-hardening/quickstart.md` with any discovered nuances during implementation
-- [ ] T018 Run `make lint` and `make test` project-wide to ensure 100% compliance
-- [ ] T019 Verify containerized TUI responsiveness via `make docker-run`
+- [ ] T019 [P] Update `specs/014-devops-hardening/quickstart.md` with any discovered nuances during implementation
+- [ ] T020 Run `make lint` and `make test` project-wide to ensure 100% compliance
+- [ ] T021 Verify containerized TUI responsiveness via `make docker-run`
 
 ---
 
@@ -105,9 +107,9 @@
 
 ### Parallel Opportunities
 
-- T001/T002 can run in parallel.
+- T001/T002/T003 can run in parallel.
 - US1 and US2 can be implemented in parallel by different developers.
-- Within US3, CI jobs (T013, T014, T015) can run in parallel on the GitHub runners.
+- Within US3, CI jobs (T015, T016, T017) can run in parallel on the GitHub runners.
 
 ---
 

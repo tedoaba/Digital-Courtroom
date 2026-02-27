@@ -74,7 +74,7 @@ The repository must enforce high code quality and functional correctness automat
 - **FR-001**: System MUST provide a **Multi-stage Dockerfile** optimized for `uv`, utilizing `python:3.12-slim` to minimize image size and attack surface.
 - **FR-002**: Container MUST execute under a **non-root user** (e.g., `courtroom_user`) to adhere to security best practices.
 - **FR-003**: System MUST include a **Unified Makefile** with the following targets: `run`, `cli`, `test`, `lint`, `docker-build`, `docker-run`, and `clean`.
-- **FR-004**: Makefile MUST include **Pre-flight Checks** verifying `.env` existence, availability of `uv`, and presence of critical directories (e.g., `/audit`, `/reports`).
+- **FR-004**: Makefile MUST include **Pre-flight Checks** verifying `.env` existence, availability of `uv`, and presence of critical directories (e.g., `/audit`, `/reports`). Checks MUST fail-fast with actionable setup instructions if prerequisites are missing.
 - **FR-005**: System MUST implement a **GitHub Actions CI/CD Pipeline** (`.github/workflows/main.yml`) that triggers on pushes to `main`, `rc/*` branches, and all Pull Requests. It must run linting, unit tests, and Docker build verification.
 - **FR-006**: Pipeline MUST **fail-fast** (terminate immediately) if any linting (`ruff`, `hadolint`) or security audit (`pip-audit`) step fails.
 - **FR-007**: Docker configuration MUST support **Volume Mapping** for the `/audit` (output) and `/reports` (input) directories to persist evidence chains and access audit targets.
