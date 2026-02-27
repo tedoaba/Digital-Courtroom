@@ -1,9 +1,7 @@
-import os
-import shutil
 import logging
+import os
 from pathlib import Path
 from urllib.parse import urlparse
-from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +21,13 @@ def validate_source_url(url: str) -> bool:
         if parsed.scheme not in ALLOWED_PROTOCOLS:
             logger.warning(f"Invalid protocol: {parsed.scheme}")
             return False
-        
+
         # Check domain suffix/match
         domain = parsed.netloc.lower()
         if not any(domain == d or domain.endswith(f".{d}") for d in ALLOWED_DOMAINS):
             logger.warning(f"Domain not in whitelist: {domain}")
             return False
-            
+
         return True
     except Exception as e:
         logger.error(f"URL parsing failed: {e}")
@@ -64,6 +62,7 @@ def check_disk_limit(path: Path) -> bool:
 
 class TimeoutException(Exception):
     """Raised when an operation exceeds the timeout limit."""
+
     pass
 
 
@@ -73,9 +72,10 @@ def with_timeout(seconds: int = 60):
     Note: Thread-based timeout to be compatible with Windows/MacOS/Linux.
     Ref: FR-002
     """
+
     def decorator(func):
-        import threading
         import functools
+        import threading
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -100,6 +100,7 @@ def with_timeout(seconds: int = 60):
                 raise error[0]
 
             return result[0]
-        return wrapper
-    return decorator
 
+        return wrapper
+
+    return decorator

@@ -5,21 +5,20 @@ Spec: FR-002
 
 Tests are written FIRST per TDD — they should FAIL before retry wiring is complete.
 """
-import asyncio
-import pytest
-from unittest.mock import AsyncMock, patch, MagicMock, call
-import time
 
+import pytest
+
+from src.config import JudicialSettings
 from src.nodes.judicial_nodes import (
     ConcurrencyController,
-    reset_concurrency_controller,
     bounded_llm_call,
+    reset_concurrency_controller,
 )
-from src.config import JudicialSettings
 
 
 class FakeHTTPError(Exception):
     """Simulates an HTTP error with a status code."""
+
     def __init__(self, status_code: int, message: str = ""):
         self.status_code = status_code
         super().__init__(message or f"HTTP {status_code}")

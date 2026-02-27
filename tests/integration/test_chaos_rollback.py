@@ -1,7 +1,10 @@
-import pytest
 import asyncio
+
+import pytest
+
 from src.state import AgentState
-from src.utils.orchestration import trigger_rollback, detect_cascading_failure
+from src.utils.orchestration import detect_cascading_failure, trigger_rollback
+
 
 def test_rollback_simulation():
     """
@@ -11,18 +14,19 @@ def test_rollback_simulation():
         "repo_url": "test",
         "evidences": {"repo": []},
         "errors": [],
-        "metadata": {"step": "aggregator"}
+        "metadata": {"step": "aggregator"},
     }
-    
+
     # Simulate a crash in a subsequent node
     error_msg = "CRITICAL: Database connection lost during Chief Justice synthesis."
-    
+
     rolled_back = trigger_rollback(valid_state, error_msg)
-    
+
     assert rolled_back["metadata"]["rollback_triggered"] is True
     assert rolled_back["metadata"]["rollback_reason"] == error_msg
     assert "rollback_timestamp" in rolled_back["metadata"]
-    assert rolled_back["metadata"]["step"] == "aggregator" # State preserved
+    assert rolled_back["metadata"]["step"] == "aggregator"  # State preserved
+
 
 def test_cascading_failure_detection():
     """
@@ -30,15 +34,16 @@ def test_cascading_failure_detection():
     """
     # Healthy case
     assert detect_cascading_failure(["Small warning"]) is False
-    
+
     # Cascading case (3+ forensic errors)
     scary_errors = [
         "FORENSIC_TIMEOUT: repo_investigator",
         "CRITICAL: doc_analyst failed",
         "FATAL: vision_inspector offline",
-        "Something else"
+        "Something else",
     ]
     assert detect_cascading_failure(scary_errors) is True
+
 
 @pytest.mark.asyncio
 async def test_traffic_shaping_simulation():
@@ -48,12 +53,13 @@ async def test_traffic_shaping_simulation():
     (Placeholder implementation for future RateLimiter node)
     """
     from src.nodes.judicial_nodes import get_concurrency_controller
+
     controller = get_concurrency_controller()
-    
+
     # Set limit to 1 for strict test
     controller._limit = 1
     controller._semaphore = asyncio.Semaphore(1)
-    
+
     async def fast_call():
         await controller.acquire("test", "dim")
         await asyncio.sleep(0.1)
@@ -63,9 +69,9 @@ async def test_traffic_shaping_simulation():
     # First call should succeed immediately
     task = asyncio.create_task(fast_call())
     await asyncio.sleep(0.01)
-    
+
     # Second call should be blocked (semaphore at 0)
     assert controller._semaphore.locked()
-    
+
     await task
     assert not controller._semaphore.locked()

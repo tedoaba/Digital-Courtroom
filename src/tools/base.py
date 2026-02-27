@@ -1,4 +1,5 @@
-from typing import Generic, List, Literal, Optional, TypeVar
+from typing import Generic, Literal, TypeVar
+
 from pydantic import BaseModel
 
 T = TypeVar("T")
@@ -17,6 +18,6 @@ class ToolResult(BaseModel, Generic[T]):
     """Wrapper for a tool execution result."""
 
     status: ToolStatus
-    data: Optional[List[T]] = None
-    error: Optional[str] = None
+    data: list[T] | None = None
+    error: str | None = None
     execution_time: float = 0.0

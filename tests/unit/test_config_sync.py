@@ -3,8 +3,10 @@ Unit tests for JudicialSettings configuration sync.
 Covers: Environment variable loading, validation (range 1–50), rejection of invalid values.
 Spec: FR-003, FR-001
 """
+
 import pytest
 from pydantic import ValidationError
+
 from src.config import JudicialSettings
 
 
@@ -23,8 +25,12 @@ class TestJudicialSettingsValidation:
 
     def test_valid_concurrency_range(self):
         """FR-001: 1-50 is valid."""
-        assert JudicialSettings(max_concurrent_llm_calls=1).max_concurrent_llm_calls == 1
-        assert JudicialSettings(max_concurrent_llm_calls=50).max_concurrent_llm_calls == 50
+        assert (
+            JudicialSettings(max_concurrent_llm_calls=1).max_concurrent_llm_calls == 1
+        )
+        assert (
+            JudicialSettings(max_concurrent_llm_calls=50).max_concurrent_llm_calls == 50
+        )
 
     def test_invalid_concurrency_too_low(self):
         """FR-001: < 1 should raise ValueError."""
@@ -46,7 +52,7 @@ class TestJudicialSettingsValidation:
             retry_max_delay=30.0,
             retry_max_attempts=5,
             llm_call_timeout=60.0,
-            batching_enabled=True
+            batching_enabled=True,
         )
         assert settings.max_concurrent_llm_calls == 10
         assert settings.retry_initial_delay == 2.0

@@ -9,15 +9,11 @@ Tests cover:
 """
 
 import json
-import os
-import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
 from src.nodes.context_builder import build_context
-
 
 # --- Fixtures ---
 
@@ -55,7 +51,7 @@ def minimal_rubric(tmp_path: Path) -> str:
                 "forensic_instruction": "Test instruction",
                 "success_pattern": "Test success",
                 "failure_pattern": "Test failure",
-            }
+            },
         ],
         "synthesis_rules": {
             "test_rule": "Test rule description",
@@ -67,7 +63,9 @@ def minimal_rubric(tmp_path: Path) -> str:
 
 
 @pytest.fixture
-def base_state(valid_repo_url: str, valid_pdf_path: str, valid_rubric_path: str) -> dict:
+def base_state(
+    valid_repo_url: str, valid_pdf_path: str, valid_rubric_path: str
+) -> dict:
     """Create a valid base state for testing."""
     return {
         "repo_url": valid_repo_url,
@@ -83,7 +81,9 @@ class TestSuccessfulAuditInitialization:
     """Tests for User Story 1: Successful Audit Initialization (P1)."""
 
     def test_loads_rubric_dimensions_from_default_path(
-        self, base_state: dict, valid_rubric_path: str
+        self,
+        base_state: dict,
+        valid_rubric_path: str,
     ) -> None:
         """FR-001/FR-005: Node loads dimensions from the rubric JSON."""
         result = build_context(base_state)
@@ -96,7 +96,9 @@ class TestSuccessfulAuditInitialization:
             expected = json.load(f)
         assert len(result["rubric_dimensions"]) == len(expected["dimensions"])
 
-    def test_loads_synthesis_rules(self, base_state: dict, valid_rubric_path: str) -> None:
+    def test_loads_synthesis_rules(
+        self, base_state: dict, valid_rubric_path: str
+    ) -> None:
         """FR-005: Node loads synthesis_rules from the rubric JSON."""
         result = build_context(base_state)
 
@@ -120,7 +122,9 @@ class TestSuccessfulAuditInitialization:
         assert "opinions" in result
         assert result["opinions"] == []
 
-    def test_initializes_criterion_results_as_empty_dict(self, base_state: dict) -> None:
+    def test_initializes_criterion_results_as_empty_dict(
+        self, base_state: dict
+    ) -> None:
         """FR-009: criterion_results initialized as empty dict."""
         result = build_context(base_state)
 
@@ -134,7 +138,9 @@ class TestSuccessfulAuditInitialization:
         assert result.get("errors", []) == []
 
     def test_rubric_dimensions_match_json_content(
-        self, base_state: dict, valid_rubric_path: str
+        self,
+        base_state: dict,
+        valid_rubric_path: str,
     ) -> None:
         """SC-003: rubric_dimensions perfectly matches the configured JSON file."""
         result = build_context(base_state)
@@ -143,9 +149,14 @@ class TestSuccessfulAuditInitialization:
             expected = json.load(f)
         assert result["rubric_dimensions"] == expected["dimensions"]
 
-    def test_validates_dimensions_key_exists(self, tmp_path: Path, valid_pdf_path: str) -> None:
+    def test_validates_dimensions_key_exists(
+        self, tmp_path: Path, valid_pdf_path: str
+    ) -> None:
         """FR-010: Node must validate the dimensions key exists and is non-empty."""
-        rubric_no_dims = {"rubric_metadata": {"version": "1.0.0"}, "synthesis_rules": {}}
+        rubric_no_dims = {
+            "rubric_metadata": {"version": "1.0.0"},
+            "synthesis_rules": {},
+        }
         rubric_file = tmp_path / "no_dims.json"
         rubric_file.write_text(json.dumps(rubric_no_dims))
 
@@ -158,7 +169,9 @@ class TestSuccessfulAuditInitialization:
 
         assert any("dimensions" in e for e in result.get("errors", []))
 
-    def test_validates_dimensions_not_empty(self, tmp_path: Path, valid_pdf_path: str) -> None:
+    def test_validates_dimensions_not_empty(
+        self, tmp_path: Path, valid_pdf_path: str
+    ) -> None:
         """FR-010: Node must fail if dimensions is an empty array."""
         rubric_empty_dims = {
             "rubric_metadata": {"version": "1.0.0"},
@@ -199,7 +212,10 @@ class TestInputValidationFastFail:
         ],
     )
     def test_rejects_invalid_urls(
-        self, invalid_url: str, valid_pdf_path: str, valid_rubric_path: str
+        self,
+        invalid_url: str,
+        valid_pdf_path: str,
+        valid_rubric_path: str,
     ) -> None:
         """FR-002/FR-003: Invalid or dangerous URLs are rejected."""
         state = {
@@ -222,7 +238,10 @@ class TestInputValidationFastFail:
         ],
     )
     def test_accepts_valid_urls(
-        self, valid_url: str, valid_pdf_path: str, valid_rubric_path: str
+        self,
+        valid_url: str,
+        valid_pdf_path: str,
+        valid_rubric_path: str,
     ) -> None:
         """FR-002: Valid GitHub HTTPS URLs are accepted."""
         state = {
@@ -258,7 +277,9 @@ class TestInputValidationFastFail:
         assert any("Could not load rubric" in e for e in result.get("errors", []))
 
     def test_rejects_malformed_json_rubric(
-        self, tmp_path: Path, valid_pdf_path: str
+        self,
+        tmp_path: Path,
+        valid_pdf_path: str,
     ) -> None:
         """Edge Case: Malformed JSON rubric is caught."""
         bad_rubric = tmp_path / "bad.json"
@@ -274,7 +295,8 @@ class TestInputValidationFastFail:
         assert any("Could not load rubric" in e for e in result.get("errors", []))
 
     def test_graceful_failure_returns_state(
-        self, valid_rubric_path: str
+        self,
+        valid_rubric_path: str,
     ) -> None:
         """FR-007: Node returns state (does not raise) on validation errors."""
         state = {
@@ -289,7 +311,9 @@ class TestInputValidationFastFail:
         assert len(result.get("errors", [])) > 0
 
     def test_preserves_existing_errors(
-        self, valid_pdf_path: str, valid_rubric_path: str
+        self,
+        valid_pdf_path: str,
+        valid_rubric_path: str,
     ) -> None:
         """FR-007: Existing errors in state are preserved (appended to, not cleared)."""
         state = {
@@ -304,7 +328,9 @@ class TestInputValidationFastFail:
         assert len(result["errors"]) > 1  # Pre-existing + new URL error
 
     def test_error_message_format_url(
-        self, valid_pdf_path: str, valid_rubric_path: str
+        self,
+        valid_pdf_path: str,
+        valid_rubric_path: str,
     ) -> None:
         """FR-007: Invalid URL error matches data-model.md format."""
         bad_url = "ftp://evil.com/repo"
@@ -337,7 +363,9 @@ class TestDynamicRubricConfiguration:
     """Tests for User Story 3: Dynamic Rubric Configuration (P3)."""
 
     def test_loads_custom_rubric_path(
-        self, minimal_rubric: str, valid_pdf_path: str
+        self,
+        minimal_rubric: str,
+        valid_pdf_path: str,
     ) -> None:
         """FR-008: Node uses rubric_path from state to load a custom rubric."""
         state = {
@@ -351,7 +379,8 @@ class TestDynamicRubricConfiguration:
         assert result["rubric_dimensions"][0]["id"] == "test_dim_1"
 
     def test_default_rubric_path_when_not_provided(
-        self, valid_pdf_path: str
+        self,
+        valid_pdf_path: str,
     ) -> None:
         """FR-001/FR-008: Falls back to default rubric path if not provided."""
         state = {
@@ -366,7 +395,9 @@ class TestDynamicRubricConfiguration:
         assert "rubric_dimensions" in result or len(result.get("errors", [])) > 0
 
     def test_custom_rubric_overrides_default(
-        self, minimal_rubric: str, valid_pdf_path: str
+        self,
+        minimal_rubric: str,
+        valid_pdf_path: str,
     ) -> None:
         """FR-008: State rubric_path always overrides default path."""
         state = {

@@ -5,9 +5,10 @@ Spec: FR-001, FR-007
 
 Tests are written FIRST per TDD — they should FAIL before implementation is wired.
 """
+
 import asyncio
+
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
 
 from src.nodes.judicial_nodes import ConcurrencyController, reset_concurrency_controller
 
@@ -115,15 +116,11 @@ class TestSemaphoreAcquireRelease:
             nonlocal max_concurrent_seen
             await controller.acquire(agent, dim)
             async with max_concurrent_lock:
-                if controller.active_count > max_concurrent_seen:
-                    max_concurrent_seen = controller.active_count
+                max_concurrent_seen = max(max_concurrent_seen, controller.active_count)
             await asyncio.sleep(0.01)  # Simulate work
             await controller.release(agent, dim)
 
-        tasks = [
-            worker(f"Agent{i}", f"DIM{i}")
-            for i in range(10)
-        ]
+        tasks = [worker(f"Agent{i}", f"DIM{i}") for i in range(10)]
         await asyncio.gather(*tasks)
         assert max_concurrent_seen <= limit, (
             f"Max concurrent was {max_concurrent_seen}, expected <= {limit}"

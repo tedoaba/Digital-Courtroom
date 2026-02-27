@@ -18,14 +18,12 @@ Constitutional Traceability:
 import json
 import logging
 import os
-import re
 import uuid
 from typing import Any
 
-from src.state import AgentState
 from src.utils.logger import StructuredLogger
-from src.utils.security import sanitize_repo_url
 from src.utils.observability import node_traceable
+from src.utils.security import sanitize_repo_url
 
 # --- Constants (Const. XX.5: No hardcoded values) ---
 
@@ -44,7 +42,6 @@ def _validate_repo_url(url: str) -> str | None:
         return None
     except ValueError as e:
         return str(e)
-
 
 
 def _validate_pdf_path(pdf_path: str) -> str | None:
@@ -84,7 +81,7 @@ def _load_rubric(rubric_path: str) -> tuple[list[dict], dict[str, str], list[str
 
     # Parse JSON
     try:
-        with open(rubric_path, "r", encoding="utf-8") as rubric_file:
+        with open(rubric_path, encoding="utf-8") as rubric_file:
             rubric_data = json.load(rubric_file)
     except (json.JSONDecodeError, OSError):
         errors.append(f"Fatal: Could not load rubric from {rubric_path}")
@@ -94,7 +91,7 @@ def _load_rubric(rubric_path: str) -> tuple[list[dict], dict[str, str], list[str
     dimensions = rubric_data.get("dimensions")
     if not isinstance(dimensions, list) or len(dimensions) == 0:
         errors.append(
-            f"Fatal: Rubric missing required 'dimensions' key at: {rubric_path}"
+            f"Fatal: Rubric missing required 'dimensions' key at: {rubric_path}",
         )
         return [], {}, errors
 
@@ -124,7 +121,11 @@ def build_context(state: dict[str, Any]) -> dict[str, Any]:
     Returns:
         Updated state dictionary with rubric data and initialized collections.
     """
-    correlation_id = state.get("metadata", {}).get("correlation_id") or state.get("correlation_id") or str(uuid.uuid4())
+    correlation_id = (
+        state.get("metadata", {}).get("correlation_id")
+        or state.get("correlation_id")
+        or str(uuid.uuid4())
+    )
 
     # FR-007: Preserve existing errors (append, never clear)
     errors: list[str] = list(state.get("errors", []))
@@ -179,16 +180,19 @@ def build_context(state: dict[str, Any]) -> dict[str, Any]:
     }
 
     # FR-006: Log exit event at INFO level (Const. XXII)
-    status = "failed" if errors and errors != list(state.get("errors", [])) else "success"
+    status = (
+        "failed" if errors and errors != list(state.get("errors", [])) else "success"
+    )
 
     # Get rubric version for logging
     rubric_version = "unknown"
     if dimensions:
         try:
-            with open(rubric_path, "r", encoding="utf-8") as f:
+            with open(rubric_path, encoding="utf-8") as f:
                 rubric_data = json.load(f)
                 rubric_version = rubric_data.get("rubric_metadata", {}).get(
-                    "version", "unknown"
+                    "version",
+                    "unknown",
                 )
         except (json.JSONDecodeError, OSError, KeyError):
             pass

@@ -1,20 +1,23 @@
-import pytest
 from datetime import datetime
+
+import pytest
 from pydantic import ValidationError
 
 from src.state import (
     AuditReport,
     CriterionResult,
     Evidence,
+    EvidenceClass,
     JudicialOpinion,
     StrictModel,
-    EvidenceClass,
     merge_criterion_results,
     merge_evidences,
 )
 
+
 def test_strict_model_extra_fields():
     """Test that extra fields are forbidden in StrictModel."""
+
     class MyModel(StrictModel):
         name: str
 
@@ -26,6 +29,7 @@ def test_strict_model_extra_fields():
 
 def test_strict_model_strict_types():
     """Test that type coercion is forbidden in StrictModel."""
+
     class MyModel(StrictModel):
         count: int
 
@@ -37,6 +41,7 @@ def test_strict_model_strict_types():
 
 def test_strict_model_frozen():
     """Test that models are immutable (frozen)."""
+
     class MyModel(StrictModel):
         name: str
 
@@ -46,6 +51,7 @@ def test_strict_model_frozen():
 
 
 # --- Evidence Validation ---
+
 
 def test_evidence_validation_bounds():
     """Test that Evidence confidence is constrained to [0, 1]."""
@@ -58,9 +64,9 @@ def test_evidence_validation_bounds():
         "content": "content",
         "location": "location",
         "rationale": "rationale",
-        "timestamp": datetime.now()
+        "timestamp": datetime.now(),
     }
-    
+
     # Valid bounds
     Evidence(**{**common, "confidence": 0.0})
     Evidence(**{**common, "confidence": 1.0})
@@ -100,6 +106,7 @@ def test_judicial_opinion_explicit():
 
 # --- Parallel State Merging ---
 
+
 def test_merge_evidences_deduplication():
     """Test that merge_evidences deduplicates items based on evidence_id."""
     common = {
@@ -110,9 +117,9 @@ def test_merge_evidences_deduplication():
         "location": "location",
         "rationale": "rationale",
         "confidence": 0.5,
-        "timestamp": datetime.now()
+        "timestamp": datetime.now(),
     }
-    
+
     e1 = Evidence(evidence_id="id1", content="content1", **common)
     e2 = Evidence(evidence_id="id1", content="content1", **common)
     e3 = Evidence(evidence_id="id2", content="different content", **common)
@@ -159,6 +166,7 @@ def test_merge_criterion_results_confidence():
 
 
 # --- Criterion Scoring Constraints ---
+
 
 def test_criterion_result_score_bounds():
     """Test that CriterionResult score is constrained to [1, 5]."""
@@ -239,7 +247,7 @@ def test_merge_evidences_new_key():
         "location": "location",
         "rationale": "rationale",
         "confidence": 0.5,
-        "timestamp": datetime.now()
+        "timestamp": datetime.now(),
     }
     e1 = Evidence(evidence_id="id1", content="c1", **common)
     e2 = Evidence(evidence_id="id2", content="c2", **common)

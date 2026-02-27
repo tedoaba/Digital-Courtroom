@@ -1,14 +1,16 @@
 import asyncio
 import datetime
+
+from langgraph.graph import END, START, StateGraph
+
+from src.nodes.judges import evaluate_criterion, execute_judicial_layer
 from src.state import AgentState, Evidence, EvidenceClass
-from src.nodes.judges import execute_judicial_layer, evaluate_criterion
-from langgraph.graph import StateGraph, START, END
-from typing import Any
+
 
 # Mock state setup
 async def main():
     print("🚀 Starting Judicial Layer Mock Harness...")
-    
+
     # Define state
     state = AgentState(
         repo_url="https://github.com/mock/repo",
@@ -17,12 +19,12 @@ async def main():
         rubric_dimensions=[
             {
                 "id": "arch_001",
-                "description": "System uses a modular architecture with clear separation of concerns."
+                "description": "System uses a modular architecture with clear separation of concerns.",
             },
             {
                 "id": "sec_001",
-                "description": "Sensitive data is properly handled and redacted."
-            }
+                "description": "Sensitive data is properly handled and redacted.",
+            },
         ],
         synthesis_rules={},
         evidences={
@@ -37,8 +39,8 @@ async def main():
                     location="src/",
                     rationale="Files are structured by responsibility.",
                     confidence=0.9,
-                    timestamp=datetime.datetime.now()
-                )
+                    timestamp=datetime.datetime.now(),
+                ),
             ],
             "security": [
                 Evidence(
@@ -51,14 +53,14 @@ async def main():
                     location="src/logger.py",
                     rationale="Logging raw dictionary objects without filtering.",
                     confidence=0.8,
-                    timestamp=datetime.datetime.now()
-                )
-            ]
+                    timestamp=datetime.datetime.now(),
+                ),
+            ],
         },
         opinions=[],
         criterion_results={},
         errors=[],
-        opinion_text=""
+        opinion_text="",
     )
 
     # Build graph
@@ -74,9 +76,9 @@ async def main():
         # For the purpose of the harness, we just want to see it run or fail with 'no API key'.
         # In a real environment, the user would provide keys.
         result = await graph.ainvoke(state)
-        
+
         print(f"\n✅ Audit Complete. Generated {len(result['opinions'])} opinions.")
-        for op in result['opinions']:
+        for op in result["opinions"]:
             print(f"- [{op.judge}] {op.criterion_id}: Score {op.score}")
             print(f"  Reasoning: {op.argument[:100]}...")
             if op.cited_evidence:
@@ -84,6 +86,7 @@ async def main():
     except Exception as e:
         print(f"\n❌ Execution Failed: {e}")
         print("Note: Ensure GOOGLE_API_KEY is set in your .env if using Gemini.")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
