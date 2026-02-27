@@ -15,9 +15,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Initialize `.dockerignore` file in repository root
-- [ ] T002 [P] Create `.hadolint.yaml` for Dockerfile quality standards in repository root
-- [ ] T003 [P] Setup basic `Makefile` structure with variables (REPO, SPEC, RUBRIC) in repository root
+- [x] T001 [P] Initialize `.dockerignore` file in repository root
+- [x] T002 [P] Create `.hadolint.yaml` for Dockerfile quality standards in repository root
+- [x] T003 [P] Setup basic `Makefile` structure with variables (REPO, SPEC, RUBRIC) in repository root
 
 ---
 
@@ -27,9 +27,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create DevOps validation script in `tests/devops/test_infrastructure.py` to verify Makefile targets and Dockerfile existence (TDD Red Phase)
-- [ ] T005 Implement pre-flight check targets (`.check-uv`, `.check-env`, `.check-dirs`) in `Makefile` with fail-fast instructions for missing prerequisites
-- [ ] T006 [P] Configure `ruff` in `pyproject.toml` with strict rulesets aligning with Constitution Principle XXI
+- [x] T004 Create DevOps validation script in `tests/devops/test_infrastructure.py` to verify Makefile targets and Dockerfile existence (TDD Red Phase)
+- [x] T005 Implement pre-flight check targets (`.check-uv`, `.check-env`, `.check-dirs`) in `Makefile` with fail-fast instructions for missing prerequisites
+- [x] T006 [P] Configure `ruff` in `pyproject.toml` with strict rulesets aligning with Constitution Principle XXI
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -43,9 +43,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Implement `run` and `cli` targets in `Makefile` using `uv run`
-- [ ] T008 [US1] Implement `test` and `lint` targets in `Makefile` using `pytest` and `ruff`
-- [ ] T009 [P] [US1] Implement `clean` target in `Makefile` to remove build artifacts and logs
+- [x] T007 [US1] Implement `run` and `cli` targets in `Makefile` using `uv run`
+- [x] T008 [US1] Implement `test` and `lint` targets in `Makefile` using `pytest` and `ruff`
+- [x] T009 [P] [US1] Implement `clean` target in `Makefile` to remove build artifacts and logs
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
@@ -59,10 +59,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] Create multi-stage `Dockerfile` using `ghcr.io/astral-sh/uv` binary copy and pinned `python:3.12.9-slim` base image
-- [ ] T011 [US2] Configure non-root user `courtroom_user` and specific volume permissions (`/reports` as `ro`, `/audit` as `rw`)
-- [ ] T012 [US2] Implement `docker-build` target in `Makefile` tagging as `digital-courtroom:latest`
-- [ ] T013 [US2] Implement `docker-run` target in `Makefile` with correct volume mapping and environment variable verification in entrypoint
+- [x] T010 [US2] Create multi-stage `Dockerfile` using `ghcr.io/astral-sh/uv` binary copy and pinned `python:3.12.9-slim` base image
+- [x] T011 [US2] Configure non-root user `courtroom_user` and specific volume permissions (`/reports` as `ro`, `/audit` as `rw`)
+- [x] T012 [US2] Implement `docker-build` target in `Makefile` tagging as `digital-courtroom:latest`
+- [x] T013 [US2] Implement `docker-run` target in `Makefile` with correct volume mapping and environment variable verification in entrypoint
 
 **Checkpoint**: User Story 2 is ready; the application can now run identical to production locally.
 
@@ -76,12 +76,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Create GitHub Actions workflow at `.github/workflows/main.yml` triggering on `main`, `rc/*`, and PRs
-- [ ] T015 [P] [US3] Implement linting job in `main.yml` using `ruff` (errors/warnings) and `hadolint/hadolint-action` (severity `info`+)
-- [ ] T016 [US3] Implement security audit job in `main.yml` using `pypa/gh-action-pip-audit` v2.x
-- [ ] T017 [US3] Implement testing job in `main.yml` using `pytest` with coverage report (gate ≥ 80% on Core Modules)
-- [ ] T018 [US3] Implement Docker build verification job in `main.yml`
-- [ ] T022 [P] [US3] Add `docker system prune` step to CI to cleanup failed/dangling build artifacts
+- [x] T014 [US3] Create GitHub Actions workflow at `.github/workflows/main.yml` triggering on `main`, `rc/*`, and PRs
+- [x] T015 [P] [US3] Implement linting job in `main.yml` using `ruff` (errors/warnings) and `hadolint/hadolint-action` (severity `info`+)
+- [x] T016 [US3] Implement security audit job in `main.yml` using `pypa/gh-action-pip-audit` v2.x
+- [x] T017 [US3] Implement testing job in `main.yml` using `pytest` with coverage report (gate ≥ 80% on Core Modules)
+- [x] T018 [US3] Implement Docker build verification job in `main.yml`
+- [x] T022 [P] [US3] Add `docker system prune` step to CI to cleanup failed/dangling build artifacts
 
 **Checkpoint**: CI/CD pipeline is active and blocking regressions.
 
@@ -91,9 +91,9 @@
 
 **Purpose**: Final verification and documentation
 
-- [ ] T019 [P] Update `specs/014-devops-hardening/quickstart.md` with any discovered nuances during implementation
-- [ ] T020 Run `make lint` and `make test` project-wide to ensure 100% compliance
-- [ ] T021 Verify containerized TUI responsiveness via `make docker-run`
+- [x] T019 [P] Update `specs/014-devops-hardening/quickstart.md` with any discovered nuances during implementation
+- [x] T020 Run `make lint` and `make test` project-wide to ensure 100% compliance
+- [x] T021 Verify containerized TUI responsiveness via `make docker-run`
 
 ---
 

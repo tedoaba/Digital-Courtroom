@@ -2,7 +2,7 @@
 
 ## Local Development (Makefile)
 
-The new workflow abstracts complex `uv` commands into simple targets.
+The new workflow abstracts complex `uv` commands into simple targets. All targets include **Pre-flight Checks** to ensure your environment is ready.
 
 1.  **Initialize Environment**:
 
@@ -23,9 +23,11 @@ The new workflow abstracts complex `uv` commands into simple targets.
     make run REPO=https://github.com/user/repo SPEC=reports/spec.pdf
     ```
 
+> **Note**: If a prerequisite is missing (e.g., `.env`), you will see an error matching `ERROR: [ITEM] MISSING detected.`.
+
 ## Containerized Execution (Docker)
 
-To ensure exactly the same environment as production:
+To ensure exactly the same environment as production, execute via the isolated container.
 
 1.  **Build the Image**:
 
@@ -35,14 +37,19 @@ To ensure exactly the same environment as production:
 
 2.  **Run the Auditor Dashboard**:
     ```bash
-    make docker-run REPO=... SPEC=...
+    make docker-run SPEC=reports/sample.pdf
     ```
+
+The container runs as a **non-root user** (`courtroom_user`) and mounts:
+
+- `/reports` as **Read-Only** (contains your input spec)
+- `/audit` as **Read-Write** (for persisting evidence)
 
 ## CI/CD Pipeline
 
 The GitHub Actions pipeline is defined in `.github/workflows/main.yml`. It automatically enforces:
 
-- **Linting**: No `ruff` errors allowed.
+- **Linting**: No `ruff` errors allowed; `hadolint` check on Dockerfile.
 - **Security**: No known vulnerabilities in dependencies (`pip-audit`).
-- **Testing**: 100% pass rate.
-- **Infrastructure**: Successful Docker build.
+- **Testing**: Minimum 80% coverage gate.
+- **Infrastructure**: Successful Docker build and artifact cleanup.
