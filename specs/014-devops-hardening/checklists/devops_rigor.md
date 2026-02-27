@@ -8,33 +8,33 @@
 
 ## Requirement Completeness
 
-- [ ] CHK001 Are the specific versions of `hadolint` and `pip-audit` required for the CI environment defined? [Gap]
-- [ ] CHK002 Are the specific secret keys required for the GitHub Actions environment (e.g., `LANGCHAIN_API_KEY`) explicitly listed in the Functional Requirements? [Completeness, Spec §FR-005]
-- [ ] CHK003 Does the spec define the required permissions (Read-only vs Read-Write) for each Docker volume mapping? [Completeness, Spec §FR-007]
-- [ ] CHK004 Is the behavior for the GitHub Actions pipeline defined if the Docker build succeeds but the container fails to initialize? [Gap]
+- [x] CHK001 Are the specific versions of `hadolint` and `pip-audit` required for the CI environment defined? [Gap]
+- [x] CHK002 Are the specific secret keys required for the GitHub Actions environment (e.g., `LANGCHAIN_API_KEY`) explicitly listed in the Functional Requirements? [Completeness, Spec §FR-005]
+- [x] CHK003 Does the spec define the required permissions (Read-only vs Read-Write) for each Docker volume mapping? [Completeness, Spec §FR-007]
+- [x] CHK004 Is the behavior for the GitHub Actions pipeline defined if the Docker build succeeds but the container fails to initialize? [Gap]
 
 ## Requirement Clarity
 
-- [ ] CHK005 Is the "python:3.12-slim" base image requirement pinned to a specific minor version or digest to ensure reproducibility? [Clarity, Spec §FR-001]
-- [ ] CHK006 Are the specific failure messages for each "Pre-flight Check" (e.g., missing `.env`) specified to ensure clear guidance? [Clarity, Spec §FR-004]
-- [ ] CHK007 Are the severity levels (e.g., Error vs Warning) for `hadolint` that trigger a "fail-fast" termination explicitly defined? [Clarity, Spec §FR-006]
-- [ ] CHK008 Is "high code quality" in Story 3 quantified with specific, measurable tool-based metrics? [Clarity, Spec §Story 3]
+- [x] CHK005 Is the "python:3.12-slim" base image requirement pinned to a specific minor version or digest to ensure reproducibility? [Clarity, Spec §FR-001]
+- [x] CHK006 Are the specific failure messages for each "Pre-flight Check" (e.g., missing `.env`) specified to ensure clear guidance? [Clarity, Spec §FR-004]
+- [x] CHK007 Are the severity levels (e.g., Error vs Warning) for `hadolint` that trigger a "fail-fast" termination explicitly defined? [Clarity, Spec §FR-006]
+- [x] CHK008 Is "high code quality" in Story 3 quantified with specific, measurable tool-based metrics? [Clarity, Spec §Story 3]
 
 ## Requirement Consistency
 
-- [ ] CHK009 Is the `rc/*` branch trigger logic consistent with the project's documented release candidate naming strategy? [Consistency, Spec §FR-005]
-- [ ] CHK010 Do the volume mappings in the Docker Requirements align with the directories checked in the Makefile Pre-flight checks? [Consistency, Spec §FR-004 vs §FR-007]
+- [x] CHK009 Is the `rc/*` branch trigger logic consistent with the project's documented release candidate naming strategy? [Consistency, Spec §FR-005]
+- [x] CHK010 Do the volume mappings in the Docker Requirements align with the directories checked in the Makefile Pre-flight checks? [Consistency, Spec §FR-004 vs §FR-007]
 
 ## Scenario & Coverage
 
-- [ ] CHK011 Are requirements defined for the "no-docker" scenario (e.g., when a developer wants to run checks without the container daemon)? [Coverage, Alternate Flow]
-- [ ] CHK012 Does the spec define the recovery or cleanup requirements for failed Docker builds in the CI environment? [Coverage, Recovery Flow]
-- [ ] CHK013 Are requirements specified for handling architecture-specific Docker builds (e.g., ARM64 vs AMD64)? [Coverage, Non-Functional]
+- [x] CHK011 Are requirements defined for the "no-docker" scenario (e.g., when a developer wants to run checks without the container daemon)? [Coverage, Alternate Flow]
+- [x] CHK012 Does the spec define the recovery or cleanup requirements for failed Docker builds in the CI environment? [Coverage, Recovery Flow]
+- [x] CHK013 Are requirements specified for handling architecture-specific Docker builds (e.g., ARM64 vs AMD64)? [Coverage, Non-Functional]
 
 ## Measurability & Success Criteria
 
-- [ ] CHK014 Is the image size limit of 400MB (SC-002) defined as a hard requirement in the Functional Requirements or just a Success Criterion? [Measurability, Spec §SC-002]
-- [ ] CHK015 Can the "100% pass rate" (SC-003) be objectively verified against specific tool outputs in the CI logs? [Measurability, Spec §SC-003]
+- [x] CHK014 Is the image size limit of 400MB (SC-002) defined as a hard requirement in the Functional Requirements or just a Success Criterion? [Measurability, Spec §SC-002]
+- [x] CHK015 Can the "100% pass rate" (SC-003) be objectively verified against specific tool outputs in the CI logs? [Measurability, Spec §SC-003]
 
 ## Notes
 

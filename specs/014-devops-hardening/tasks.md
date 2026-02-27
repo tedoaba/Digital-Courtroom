@@ -59,10 +59,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] Create multi-stage `Dockerfile` using `ghcr.io/astral-sh/uv` binary copy and `python:3.12-slim`
-- [ ] T011 [US2] Configure non-root user `courtroom_user` and volume permissions in `Dockerfile`
+- [ ] T010 [US2] Create multi-stage `Dockerfile` using `ghcr.io/astral-sh/uv` binary copy and pinned `python:3.12.9-slim` base image
+- [ ] T011 [US2] Configure non-root user `courtroom_user` and specific volume permissions (`/reports` as `ro`, `/audit` as `rw`)
 - [ ] T012 [US2] Implement `docker-build` target in `Makefile` tagging as `digital-courtroom:latest`
-- [ ] T013 [US2] Implement `docker-run` target in `Makefile` with volume mapping for `/audit` and `/reports`
+- [ ] T013 [US2] Implement `docker-run` target in `Makefile` with correct volume mapping and environment variable verification in entrypoint
 
 **Checkpoint**: User Story 2 is ready; the application can now run identical to production locally.
 
@@ -77,10 +77,11 @@
 ### Implementation for User Story 3
 
 - [ ] T014 [US3] Create GitHub Actions workflow at `.github/workflows/main.yml` triggering on `main`, `rc/*`, and PRs
-- [ ] T015 [P] [US3] Implement linting job in `main.yml` using `ruff` and `hadolint/hadolint-action`
-- [ ] T016 [US3] Implement security audit job in `main.yml` using `pypa/gh-action-pip-audit`
-- [ ] T017 [US3] Implement testing job in `main.yml` using `pytest`
+- [ ] T015 [P] [US3] Implement linting job in `main.yml` using `ruff` (errors/warnings) and `hadolint/hadolint-action` (severity `info`+)
+- [ ] T016 [US3] Implement security audit job in `main.yml` using `pypa/gh-action-pip-audit` v2.x
+- [ ] T017 [US3] Implement testing job in `main.yml` using `pytest` with coverage report (gate ≥ 80% on Core Modules)
 - [ ] T018 [US3] Implement Docker build verification job in `main.yml`
+- [ ] T022 [P] [US3] Add `docker system prune` step to CI to cleanup failed/dangling build artifacts
 
 **Checkpoint**: CI/CD pipeline is active and blocking regressions.
 
