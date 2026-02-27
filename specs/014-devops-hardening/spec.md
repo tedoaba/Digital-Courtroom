@@ -5,6 +5,14 @@
 **Status**: Draft  
 **Input**: User description: "DevOps Hardening — Containerization, Automation & CI/CD..."
 
+## Clarifications
+
+### Session 2026-02-27
+
+- Q: Should the CI/CD pipeline also trigger on specific release-candidate branches? → A: Trigger on `main`, PRs, and `rc/*` branches.
+- Q: Should the Makefile also verify the presence of required Docker volumes or specific environment variables? → A: Verify `.env`, `uv`, and critical directory existence (audit/reports).
+- Q: Beyond ruff, should the CI pipeline include specific security scanning tools? → A: Include `ruff` (python), `hadolint` (Docker), and `pip-audit` (dependencies).
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Unified Command Interface (Priority: P1)
@@ -66,9 +74,9 @@ The repository must enforce high code quality and functional correctness automat
 - **FR-001**: System MUST provide a **Multi-stage Dockerfile** optimized for `uv`, utilizing `python:3.12-slim` to minimize image size and attack surface.
 - **FR-002**: Container MUST execute under a **non-root user** (e.g., `courtroom_user`) to adhere to security best practices.
 - **FR-003**: System MUST include a **Unified Makefile** with the following targets: `run`, `cli`, `test`, `lint`, `docker-build`, `docker-run`, and `clean`.
-- **FR-004**: Makefile MUST include **Pre-flight Checks** verifying `.env` existence and availability of `uv`.
-- **FR-005**: System MUST implement a **GitHub Actions CI/CD Pipeline** (`.github/workflows/main.yml`) that runs linting, unit tests, and Docker build verification.
-- **FR-006**: Pipeline MUST **fail-fast** (terminate immediately) if any critical security audit or linting step fails.
+- **FR-004**: Makefile MUST include **Pre-flight Checks** verifying `.env` existence, availability of `uv`, and presence of critical directories (e.g., `/audit`, `/reports`).
+- **FR-005**: System MUST implement a **GitHub Actions CI/CD Pipeline** (`.github/workflows/main.yml`) that triggers on pushes to `main`, `rc/*` branches, and all Pull Requests. It must run linting, unit tests, and Docker build verification.
+- **FR-006**: Pipeline MUST **fail-fast** (terminate immediately) if any linting (`ruff`, `hadolint`) or security audit (`pip-audit`) step fails.
 - **FR-007**: Docker configuration MUST support **Volume Mapping** for the `/audit` (output) and `/reports` (input) directories to persist evidence chains and access audit targets.
 
 ### Key Entities _(include if feature involves data)_
