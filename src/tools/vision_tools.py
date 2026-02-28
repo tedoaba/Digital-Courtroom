@@ -62,6 +62,7 @@ def classify_diagram(image_base64: str) -> str:
         llm = ChatOllama(
             model=detective_settings.vision_model,
             temperature=detective_settings.llm_temperature,
+            base_url=detective_settings.ollama_base_url,
         )
     else:
         api_key = judicial_settings.google_api_key or judicial_settings.gemini_api_key

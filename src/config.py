@@ -31,6 +31,10 @@ class HardenedConfig(BaseSettings):
         default=None, validation_alias="COURTROOM_VAULT_KEY"
     )
     vault_secrets: dict[str, SecretStr] = Field(default_factory=dict)
+    
+    ollama_base_url: str = Field(
+        default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL"
+    )
 
     @field_validator("models", "endpoints", "timeouts", mode="before")
     @classmethod
@@ -106,6 +110,10 @@ class DetectiveSettings(BaseSettings):
         default="gemini-2.0-flash", validation_alias="VISION_MODEL"
     )
 
+    ollama_base_url: str = Field(
+        default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL"
+    )
+
     @property
     def vision_model(self) -> str:
         """Pull from hardened_config or fallback to default."""
@@ -133,6 +141,10 @@ class JudicialSettings(BaseSettings):
     )
     techlead_model_id: str = Field(
         default="deepseek-v3.1:671b-cloud", validation_alias="TECHLEAD_MODEL"
+    )
+
+    ollama_base_url: str = Field(
+        default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL"
     )
 
     @property

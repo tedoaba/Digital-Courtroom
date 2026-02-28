@@ -78,6 +78,7 @@ def get_ollama_llm(model_name: str):
     return ChatOllama(
         model=model_name,
         temperature=judicial_settings.llm_temperature,
+        base_url=judicial_settings.ollama_base_url,
     )
 
 
