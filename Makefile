@@ -1,3 +1,6 @@
+# .PHONY targets
+.PHONY: help run cli test lint docker-build docker-run docker-ui clean
+
 # Variables
 REPO ?=
 SPEC ?=
@@ -61,13 +64,23 @@ lint: .check-uv
 docker-build:
 	docker build -t digital-courtroom:latest .
 
-docker-run: .check-env
-	docker run --rm -it \
+docker-run: .check-env .check-dirs
+	@if [ -z "$(REPO)" ] || [ -z "$(SPEC)" ]; then echo "USAGE: make docker-run REPO=... SPEC=..."; exit 1; fi
+	MSYS_NO_PATHCONV=1 docker run --rm -it \
 		--env-file .env \
 		-v "$(shell pwd)/reports:/reports:ro" \
-		-v "$(shell pwd)/audit:/audit:rw" \
+		-v "$(shell pwd)/audit:/app/audit:rw" \
 		digital-courtroom:latest \
 		audit --repo "$(REPO)" --spec "/reports/$(notdir $(SPEC))" --rubric "$(RUBRIC)"
+
+docker-ui: .check-env .check-dirs
+	@if [ -z "$(REPO)" ] || [ -z "$(SPEC)" ]; then echo "USAGE: make docker-ui REPO=... SPEC=..."; exit 1; fi
+	MSYS_NO_PATHCONV=1 docker run --rm -it \
+		--env-file .env \
+		-v "$(shell pwd)/reports:/reports:ro" \
+		-v "$(shell pwd)/audit:/app/audit:rw" \
+		digital-courtroom:latest \
+		courtroom audit --repo "$(REPO)" --spec "/reports/$(notdir $(SPEC))" --rubric "$(RUBRIC)"
 
 clean:
 	$(RMDIR) .pytest_cache .ruff_cache .venv audit reports || true
