@@ -2,43 +2,51 @@
 Premium Production-Grade CLI for the Digital Courtroom.
 Implements a high-fidelity TUI dashboard with live log streaming and fixed headers.
 """
+
 import argparse
-import sys
 import asyncio
-import os
-import json
-import uuid
 import logging
+import sys
+import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any, List
 
 from dotenv import load_dotenv
+from rich import box
+from rich.align import Align
 from rich.console import Console, Group
-from rich.panel import Panel
-from rich.table import Table
 from rich.layout import Layout
 from rich.live import Live
+from rich.panel import Panel
+from rich.table import Table
 from rich.text import Text
-from rich.align import Align
-from rich import box
 
 # Load environment variables
 load_dotenv()
 
-from src.graph import courtroom_swarm
 from src.config import hardened_config
+from src.graph import courtroom_swarm
 
 console = Console()
 
+
 class LogBufferHandler(logging.Handler):
     """Aggressive handler to capture courtroom logs and prevent terminal leakage."""
-    def __init__(self, buffer: List[Text]):
+
+    def __init__(self, buffer: list[Text]):
         super().__init__()
         self.buffer = buffer
         self.max_size = 40  # Increased for more detail
         # Noisy loggers to ignore
-        self.blacklist = ["httpx", "httpcore", "asyncio", "urllib3", "openai", "anthropic", "google.ai"]
+        self.blacklist = [
+            "httpx",
+            "httpcore",
+            "asyncio",
+            "urllib3",
+            "openai",
+            "anthropic",
+            "google.ai",
+        ]
 
     def emit(self, record):
         # 1. Noise Filtering
@@ -51,20 +59,32 @@ class LogBufferHandler(logging.Handler):
             event_raw = getattr(record, "event_type", "system_event")
             correlation_id = getattr(record, "correlation_id", "unknown")
             payload = getattr(record, "payload", {})
-            
+
             # Formatting
             ts = datetime.fromtimestamp(record.created).strftime("%H:%M:%S")
             severity = record.levelname
             event = event_raw.replace("_", " ").title()
-            
-            sev_color = "green" if severity == "INFO" else "yellow" if severity == "WARNING" else "bold red"
-            event_color = "cyan" if "node" in event.lower() else "magenta" if "opinion" in event.lower() else "blue"
-            
+
+            sev_color = (
+                "green"
+                if severity == "INFO"
+                else "yellow"
+                if severity == "WARNING"
+                else "bold red"
+            )
+            event_color = (
+                "cyan"
+                if "node" in event.lower()
+                else "magenta"
+                if "opinion" in event.lower()
+                else "blue"
+            )
+
             line = Text()
             line.append(f"[{ts}] ", style="dim")
             line.append(f"{severity:<7} ", style=sev_color)
             line.append(f"» {event:<18} ", style=f"bold {event_color}")
-            
+
             # 3. Judicial Insight Extraction
             if event_raw == "opinion_rendered":
                 # Check for details in payload
@@ -79,7 +99,7 @@ class LogBufferHandler(logging.Handler):
                 line.append(f"Proceeding to {node}", style="italic cyan")
             else:
                 line.append(str(record.msg), style="white")
-            
+
             # 4. Forensic Args Preview
             if "arguments" in payload:
                 args = str(payload.get("arguments"))
@@ -92,26 +112,28 @@ class LogBufferHandler(logging.Handler):
         except Exception:
             pass
 
+
 class CourtroomDashboard:
     """Aesthetic TUI layout container."""
+
     def __init__(self, repo: str):
         self.repo = repo
-        self.logs: List[Text] = []
+        self.logs: list[Text] = []
         self.layout = Layout()
         self.start_time = datetime.now()
         self.status = "INITIALIZING"
         self.node = "Idle"
         self.error_count = 0
         self.completion_time = None
-        
+
         self.layout.split_column(
             Layout(name="header", size=7),
             Layout(name="main"),
-            Layout(name="footer", size=3)
+            Layout(name="footer", size=3),
         )
         self.layout["main"].split_row(
             Layout(name="log_pane", ratio=3),
-            Layout(name="stats_pane", ratio=1)
+            Layout(name="stats_pane", ratio=1),
         )
 
     def make_header(self) -> Panel:
@@ -120,32 +142,60 @@ class CourtroomDashboard:
         █▄▀ █ █▄█ █  █  █▀█ █▄▄ █▄▄ █▄█ █▄█ █▀▄  █  █▄█ █▄█ █▄█ █ ▀ █
         """
         title = Text(banner, style="cyan", justify="center")
-        subtitle = Text(f"REPO: {self.repo} | START: {self.start_time.strftime('%H:%M:%S')}", style="italic dim cyan")
-        return Panel(Align.center(Group(title, subtitle)), box=box.HORIZONTALS, style="bold blue", padding=(0, 0))
+        subtitle = Text(
+            f"REPO: {self.repo} | START: {self.start_time.strftime('%H:%M:%S')}",
+            style="italic dim cyan",
+        )
+        return Panel(
+            Align.center(Group(title, subtitle)),
+            box=box.HORIZONTALS,
+            style="bold blue",
+            padding=(0, 0),
+        )
 
     def make_log_pane(self) -> Panel:
         # Render log buffer as a group
-        log_group = Group(*self.logs) if self.logs else Text("\n\n   Waiting for judicial proceedings...", style="italic dim")
-        return Panel(log_group, title="[bold blue] 📜 JUDICIAL PROCEEDINGS [/bold blue]", title_align="left", border_style="blue", padding=(1, 2))
+        log_group = (
+            Group(*self.logs)
+            if self.logs
+            else Text("\n\n   Waiting for judicial proceedings...", style="italic dim")
+        )
+        return Panel(
+            log_group,
+            title="[bold blue] 📜 JUDICIAL PROCEEDINGS [/bold blue]",
+            title_align="left",
+            border_style="blue",
+            padding=(1, 2),
+        )
 
     def make_stats_pane(self) -> Panel:
         table = Table(box=box.SIMPLE, expand=True)
         table.add_column("Property", style="dim cyan")
         table.add_column("Value")
-        
+
         if self.completion_time:
             elapsed = str(self.completion_time - self.start_time).split(".")[0]
         else:
             elapsed = str(datetime.now() - self.start_time).split(".")[0]
-            
-        status_style = "bold green" if self.status == "COMPLETED" else "bold yellow" if "FAILED" in self.status else "bold blue"
-        
+
+        status_style = (
+            "bold green"
+            if self.status == "COMPLETED"
+            else "bold yellow"
+            if "FAILED" in self.status
+            else "bold blue"
+        )
+
         table.add_row("System Status", f"[{status_style}]{self.status}[/]")
         table.add_row("Current Node", f"[bold magenta]{self.node}[/]")
         table.add_row("Errors Found", f"[bold red]{self.error_count}[/]")
         table.add_row("Elapsed Time", f"[white]{elapsed}[/]")
-        
-        return Panel(Align.center(table), title="[bold blue] 📊 SWARM VITALS [/bold blue]", border_style="blue")
+
+        return Panel(
+            Align.center(table),
+            title="[bold blue] 📊 SWARM VITALS [/bold blue]",
+            border_style="blue",
+        )
 
     def make_footer(self) -> Panel:
         if self.status == "COMPLETED":
@@ -160,15 +210,18 @@ class CourtroomDashboard:
         self.layout["stats_pane"].update(self.make_stats_pane())
         self.layout["footer"].update(self.make_footer())
 
-async def execute_swarm_with_ui(repo_url: str, pdf_path: str, rubric_path: str, dashboard_ui: CourtroomDashboard):
+
+async def execute_swarm_with_ui(
+    repo_url: str, pdf_path: str, rubric_path: str, dashboard_ui: CourtroomDashboard
+):
     """Executes the swarm while aggressively intercepting all loggers."""
     correlation_id = str(uuid.uuid4())
     dashboard_ui.status = "RUNNING"
-    
+
     # 1. Capture and Silence Strategy
     log_handler = LogBufferHandler(dashboard_ui.logs)
     root = logging.getLogger()
-    
+
     # Backup and Clear ALL existing loggers to prevent duplicates and terminal leakage
     original_configs = {}
     # Capture root first
@@ -197,21 +250,21 @@ async def execute_swarm_with_ui(repo_url: str, pdf_path: str, rubric_path: str, 
         "errors": [],
         "metadata": {
             "correlation_id": correlation_id,
-            "run_status": "STARTED"
+            "run_status": "STARTED",
         },
         "re_eval_count": 0,
-        "re_eval_needed": False
+        "re_eval_needed": False,
     }
 
     try:
         config = {"configurable": {"thread_id": correlation_id}}
-        
+
         async for event in courtroom_swarm.astream(initial_state, config=config):
             for node_name, state in event.items():
                 dashboard_ui.node = node_name.replace("_", " ").title()
                 dashboard_ui.error_count = len(state.get("errors", []))
                 dashboard_ui.update()
-                
+
         dashboard_ui.status = "COMPLETED"
         dashboard_ui.node = "Final Report"
         dashboard_ui.completion_time = datetime.now()
@@ -230,18 +283,23 @@ async def execute_swarm_with_ui(repo_url: str, pdf_path: str, rubric_path: str, 
             lgr.handlers = handlers
             lgr.setLevel(level)
 
+
 async def run_audit(args):
     """Subcommand: audit run"""
     # Pre-flight check before opening the Live screen
     if not Path(args.spec).exists():
-        console.print(f"[bold red]Error:[/bold red] Specification PDF not found at {args.spec}")
+        console.print(
+            f"[bold red]Error:[/bold red] Specification PDF not found at {args.spec}"
+        )
         sys.exit(1)
     if not Path(args.rubric).exists():
-        console.print(f"[bold red]Error:[/bold red] Rubric JSON not found at {args.rubric}")
+        console.print(
+            f"[bold red]Error:[/bold red] Rubric JSON not found at {args.rubric}"
+        )
         sys.exit(1)
 
     dashboard_ui = CourtroomDashboard(args.repo)
-    
+
     with Live(dashboard_ui.layout, refresh_per_second=10, screen=True) as live:
         try:
             # Time update task
@@ -249,21 +307,21 @@ async def run_audit(args):
                 while dashboard_ui.status == "RUNNING":
                     dashboard_ui.update()
                     await asyncio.sleep(1)
-            
+
             ticker_task = asyncio.create_task(ticker())
-            
+
             await execute_swarm_with_ui(
                 repo_url=args.repo,
                 pdf_path=args.spec,
                 rubric_path=args.rubric,
-                dashboard_ui=dashboard_ui
+                dashboard_ui=dashboard_ui,
             )
-            
+
             dashboard_ui.update()
             # Wait for user to press ENTER while the Live UI is still showing the COMPLETED state
             await asyncio.to_thread(input)
             ticker_task.cancel()
-            
+
         except KeyboardInterrupt:
             live.stop()
             sys.exit(130)
@@ -272,14 +330,21 @@ async def run_audit(args):
             console.print(f"\n[bold red]Catastrophic Failure:[/bold red] {e}")
             sys.exit(3)
 
+
 def show_config(args):
     """Subcommand: config"""
     table = Table(title="Digital Courtroom Configuration", box=box.ROUNDED)
     table.add_column("Property", style="cyan")
     table.add_column("Value", style="magenta")
-    table.add_row("Vault Key Present", "✅ Yes" if hardened_config.vault_key else "❌ No")
-    table.add_row("Models", str(len(hardened_config.models)) if hardened_config.models else "Defaults")
+    table.add_row(
+        "Vault Key Present", "✅ Yes" if hardened_config.vault_key else "❌ No"
+    )
+    table.add_row(
+        "Models",
+        str(len(hardened_config.models)) if hardened_config.models else "Defaults",
+    )
     console.print(Panel(table, expand=False, border_style="blue"))
+
 
 def main():
     parser = argparse.ArgumentParser(description="Digital Courtroom Production CLI")
@@ -299,10 +364,6 @@ def main():
     else:
         parser.print_help()
 
+
 if __name__ == "__main__":
     main()
-
-
-
-
-

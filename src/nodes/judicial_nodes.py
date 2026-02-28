@@ -4,11 +4,11 @@ Bounded-Concurrency Controller for Judicial LLM Calls.
 Implements FR-001, FR-002, FR-007, FR-008, FR-009 from spec 012-bounded-agent-eval.
 Added Circuit Breaker integration (013-ironclad-hardening).
 """
+
 import asyncio
 import logging
-import random
 import time
-from typing import Any, Optional
+from typing import Any
 
 from tenacity import (
     retry,
@@ -37,7 +37,8 @@ class ConcurrencyController:
     """
     Global concurrency controller using asyncio.Semaphore (FR-001).
     """
-    def __init__(self, max_concurrent: Optional[int] = None) -> None:
+
+    def __init__(self, max_concurrent: int | None = None) -> None:
         self._limit = max_concurrent or judicial_settings.max_concurrent_llm_calls
         self._semaphore = asyncio.Semaphore(self._limit)
         self._active_count = 0
@@ -82,7 +83,7 @@ async def bounded_llm_call(
     agent: str,
     dimension: str,
     llm_callable: Any,
-    settings: Optional[Any] = None,
+    settings: Any | None = None,
     retryable_exceptions: tuple[type[Exception], ...] = (Exception,),
 ) -> Any:
     """
@@ -90,14 +91,15 @@ async def bounded_llm_call(
     """
     conf = settings or judicial_settings
     cb = get_circuit_breaker(agent)
-    
+
     retryer = retry(
         stop=stop_after_attempt(conf.retry_max_attempts),
         wait=wait_exponential(
             multiplier=conf.retry_initial_delay,
             min=conf.retry_initial_delay,
             max=conf.retry_max_delay,
-        ) + wait_random(0, 0.5), 
+        )
+        + wait_random(0, 0.5),
         retry=retry_if_exception_type(retryable_exceptions),
         reraise=True,
         before_sleep=lambda retry_state: log_retry(
@@ -106,17 +108,17 @@ async def bounded_llm_call(
             attempt=retry_state.attempt_number,
             status_code=getattr(retry_state.outcome.exception(), "status_code", 0),
             delay_s=retry_state.next_action.sleep,
-        )
+        ),
     )
 
     async def _execute_inner():
         """Internal call wrapped in timeout (FR-008)."""
         try:
             return await asyncio.wait_for(
-                llm_callable(), 
-                timeout=conf.llm_call_timeout
+                llm_callable(),
+                timeout=conf.llm_call_timeout,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             log_timeout(agent, dimension, conf.llm_call_timeout)
             raise
 
@@ -142,13 +144,15 @@ async def bounded_llm_call(
         raise
 
 
-_controller: Optional[ConcurrencyController] = None
+_controller: ConcurrencyController | None = None
+
 
 def get_concurrency_controller() -> ConcurrencyController:
     global _controller
     if _controller is None:
         _controller = ConcurrencyController()
     return _controller
+
 
 def reset_concurrency_controller() -> None:
     global _controller

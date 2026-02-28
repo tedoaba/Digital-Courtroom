@@ -1,6 +1,7 @@
-import pytest
 import time
-from src.utils.observability import TraceAuditTrail, ObservableDashboardStatus
+
+from src.utils.observability import ObservableDashboardStatus, TraceAuditTrail
+
 
 def test_trace_audit_trail_validations():
     """T019: Test TraceAuditTrail Pydantic validations."""
@@ -10,10 +11,11 @@ def test_trace_audit_trail_validations():
         input_state_hash="abc",
         output_state_hash="def",
         latency_ms=100.5,
-        tool_call_payload={"cmd": "ls"}
+        tool_call_payload={"cmd": "ls"},
     )
     assert trail.node_name == "test_node"
     assert trail.latency_ms == 100.5
+
 
 def test_dashboard_status_updates():
     """T018: Test internal dashboard status updates."""
@@ -22,9 +24,10 @@ def test_dashboard_status_updates():
     status.node_health["RepoInvestigator"] = "Healthy"
     status.performance_metrics["latency"] = 500.0
     status.last_refresh = time.time()
-    
+
     assert status.active_node == "RepoInvestigator"
     assert status.node_health["RepoInvestigator"] == "Healthy"
+
 
 def test_traceable_mock():
     """T019: Verify logic that would be used by @traceable wrapping."""

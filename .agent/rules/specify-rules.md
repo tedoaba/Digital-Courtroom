@@ -27,6 +27,8 @@ Auto-generated from all feature plans. Last updated: 2026-02-24
 - Python 3.12 + `langgraph`, `pydantic`, `asyncio`, `uv` (012-bounded-agent-eval)
 - Python 3.12+ + `langgraph`, `pydantic`, `langsmith`, `rich`, `cryptography` (013-ironclad-hardening)
 - `.env` for standard config, AES-256 encrypted local store for secrets, SHA-256 hash chains for evidence integrity. (013-ironclad-hardening)
+- Python 3.12 + `uv`, `docker`, `github-actions`, `ruff`, `hadolint`, `pip-audit` (014-devops-hardening)
+- Local file system (volume mapped for `/audit` and `/reports`) (014-devops-hardening)
 
 - Python 3.12+ (latest stable for optimal `uv` and Pydantic v2 support) + `langgraph`, `langchain`, `pydantic`, `python-dotenv`, `pytest`, `ruff` (001-foundational-scaffolding)
 
@@ -46,9 +48,9 @@ cd src; pytest; ruff check .
 Python 3.12+ (latest stable for optimal `uv` and Pydantic v2 support): Follow standard conventions
 
 ## Recent Changes
+- 014-devops-hardening: Added Python 3.12 + `uv`, `docker`, `github-actions`, `ruff`, `hadolint`, `pip-audit`
 - 013-ironclad-hardening: Added Python 3.12+ + `langgraph`, `pydantic`, `langsmith`, `rich`, `cryptography`
 - 012-bounded-agent-eval: Added Python 3.12 + `langgraph`, `pydantic`, `asyncio`, `uv`
-- 011-e2e-langgraph-wiring: Added Python 3.12 (standard for project) + `langgraph`, `pydantic`, `uv`
 
 
 <!-- MANUAL ADDITIONS START -->

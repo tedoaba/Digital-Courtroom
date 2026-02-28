@@ -5,16 +5,17 @@ Spec: FR-008
 
 Tests are written FIRST per TDD — they should FAIL before timeout wiring is complete.
 """
-import asyncio
-import pytest
-from unittest.mock import AsyncMock, patch
 
+import asyncio
+
+import pytest
+
+from src.config import JudicialSettings
 from src.nodes.judicial_nodes import (
     ConcurrencyController,
-    reset_concurrency_controller,
     bounded_llm_call,
+    reset_concurrency_controller,
 )
-from src.config import JudicialSettings
 
 
 class TestTimeoutBehavior:

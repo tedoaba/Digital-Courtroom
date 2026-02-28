@@ -1,10 +1,8 @@
-from datetime import datetime
-from enum import Enum
-import hashlib
 import operator
 import re
-from typing import Annotated, Any, Literal, Optional, TypedDict
-import uuid
+from datetime import datetime
+from enum import Enum
+from typing import Annotated, Any, Literal, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -13,6 +11,7 @@ class StrictModel(BaseModel):
     """
     Base model for all state entities with strict validation.
     """
+
     model_config = ConfigDict(
         frozen=True,
         extra="forbid",
@@ -22,6 +21,7 @@ class StrictModel(BaseModel):
 
 class EvidenceClass(str, Enum):
     """Forensic classes for evidence categorisation."""
+
     GIT_FORENSIC = "GIT_FORENSIC"
     STATE_MANAGEMENT = "STATE_MANAGEMENT"
     ORCHESTRATION_PATTERN = "ORCHESTRATION_PATTERN"
@@ -32,12 +32,13 @@ class EvidenceClass(str, Enum):
 
 class Evidence(StrictModel):
     """Represents a persistent forensic fact captured by a detective."""
+
     evidence_id: str = Field(..., description="Format: {source}_{class}_{index}")
     source: Literal["repo", "docs", "vision"]
     evidence_class: EvidenceClass
     goal: str
     found: bool
-    content: Optional[str] = None
+    content: str | None = None
     location: str
     rationale: str
     confidence: float = Field(..., ge=0.0, le=1.0)
@@ -46,28 +47,30 @@ class Evidence(StrictModel):
 
 class JudicialOutcome(BaseModel):
     """Schema for LLM output ONLY."""
+
     criterion_id: str
     judge: Literal["Prosecutor", "Defense", "TechLead"]
     score: int = Field(..., ge=1, le=5)
     argument: str
     cited_evidence: list[str] = Field(default_factory=list)
-    mitigations: Optional[list[str]] = Field(default=None)
-    charges: Optional[list[str]] = Field(default=None)
-    remediation: Optional[str] = Field(default=None)
+    mitigations: list[str] | None = Field(default=None)
+    charges: list[str] | None = Field(default=None)
+    remediation: str | None = Field(default=None)
 
 
 class JudicialOpinion(StrictModel):
     """INTERNAL state model for a judge's verdict."""
+
     opinion_id: str
     judge: Literal["Prosecutor", "Defense", "TechLead"]
     criterion_id: str
     score: int = Field(..., ge=1, le=5)
     argument: str
     cited_evidence: list[str]
-    mitigations: Optional[list[str]] = Field(default=None)
-    charges: Optional[list[str]] = Field(default=None)
-    remediation: Optional[str] = Field(default=None)
-    
+    mitigations: list[str] | None = Field(default=None)
+    charges: list[str] | None = Field(default=None)
+    remediation: str | None = Field(default=None)
+
     @model_validator(mode="before")
     @classmethod
     def unwrap_judicial_opinion_keys(cls, data: Any) -> Any:
@@ -75,7 +78,13 @@ class JudicialOpinion(StrictModel):
             return data
 
         # 1. Handle common wrapper keys or single-key dicts
-        wrappers = ["judicial_opinion", "opinion", "judicial_opinion_result", "result", "evaluation"]
+        wrappers = [
+            "judicial_opinion",
+            "opinion",
+            "judicial_opinion_result",
+            "result",
+            "evaluation",
+        ]
         if len(data) == 1:
             key = list(data.keys())[0]
             if (key in wrappers or "_" in key) and isinstance(data[key], dict):
@@ -83,10 +92,31 @@ class JudicialOpinion(StrictModel):
 
         # 2. Map synonyms for critical fields
         field_mappings = {
-            "criterion_id": ["criteria", "criterion", "dimension", "criterion_id", "criterion_name"],
-            "argument": ["rationale", "reasoning", "explanation", "justification", "analysis", "argument", "verdict_text"],
+            "criterion_id": [
+                "criteria",
+                "criterion",
+                "dimension",
+                "criterion_id",
+                "criterion_name",
+            ],
+            "argument": [
+                "rationale",
+                "reasoning",
+                "explanation",
+                "justification",
+                "analysis",
+                "argument",
+                "verdict_text",
+            ],
             "score": ["rating", "verdict", "numeric_score", "point", "score", "grade"],
-            "cited_evidence": ["cited_evidence_ids", "citations", "evidence_cited", "relevant_evidence", "cited_evidence", "evidence"]
+            "cited_evidence": [
+                "cited_evidence_ids",
+                "citations",
+                "evidence_cited",
+                "relevant_evidence",
+                "cited_evidence",
+                "evidence",
+            ],
         }
 
         normalized_data = data.copy()
@@ -105,7 +135,11 @@ class JudicialOpinion(StrictModel):
                     match = re.search(r"(\d+)", val)
                     if match:
                         val = int(match.group(1))
-                if isinstance(val, (float, int)) and float(val) <= 1.0 and float(val) > 0:
+                if (
+                    isinstance(val, (float, int))
+                    and float(val) <= 1.0
+                    and float(val) > 0
+                ):
                     normalized_data["score"] = int(round(float(val) * 4 + 1))
                 else:
                     normalized_data["score"] = int(float(val))
@@ -121,14 +155,15 @@ class JudicialOpinion(StrictModel):
 
 class CriterionResult(StrictModel):
     """Final synthesized verdict."""
+
     criterion_id: str
     dimension_name: str
     numeric_score: int = Field(ge=1, le=5)
     reasoning: str
     relevance_confidence: float = Field(ge=0.0, le=1.0)
     judge_opinions: list[JudicialOpinion]
-    dissent_summary: Optional[str] = None
-    remediation: Optional[str] = None
+    dissent_summary: str | None = None
+    remediation: str | None = None
     applied_rules: list[str] = Field(default_factory=list)
     execution_log: dict[str, Any] = Field(default_factory=dict)
     security_violation_found: bool = False
@@ -137,6 +172,7 @@ class CriterionResult(StrictModel):
 
 class CircuitBreakerStatus(str, Enum):
     """(013-ironclad-hardening) Circuit breaker states."""
+
     CLOSED = "CLOSED"
     OPEN = "OPEN"
     HALF_OPEN = "HALF_OPEN"
@@ -144,15 +180,17 @@ class CircuitBreakerStatus(str, Enum):
 
 class CircuitBreakerState(StrictModel):
     """Tracks health of external API integrations."""
+
     resource_name: str
     status: CircuitBreakerStatus
     failure_count: int
-    last_failure_time: Optional[datetime] = None
-    open_until: Optional[datetime] = None
+    last_failure_time: datetime | None = None
+    open_until: datetime | None = None
 
 
 class EvidenceChain(BaseModel):
     """Cryptographic linkage for forensic integrity (T027)."""
+
     evidence_id: str
     content_hash: str
     previous_hash: str
@@ -161,6 +199,7 @@ class EvidenceChain(BaseModel):
 
 class ASTFinding(StrictModel):
     """Metadata for a code structure finding via AST analysis."""
+
     file: str
     line: int
     node_type: str
@@ -170,6 +209,7 @@ class ASTFinding(StrictModel):
 
 class Commit(StrictModel):
     """Metadata for a single git commit."""
+
     hash: str
     author: str
     date: datetime
@@ -178,35 +218,43 @@ class Commit(StrictModel):
 
 class AuditReport(StrictModel):
     """Final aggregated output."""
+
     repo_name: str
     run_date: str
     git_hash: str
     rubric_version: str
     results: dict[str, CriterionResult]
     summary: str
-    remediation_plan: Optional[str] = None
+    remediation_plan: str | None = None
     global_score: float = Field(ge=0.0, le=5.0)
 
 
 def merge_evidences(left, right):
-    if not isinstance(left, dict): return right
-    if not isinstance(right, dict): return left
+    if not isinstance(left, dict):
+        return right
+    if not isinstance(right, dict):
+        return left
     merged = left.copy()
     for key, val in right.items():
-        if key not in merged: merged[key] = val
+        if key not in merged:
+            merged[key] = val
         else:
             ids = {e.evidence_id for e in merged[key]}
             merged[key].extend([e for e in val if e.evidence_id not in ids])
     return merged
 
+
 def merge_criterion_results(left, right):
-    if not isinstance(left, dict): return right
-    if not isinstance(right, dict): return left
+    if not isinstance(left, dict):
+        return right
+    if not isinstance(right, dict):
+        return left
     merged = left.copy()
     for k, v in right.items():
         if k not in merged or v.relevance_confidence > merged[k].relevance_confidence:
             merged[k] = v
     return merged
+
 
 class AgentState(TypedDict):
     repo_url: str

@@ -1,0 +1,3 @@
+ignored:
+  - DL3008 # Pin versions in apt get install (too volatile for some slim images)
+  - DL3013 # Pin versions in pip (we use uv.lock for this)

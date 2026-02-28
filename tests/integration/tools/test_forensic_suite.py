@@ -1,45 +1,33 @@
-import pytest
-import os
 import tempfile
 from pathlib import Path
-from src.tools.repo_tools import clone_repo, extract_git_history
-from src.models.forensic import Commit
+
+import pytest
+
+from src.state import Commit
+from src.tools.repo_tools import clone_repository, get_git_history
 
 @pytest.fixture
-def test_workspace():
-    with tempfile.TemporaryDirectory() as temp_dir:
-        yield Path(temp_dir)
+def temp_repo():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        yield Path(tmp_dir)
 
-def test_secure_evidence_collection_scenario(test_workspace):
-    """
-    Integration test matching User Story 1 (Secure External Evidence Collection).
-    Scenario: Valid URL cloning, structural metadata extraction, and isolation.
-    """
+def test_clone_repository(temp_repo):
+    """T015: Verifies that a public repository can be cloned safely."""
+    # Using a small, stable repo for integration testing
+    url = "https://github.com/astral-sh/uv"
+    res = clone_repository(url, str(temp_repo), timeout=30)
+    assert res is True
+    assert (temp_repo / ".git").exists()
+
+def test_get_git_history(temp_repo):
+    """T016: Verifies that git history is correctly extracted into Commit objects."""
+    # First clone
+    url = "https://github.com/astral-sh/uv"
+    clone_repository(url, str(temp_repo), timeout=30)
     
-    # 1. Provide a valid Git URL
-    test_url = "https://github.com/octocat/Hello-World"
-    
-    # 2. Collect evidence
-    with clone_repo(test_url) as clone_result:
-        assert clone_result.status == "success"
-        assert clone_result.data is not None
-        assert len(clone_result.data) == 1
-        
-        repo_path = Path(clone_result.data[0])
-        assert repo_path.exists()
-        assert (repo_path / "README").exists() or (repo_path / "README.md").exists()
-        
-        # Check max disk limit isn't exceeded
-        assert clone_result.status != "disk_limit_exceeded"
-        
-        # 3. Extract history
-        history_result = extract_git_history(repo_path)
-        assert history_result.status == "success"
-        
-        commits = history_result.data
-        assert commits is not None
-        assert len(commits) > 0
-        assert isinstance(commits[0], Commit)
-        
-        # Verification of git timestamp in UTC
-        assert commits[0].date.tzinfo is not None
+    history = get_git_history(str(temp_repo), depth=5)
+    assert len(history) > 0
+    assert isinstance(history[0], Commit)
+    assert len(history[0].hash) > 0
+    assert history[0].author != ""
+    assert history[0].message != ""
