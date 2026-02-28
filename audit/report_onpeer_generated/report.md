@@ -3,10 +3,10 @@
 ## 📊 Summary & Grade
 | Metric | Status |
 |:---|:---|
-| **Run Date** | `2026-02-28 17:29:30` |
+| **Run Date** | `2026-02-28 18:10:49` |
 | **Git Hash** | `HEAD` |
 | **Rubric Version** | `v1.1` |
-| **Overall Rating** | **3.7 / 5.0** |
+| **Overall Rating** | **3.9 / 5.0** |
 
 ![Grade B](https://img.shields.io/badge/Grade-Competent_Orchestrator-blue?style=for-the-badge)
 
@@ -27,31 +27,28 @@ Full automated audit completed by Digital Courtroom swarm.
  ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
 
 **Synthesis Verdict**: 
-**Nuanced consensus** reached at 4/5. Prosecutor flagged critical risks: _Duplicate commit messages indicate possible history rewriting and lack of peer review; Absence of signed commits or cryptographic verification; No demonstrable secret management or credential scanning_. Defense highlighted mitigating factors: _Implement a comprehensive automated test suite to increase reliability.; Integrate continuous integration pipelines for regression detection.; Expand documentation to cover edge cases and usage patterns._. Tech Lead weighted synthesis prioritized architectural stability.
+**Significant judicial conflict detected** (Variance: 3). Prosecutor flagged critical risks: _Lack of verifiable code diffs or signed commits undermines integrity of the forensic record.; Duplicate feature commits suggest insufficient review and version control hygiene.; Potential concurrency vulnerabilities in StateGraph without explicit synchronization._. Defense highlighted mitigating factors: _Introduce a CI/CD pipeline to automatically enforce commit‑message conventions and run the unit test suite on every push.; Add code‑coverage metrics and enforce a minimum threshold to ensure future changes remain well‑tested.; Document the decision‑making process for each major architectural upgrade to further strengthen forensic traceability._. Tech Lead weighted synthesis prioritized architectural stability.
 
 <details>
 <summary>📜 View Judicial Debate & Dialectics</summary>
 
 #### 🎙️ Prosecutor Opinion
-> The forensic snapshot reveals a disturbingly shallow commit hygiene and numerous red flags. Two distinct commits (repo_git_851d3e244fe5732fc27a93270270c438f6e89450 and repo_git_44d6b2051fab0db2852edd6460454da737d126ba) carry identical feature descriptions, the latter merely tagged as '(final version)'. This duplication suggests history rewriting, forced pushes, or lack of peer review – a classic vector for malicious code injection. While the repo does include a positive security fix (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) replacing `os.system` with `subprocess.run`, the improvement is isolated and not part of a broader hardening strategy; there is no evidence of systematic dependency scanning, signed commits, or secret management. The refactor disabling OCR for RAM optimization (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) is unrelated to security and may hide performance‑tuned shortcuts that could compromise stability. Overall, the commit history lacks proper traceability, code‑review artifacts, and comprehensive hardening, raising the likelihood of hidden vulnerabilities and brittle architecture. Consequently, the forensic analysis merits a low score.
+> The forensic trail consists solely of commit messages without accompanying code diffs, configuration snapshots, or signed tags, making verification of the claimed security hardening impossible. The repository shows multiple superficial "feat" upgrades (repo_git_851d3e..., repo_git_44d6b2..., repo_git_98e5f1...) that repeat the same description, suggesting rushed or duplicated releases without proper change‑set review. While there is a commendable replacement of os.system with subprocess.run (repo_git_185da...), the absence of evidence that all external command invocations were audited leaves a wide attack surface. The introduction of thread‑safe StateGraph transitions using Pydantic (repo_git_f1aa...) is a potential concurrency hazard; without explicit lock handling or test coverage, race conditions are likely. Although unit tests for transition validation are claimed (repo_git_458a...), no test artifacts are presented, so their existence and effectiveness cannot be confirmed. The security commit adding environment templates for credential masking (repo_git_1e1f...) is a positive step, yet no evidence of secret scanning, CI integration, or secret removal from history is provided, exposing the repo to credential leakage. The final PDF report upload (repo_git_987d2...) is a black‑box artifact; there is no proof of provenance, integrity verification, or tamper‑evidence. Overall, the commit history reflects intent but lacks concrete, auditable artifacts, resulting in a brittle and potentially vulnerable codebase.
 
 **Evidence Cited**: 
+- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
 
-*   **Charges**: Duplicate commit messages indicate possible history rewriting and lack of peer review; Absence of signed commits or cryptographic verification; No demonstrable secret management or credential scanning; Isolated security fix does not compensate for overall weak hardening
+*   **Charges**: Lack of verifiable code diffs or signed commits undermines integrity of the forensic record.; Duplicate feature commits suggest insufficient review and version control hygiene.; Potential concurrency vulnerabilities in StateGraph without explicit synchronization.; Unproven test coverage despite claimed unit tests.; No evidence of secret scanning or removal of credentials from history.; Final report artifact lacks cryptographic integrity guarantees.
 
 ---
 #### 🎙️ Defense Opinion
-> The forensic Git evidence demonstrates a clear, disciplined progression of the project from its initial skeleton (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6) through a verified architecture and modular toolset (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc). Subsequent feature commits show ambitious upgrades to a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) and the implementation of a judicial swarm with deterministic output (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8). The final orchestration and dynamic report generation (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) underscore a functional end‑to‑end pipeline. 
-
-Security and performance considerations are explicitly addressed: the replacement of unsafe os.system calls with subprocess.run (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) and RAM optimization via OCR disabling (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438). Documentation enhancements (repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83) show a commitment to knowledge transfer and forensic traceability. 
-
-The accompanying AST artifacts (repo_ast_0_1772288510 through repo_ast_4_1772288510) confirm that the codebase adheres to a structured orchestration pattern, providing clear entry points (StateGraph) and domain entities (Evidence, JudicialOpinion, CriterionResult, AuditReport). This alignment between version history and architectural intent strengthens confidence in the project's integrity. 
-
-While the repository may still benefit from comprehensive automated testing, broader CI integration, and further detailed documentation of edge‑case handling, the evidence presented reflects solid, good‑faith effort and a trajectory toward full compliance. Hence a rating of 4 acknowledges the substantial achievements while encouraging continuation of best‑practice refinements.
+> The repository demonstrates a clear, disciplined development lifecycle that aligns perfectly with forensic best‑practice. Starting with a clean skeleton (init) and quickly moving to a verified architecture, the team added modular tools and a reducer‑based state, then iteratively upgraded to a parallel graph architecture while hardening infrastructure. Subsequent commits introduced sophisticated judicial swarm logic, dynamic orchestration, and deterministic reporting – all hallmark features of a mature system. Security was a recurring theme: the replacement of unsafe os.system calls with subprocess.run, the addition of a secure credential template, and deliberate OCR disabling for RAM optimization show proactive risk mitigation. Documentation was not ignored; forensic technical indicators were added, and a final PDF report was uploaded, sealing the audit trail. The presence of comprehensive unit tests for StateGraph transitions and schema integrity, together with a thread‑safe refactor using Pydantic, evidences a commitment to quality and reliability. Finally, the AST evidence confirms that the codebase contains the expected orchestration patterns (StateGraph, Evidence, JudicialOpinion, CriterionResult, AuditReport, AgentState), providing structural proof of the system’s intent. Overall, the evidence paints a picture of a well‑engineered, responsibly maintained project that fulfills forensic traceability requirements.
 
 **Evidence Cited**: 
 - [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
@@ -63,21 +60,22 @@ While the repository may still benefit from comprehensive automated testing, bro
 - [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
 - [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
 - [repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83](#repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Mitigations**: Implement a comprehensive automated test suite to increase reliability.; Integrate continuous integration pipelines for regression detection.; Expand documentation to cover edge cases and usage patterns.; Conduct regular security audits beyond subprocess sanitization.
+*   **Mitigations**: Introduce a CI/CD pipeline to automatically enforce commit‑message conventions and run the unit test suite on every push.; Add code‑coverage metrics and enforce a minimum threshold to ensure future changes remain well‑tested.; Document the decision‑making process for each major architectural upgrade to further strengthen forensic traceability.
 
 ---
 #### 🎙️ TechLead Opinion
-> The forensic timeline shows a coherent, incremental delivery process: an initial repository skeleton (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6), a verified architecture submission (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc), followed by concrete feature upgrades toward a parallel graph architecture and infrastructure hardening (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba), and domain‑specific enhancements such as judicial swarm orchestration (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8, repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0). Subsequent refactors address performance (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) and security (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd), while documentation is updated (repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83). The AST evidence confirms a structured orchestration pattern with dedicated classes (repo_ast_0_1772288510‑repo_ast_4_1772288510), indicating an intent toward modular, maintainable code.
-
-From a pragmatic perspective, the repository shows solid architectural decisions, security hardening, and performance optimizations—all favorable for production deployability and long‑term stability. The primary gaps are the lack of explicit evidence for automated testing, CI/CD pipelines, or code‑review enforcement, which are critical for sustaining quality at scale. Consequently, while the current state is strong, a modest risk remains around ongoing maintenance and regression protection.
-
-Overall, the evidence demonstrates a mature development flow and adequate architectural groundwork, meriting a high but not perfect rating.
+> The commit history demonstrates a disciplined, incremental development process that aligns well with production realities. Early commits establish a solid repository skeleton (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6) and a verified modular architecture (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc). Subsequent feature upgrades to a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) indicate scalability considerations. Security hardening is evident through replacement of unsafe os.system calls (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) and the addition of secret‑masking templates (repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f). Reliability is addressed with thread‑safe StateGraph transitions (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e) and comprehensive unit tests (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06). Documentation updates (repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83, repo_git_987d2693528ff443eac49ee6519fe736b89de2c7) improve knowledge transfer. The accompanying AST evidence (repo_ast_0_1772291195‑repo_ast_5_1772291195) confirms that the orchestration pattern (StateGraph and domain classes) is materialized in code, supporting maintainability and clear separation of concerns. Overall, the repo exhibits strong deployability, test coverage, security hygiene, and architectural foresight, making it highly sustainable within typical team constraints.
 
 **Evidence Cited**: 
 - [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
@@ -89,17 +87,22 @@ Overall, the evidence demonstrates a mature development flow and adequate archit
 - [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
 - [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
 - [repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83](#repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
 
 ---
 </details>
 
-> **🚨 Judicial Note**: Nuanced consensus (variance=2). Tech Lead assessed 4. Prosecutor argued for 2. 
+> **🚨 Conflict Alert**: Major conflict detected (variance=3). Tech Lead assessed 5. Prosecutor argued for 2. 
 
 #### ⚙️ Synthesis Transparency (Metacognition)
 - **Primary Path**: `STANDARD_WEIGHTED_AVERAGE`
@@ -113,55 +116,73 @@ Overall, the evidence demonstrates a mature development flow and adequate archit
  ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
 
 **Synthesis Verdict**: 
-**Nuanced consensus** reached at 4/5. Prosecutor flagged critical risks: _Absence of explicit concurrency controls for parallel graph state updates; No evidence of immutable state contracts or defensive copying; Lack of validated schema or type safety for reducer payloads_. Defense highlighted mitigating factors: _Expand unit and integration tests covering state transitions in the StateGraph.; Document state mutation rules and reducer contracts to aid future contributors.; Implement comprehensive error handling for edge cases in the parallel graph architecture._. Tech Lead weighted synthesis prioritized architectural stability.
+**Significant judicial conflict detected** (Variance: 3). Prosecutor flagged critical risks: _Insufficient immutability guarantees for shared state; Potential race conditions despite thread‑safe wrappers; Lack of comprehensive concurrent state transition testing_. Defense highlighted mitigating factors: _Continue expanding integration and performance tests for the StateGraph under high‑concurrency scenarios.; Document the state transition schema and lifecycle in the public README to aid future contributors.; Introduce automated linting and type‑checking pipelines to maintain consistency as the graph architecture evolves._. Tech Lead weighted synthesis prioritized architectural stability.
 
 <details>
 <summary>📜 View Judicial Debate & Dialectics</summary>
 
 #### 🎙️ Prosecutor Opinion
-> The repository shows an ambition toward structured state handling (reducer‑based state) and a move to a parallel graph architecture, which introduces concurrency. However, the evidence provides no proof of immutable data contracts, transaction boundaries, race‑condition safeguards, or comprehensive error handling for state updates. The shift to parallel execution without documented synchronization mechanisms (e.g., locks, atomic operations, or immutable data flow) is a glaring vulnerability. Moreover, there is no indication of unit or integration tests validating state transitions, nor any type‑checking or schema enforcement. While a security‑focused commit replaces os.system with subprocess.run, this does not address the core state‑management rigor. Consequently, the implementation is fragile and prone to subtle bugs under concurrent load, meriting a low score.
+> The repository shows surface‑level effort toward disciplined state handling – a reducer‑based architecture (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc), thread‑safe StateGraph transitions using Pydantic (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e), and unit tests for transition validation (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06). However, critical gaps remain: 
+1. The use of `operator.add` on Pydantic models does not guarantee immutability, leaving mutable shared state vulnerable to subtle race conditions. 
+2. Tests only cover schema integrity and basic transition validation; they do not simulate concurrent execution, dead‑lock scenarios, or rollback semantics. 
+3. The orchestration pattern (repo_ast_0_1772291195‑repo_ast_5_1772291195) lists class definitions but provides no evidence of a centralized, versioned state store or explicit state contracts, indicating a brittle architectural glue. 
+4. Security hardening commits (e.g., secret masking, subprocess replacement) address command injection but do not demonstrate secure handling of state‑derived secrets at runtime. 
+5. No evidence of immutable data structures, transaction boundaries, or comprehensive state audit logging is present. Consequently, the state management rigor is weak and prone to concurrency bugs and state corruption, meriting a low score.
 
 **Evidence Cited**: 
 - [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
-- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
-- [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Charges**: Absence of explicit concurrency controls for parallel graph state updates; No evidence of immutable state contracts or defensive copying; Lack of validated schema or type safety for reducer payloads; Missing unit/integration tests covering state transition edge cases; No documented error handling or fallback mechanisms for state failures
+*   **Charges**: Insufficient immutability guarantees for shared state; Potential race conditions despite thread‑safe wrappers; Lack of comprehensive concurrent state transition testing; Absence of a centralized, auditable state store; Inadequate runtime secret handling tied to state
 
 ---
 #### 🎙️ Defense Opinion
-> The submitted repository demonstrates a clear commitment to disciplined state handling. The interim submission explicitly mentions a "Reducer-based State" architecture, indicating that state transitions are centrally managed and predictable. Moreover, the orchestration pattern defines a StateGraph and concrete domain classes (Evidence, JudicialOpinion, CriterionResult, AuditReport), which together provide a structured schema for state throughout the judicial workflow. The progressive upgrades (parallel graph architecture, infrastructure hardening) suggest ongoing investment in robustness, even if some edge‑case handling may still be pending. Overall, the evidence reflects a solid foundation for state management, with room for further refinement.
-
-**Evidence Cited**: 
-- [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
-
-*   **Mitigations**: Expand unit and integration tests covering state transitions in the StateGraph.; Document state mutation rules and reducer contracts to aid future contributors.; Implement comprehensive error handling for edge cases in the parallel graph architecture.
-
----
-#### 🎙️ TechLead Opinion
-> The repository demonstrates a strong commitment to rigorous state management. The commit titled 'Verified Architecture, Modular Tools, and Reducer-based State' (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc) indicates the adoption of a reducer pattern, which provides predictable, immutable state transitions. The later upgrades to a 'parallel graph architecture' (repo_git_851d3e244fe5732fc27a93270270c438f6e89450 and repo_git_44d6b2051fab0db2852edd6460454da737d126ba) further suggest that the state flow is now orchestrated across a directed graph, improving scalability and fault isolation. The 'judicial swarm with structured output and deterministic chief justice' (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) adds deterministic decision-making, reducing nondeterminism in state changes. Security hardening (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) and RAM optimization (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) indicate attention to the operational robustness of the state handling infrastructure. The AST evidence (repo_ast_0_1772288510) shows an explicit call to a StateGraph component, reinforcing that a formal state graph is in use. Overall, the system appears maintainable and production‑ready, though the lack of explicit mention of comprehensive unit/integration testing for state transitions prevents a perfect score.
+> The repository demonstrates a strong, evolving commitment to rigorous state management. Early commits introduced a reducer‑based architecture (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc) and later upgraded to a parallel graph model (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba). Crucially, thread‑safe StateGraph transitions were added using Pydantic for schema validation and operator overloads (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e), and unit tests were written to verify transition integrity and schema correctness (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06). Security hardening (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) and secret management (repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f) further protect the state data. The AST evidence confirms the presence of dedicated classes for StateGraph and related entities (repo_ast_0_1772291195 through repo_ast_5_1772291195), indicating a well‑structured domain model. Overall, the project exhibits comprehensive state handling, validation, testing, and security—meeting and exceeding the rigor expected for this criterion.
 
 **Evidence Cited**: 
 - [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
 - [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
+
+*   **Mitigations**: Continue expanding integration and performance tests for the StateGraph under high‑concurrency scenarios.; Document the state transition schema and lifecycle in the public README to aid future contributors.; Introduce automated linting and type‑checking pipelines to maintain consistency as the graph architecture evolves.
+
+---
+#### 🎙️ TechLead Opinion
+> The repository demonstrates a high degree of state‑management discipline.  The commit history shows a purposeful shift to a reducer‑based, immutable state model (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc) and a parallel graph architecture that isolates state transitions (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba).  Crucially, the team implemented thread‑safe StateGraph transitions using Pydantic for schema validation and operator.add for deterministic updates (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e), and they paired this with a dedicated unit‑test suite covering transition validation and schema integrity (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06).  The AST evidence confirms that the StateGraph is a first‑class component (repo_ast_0_1772291195) and that an AgentState class exists to encapsulate state (repo_ast_5_1772291195).  Together these artifacts show a maintainable, test‑driven, type‑safe, and concurrency‑aware approach to state, which aligns with production constraints and scales reliably.
+
+From a deployment standpoint, the use of Pydantic ensures early failure on malformed data, reducing runtime incidents.  The reducer pattern makes state changes predictable, aiding debugging and future feature integration.  Thread‑safety mitigates race conditions in a parallel execution environment, supporting scalability.  The presence of explicit unit tests indicates ongoing verification, lowering maintenance burden.  Overall, the solution exhibits excellent state management rigor.
+
+**Evidence Cited**: 
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
+- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
+- [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
 
 ---
 </details>
 
-> **🚨 Judicial Note**: Nuanced consensus (variance=2). Tech Lead assessed 4. Prosecutor argued for 2. 
+> **🚨 Conflict Alert**: Major conflict detected (variance=3). Tech Lead assessed 5. Prosecutor argued for 2. 
 
 #### ⚙️ Synthesis Transparency (Metacognition)
 - **Primary Path**: `STANDARD_WEIGHTED_AVERAGE`
@@ -175,72 +196,85 @@ Overall, the evidence demonstrates a mature development flow and adequate archit
  ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
 
 **Synthesis Verdict**: 
-**Significant judicial conflict detected** (Variance: 3). Prosecutor flagged critical risks: _Unverified parallel graph implementation; Absence of synchronization primitives and race‑condition safeguards; Lack of comprehensive error handling in graph execution_. Defense highlighted mitigating factors: _Add comprehensive integration tests for the parallel graph execution paths.; Expand documentation to describe the orchestration flow and how to extend the StateGraph.; Implement performance benchmarks to validate the scalability benefits of the parallel architecture._. Tech Lead weighted synthesis prioritized architectural stability.
+**Nuanced consensus** reached at 4/5. Defense highlighted mitigating factors: _Add comprehensive integration tests that exercise the full parallel graph pipeline.; Document the orchestration API and graph node contracts for easier onboarding.; Benchmark execution time and resource usage to guide further performance optimizations._. Tech Lead weighted synthesis prioritized architectural stability.
 
 <details>
 <summary>📜 View Judicial Debate & Dialectics</summary>
 
 #### 🎙️ Prosecutor Opinion
-> The evidence consists primarily of commit messages claiming an upgrade to a parallel graph architecture and a handful of AST nodes indicating the presence of a StateGraph call and several class definitions (Evidence, JudicialOpinion, CriterionResult, AuditReport). However, there is no concrete implementation visible—no code showing how the graph is constructed, how nodes are wired, or how parallel execution is coordinated. Critical security and reliability concerns are therefore inferred:
-1. **Missing concrete orchestration logic** – The commit messages ('upgrade to parallel graph architecture', 'finalize judicial orchestration') are unaccompanied by code, making the claim unverifiable and suggesting possible boilerplate or placeholder work.
-2. **Potential race conditions** – Parallel graph execution without demonstrated synchronization, locking, or deterministic ordering opens the system to nondeterministic failures, data races, and state corruption.
-3. **No error handling** – No evidence of try/except blocks, fallback strategies, or graceful degradation if a node fails, which is a fatal flaw for a stateful graph.
-4. **Security oversight** – Although one commit replaces os.system with subprocess.run, the lack of explicit `shell=False` flags or argument sanitization is not shown, leaving a possible command‑injection vector.
-5. **Hard‑coded architecture decisions** – The commit chain shows a single “hardening” step but no configuration mechanism, indicating inflexibility and a risk of hidden secrets or credentials in the graph definition.
-Given these gaps, the graph orchestration cannot be considered robust, secure, or even fully implemented. The score reflects a barely acceptable attempt that requires substantial work before it can be trusted.
-
+> The repository shows an earnest effort to build a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) and to harden infrastructure. However, the evidence reveals several critical shortcomings. 1) While StateGraph transitions are marked as thread‑safe using Pydantic and operator.add (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e), there is no evidence of explicit locking, dead‑lock avoidance, or validation of concurrent mutations, leaving a race‑condition surface. 2) Security improvements such as replacing os.system with subprocess.run (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) are commendable, yet the commit that adds an environment template for secret masking (repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f) does not demonstrate actual secret removal from code; the risk of hard‑coded credentials remains. 3) The orchestration layer is hinted at only by names (“judicial swarm”, “dynamic report generation”) without concrete implementation details or tests for failure modes, indicating brittle architecture. 4) The AST evidence (repo_ast_0_1772291195 through repo_ast_5_1772291195) confirms the presence of a StateGraph call and several domain classes, but no validation or exception handling logic is visible, meaning malformed input could crash the system. 5) Documentation changes to disable OCR for RAM optimization (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) suggest performance trade‑offs that may hide latent memory‑leak bugs. In sum, the codebase is progressing toward a robust parallel graph orchestration, yet the current state is riddled with unaddressed concurrency hazards, incomplete secret management, and insufficient error resilience, preventing an “excellent” rating.
 
 **Evidence Cited**: 
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Charges**: Unverified parallel graph implementation; Absence of synchronization primitives and race‑condition safeguards; Lack of comprehensive error handling in graph execution; Potential command‑injection vulnerability in subprocess usage; Hard‑coded orchestration structure without configurability
+*   **Charges**: Potential race conditions in StateGraph concurrent transitions; Insufficient exception handling for orchestration failures; Possible residual hard‑coded secrets despite environment template; Lack of input validation for graph nodes and edges; Performance‑driven OCR disable may mask memory‑leak vulnerabilities
 
 ---
 #### 🎙️ Defense Opinion
-> The repository demonstrates a clear and purposeful evolution toward a robust graph orchestration layer. Early commits laid the skeleton, then successive commits (ID 851d3e244fe5732fc27a93270270c438f6e89450 and its final version 44d6b2051fab0db2852edd6460454da737d126ba) explicitly upgrade to a parallel graph architecture, indicating an ambitious move to concurrency and scalability. The later commits (ID 98e5f16aea80e0f4b21bb80e189d879db2e0b7d8 and 91deca2353d9b36463f15ed4864ad2869e4567b0) introduce the "judicial swarm" and finalize orchestration with dynamic report generation, showing that the graph is not just a data structure but a functional workflow engine orchestrating judicial opinion analysis. The AST evidence (repo_ast_0_1772288510 through repo_ast_4_1772288510) confirms concrete code artifacts that embody the orchestration pattern: a StateGraph call and domain‑specific classes (Evidence, JudicialOpinion, CriterionResult, AuditReport) that are designed to flow through the graph. Together, the commit history and structural analysis illustrate intentional design, incremental delivery, and alignment with the stipulated orchestration criterion. While finer‑grain unit tests and full documentation could still be enriched, the core functionality is solidly present, meriting an excellent rating.
+> The repository demonstrates a clear, progressive effort toward a robust graph orchestration system. Early commits establish the repository skeleton and a reducer‑based state model (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6, repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc). Subsequent upgrades introduce a parallel graph architecture and hardening of the infrastructure (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba), indicating a move from a simple linear flow to a scalable, concurrent execution model.
+
+The addition of a "judicial swarm" with deterministic output (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) and the final orchestration with dynamic report generation (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) shows that the team has implemented end‑to‑end orchestration logic that consumes the graph and produces the expected deliverables. 
+
+Technical refinements such as thread‑safe StateGraph transitions using Pydantic and operator.add (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e) and accompanying unit tests (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) highlight a commitment to reliability and correctness. 
+
+AST evidence confirms that the codebase actually invokes the StateGraph (repo_ast_0_1772291195) and defines the necessary domain classes (Evidence, JudicialOpinion, CriterionResult, AuditReport, AgentState) that participate in the orchestration (repo_ast_1_1772291195‑repo_ast_5_1772291195). 
+
+While the system could benefit from more extensive integration testing, performance benchmarking, and richer documentation around the orchestration API, the visible artifacts already provide a functional, parallelizable graph execution engine that meets the core intent of the criterion. Under the optimistic lens, this merits a strong score of 4 out of 5.
 
 **Evidence Cited**: 
+- [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
+- [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
 - [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
 - [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Mitigations**: Add comprehensive integration tests for the parallel graph execution paths.; Expand documentation to describe the orchestration flow and how to extend the StateGraph.; Implement performance benchmarks to validate the scalability benefits of the parallel architecture.
+*   **Mitigations**: Add comprehensive integration tests that exercise the full parallel graph pipeline.; Document the orchestration API and graph node contracts for easier onboarding.; Benchmark execution time and resource usage to guide further performance optimizations.; Provide example configurations and usage tutorials for end users.
 
 ---
 #### 🎙️ TechLead Opinion
-> The collected artifacts demonstrate a clear commitment to a graph‑based orchestration model. Commits 851d3e244fe5732fc27a93270270c438f6e89450 and 44d6b2051fab0db2852edd6460454da737d126ba show a migration to a parallel graph architecture with explicit infrastructure hardening, indicating an emphasis on scalability and fault tolerance. Subsequent commits (98e5f16aea80e0f4b21bb80e189d879db2e0b7d8, 91deca2353d9b36463f15ed4864ad2869e4567b0) implement deterministic judicial orchestration and dynamic report generation, confirming that the graph is being used as the central execution engine for the system's domain logic.
+> The collected artifacts demonstrate a mature, production‑ready graph orchestration layer. Commits such as 'feat: upgrade to parallel graph architecture and infrastructure hardening' (repo_git_851d3e244fe5732fc27a93270270c438f6e89450) and its final version (repo_git_44d6b2051fab0db2852edd6460454da737d126ba) show the team moved from a simple sequential model to a parallel graph, addressing scalability. Subsequent commits for 'judicial swarm' (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) and 'finalize judicial orchestration' (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) indicate higher‑level orchestration logic was added, integrating deterministic output generation. Thread‑safety and type safety are reinforced by the 'Implement thread‑safe StateGraph transitions with Pydantic' commit (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e) and validated by unit tests (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06). Security concerns are addressed (os.system replacement, credential masking) which reduces operational risk. The AST evidence (repo_ast_0_1772291195 through repo_ast_5_1772291195) confirms that the code base contains a clear StateGraph entry point and well‑structured domain classes (Evidence, JudicialOpinion, etc.), supporting maintainability.
 
-The AST evidence (repo_ast_0_1772288510 through repo_ast_4_1772288510) further validates the presence of a StateGraph class and domain‑specific entities (Evidence, JudicialOpinion, CriterionResult, AuditReport) that are typical inputs/outputs of a graph‑orchestrated workflow. Security and performance refactors (replace os.system with subprocess.run, disable OCR for RAM optimization) suggest the team is mindful of production constraints, which improves deployability and maintainability.
-
-From a pragmatic standpoint, the architecture appears deployable and resilient, with hardening measures in place. However, the evidence does not provide concrete metrics on latency, resource consumption under load, or testing coverage for the parallel execution paths. The added complexity of a parallel graph could introduce subtle concurrency bugs if not rigorously tested. Hence, while the overall direction is solid and aligns with production needs, a small gap remains regarding proven operational stability at scale, resulting in a score of 4 out of 5.
+From a pragmatic perspective, the architecture appears functional, test‑covered, and hardened for production, but the evidence lacks concrete performance metrics or real‑world load testing results. Therefore, while the design is strong, a small uncertainty remains about its behavior under peak load, justifying a score of 4 out of 5.
 
 **Evidence Cited**: 
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
 - [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
 - [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
 
 ---
 </details>
 
-> **🚨 Conflict Alert**: Major conflict detected (variance=3). Tech Lead assessed 4. Prosecutor argued for 2. Defense highlighted factors for 5. 
+> **🚨 Judicial Note**: Nuanced consensus (variance=1). Tech Lead assessed 4. Prosecutor argued for 3. 
 
 #### ⚙️ Synthesis Transparency (Metacognition)
 - **Primary Path**: `STANDARD_WEIGHTED_AVERAGE`
@@ -254,67 +288,82 @@ From a pragmatic standpoint, the architecture appears deployable and resilient, 
  ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
 
 **Synthesis Verdict**: 
-**Nuanced consensus** reached at 4/5. Defense highlighted mitigating factors: _Introduce automated security testing (static analysis, fuzzing) in CI pipelines.; Develop a formal threat model and incorporate mitigation verification into code reviews.; Expand documentation to include security rationale for each architectural decision._. Tech Lead weighted synthesis prioritized architectural stability.
+**Nuanced consensus** reached at 4/5. Defense highlighted mitigating factors: _Conduct a formal security threat modeling exercise to surface any hidden attack vectors.; Extend unit tests into integration and end‑to‑end tests covering the full judicial orchestration pipeline.; Add static analysis and CI linting for secure coding standards._. Tech Lead weighted synthesis prioritized architectural stability.
 
 <details>
 <summary>📜 View Judicial Debate & Dialectics</summary>
 
 #### 🎙️ Prosecutor Opinion
-> The repository shows conscious attempts to harden the toolchain (e.g., replacing os.system with subprocess.run and upgrading to a parallel graph architecture). However, the evidence reveals several lingering safety concerns: 
-1. **Potential command injection** – while os.system was removed, the commit does not show that subprocess.run is used with explicit argument lists and shell=False; without that guarantee the code remains vulnerable to injection. 
-2. **Concurrency brittleness** – the shift to a parallel graph architecture introduces shared mutable state without any mention of thread‑safety mechanisms, locking, or deterministic scheduling, opening race conditions and deadlocks. 
-3. **Missing input validation** – the orchestration pattern (StateGraph, Evidence, JudicialOpinion, CriterionResult, AuditReport) is defined without any evidence of sanitization or schema enforcement, allowing malformed or malicious inputs to propagate. 
-4. **Insufficient error handling** – no commit references adding exception handling around critical I/O, subprocess calls, or graph traversal, meaning unhandled exceptions could crash the system and expose stack traces. 
-5. **Hard‑coded configuration** – the repository skeleton and various feature commits lack any indication of externalizing secrets or configuration, suggesting possible inclusion of hard‑coded credentials or paths elsewhere in the code base. 
-Overall, while the project makes progress toward security, the above gaps constitute fatal flaws under a "trust no one" lens, preventing a top‑tier safety rating.
+> The commit history shows an awareness of security and robustness – e.g., replacing os.system with subprocess.run (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd), adding an environment template for secret masking (repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f), and implementing thread‑safe StateGraph transitions with Pydantic (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e). Unit tests for StateGraph validation (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) and infrastructure hardening (repo_git_44d6b2051fab0db2852edd6460454da737d126ba) further bolster confidence. However, the evidence consists solely of commit messages; there is no concrete code review, static analysis output, or runtime security testing to confirm that the claimed protections are correctly implemented. The parallel graph architecture upgrade introduces potential race conditions that are not demonstrably mitigated, and the refactor disabling OCR for RAM optimization could unintentionally remove essential validation steps. Absence of explicit dependency scanning, input sanitisation, or runtime secret scanning leaves the repository vulnerable to hidden attack vectors. Consequently, while the direction is positive, the lack of verifiable implementation details and remaining unknowns justify a moderate score.
 
 **Evidence Cited**: 
 - [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
 
-*   **Charges**: Potential command injection via subprocess.run without explicit argument sanitization.; Race conditions and deadlocks introduced by parallel graph architecture without concurrency safeguards.; Absence of input validation for orchestration classes, enabling malformed or malicious data flow.; Lack of comprehensive exception handling around critical operations.; Possible hard‑coded secrets or configuration values not abstracted from code.
+*   **Charges**: Unverified implementation of security hardening claims; Potential concurrency vulnerabilities in parallel graph architecture; Lack of demonstrated input validation and sanitization; Absence of dependency or secret scanning evidence; Possible functional regression from OCR disablement without testing proof
 
 ---
 #### 🎙️ Defense Opinion
-> The repository demonstrates a strong, forward‑moving commitment to safe engineering practices. Evidence shows concrete steps toward hardening the toolchain: the parallel graph architecture upgrade (IDs 851d3e244f..., 44d6b2051f...) improves isolation and scalability, while the explicit infrastructure hardening indicates a focus on resilience. Security‑focused refactorings such as replacing unsafe os.system calls with subprocess.run (ID 185da26138...) directly mitigate command‑injection risks, and the RAM‑optimisation tweak that disables OCR when unnecessary (ID 402d846c6c...) shows prudent resource management that reduces attack surface. Documentation enhancements (ID b83846e3b8...) add transparency and help future reviewers understand safety decisions. The orchestration pattern AST entries (IDs repo_ast_0_1772288510 through repo_ast_4_1772288510) illustrate a modular, declarative design that encourages testability and predictable state handling. While the project may still lack full automated security testing and formal threat modelling, the existing contributions reflect good‑faith, incremental engineering choices that prioritize safety without sacrificing progress. Hence, on an optimistic scale, the effort merits a solid 4 out of 5.
+> The repository demonstrates a strong, progressive commitment to safe tool engineering. Early work (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6) laid a clean skeleton, and subsequent commits (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc) delivered a verified modular architecture with reducer‑based state management. The team invested in scalability and robustness by upgrading to a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba), and they added deterministic judicial orchestration (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8, repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0).
+
+Security consciousness is evident: a risky os.system call was replaced with subprocess.run (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd), and a dedicated environment template for secret masking was added (repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f). The codebase was made thread‑safe via Pydantic models and operator.add (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e), accompanied by unit tests validating state transitions (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06). Documentation improvements (repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83, repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83) and a final PDF report (repo_git_987d2693528ff443eac49ee6519fe736b89de2c7) showcase delivering tangible outputs.
+
+The AST evidence (repo_ast_0_1772291195‑repo_ast_5_1772291195) confirms that core abstractions—StateGraph, Evidence, JudicialOpinion, CriterionResult, AuditReport, AgentState—are defined, laying a solid foundation for safe orchestration.
+
+While the project has not yet achieved a formal safety certification or exhaustive threat model, the consistent incremental improvements, security hardening, thread‑safety, testing, and clear architectural decisions illustrate a commendable effort toward safe tool engineering. Hence a score of 4 reflects strong progress with room for final polish.
+
+
 
 **Evidence Cited**: 
+- [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
+- [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
+- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
+- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
 - [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
 - [repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83](#repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Mitigations**: Introduce automated security testing (static analysis, fuzzing) in CI pipelines.; Develop a formal threat model and incorporate mitigation verification into code reviews.; Expand documentation to include security rationale for each architectural decision.; Add comprehensive unit and integration tests for the parallel graph engine to catch regressions early.
+*   **Mitigations**: Conduct a formal security threat modeling exercise to surface any hidden attack vectors.; Extend unit tests into integration and end‑to‑end tests covering the full judicial orchestration pipeline.; Add static analysis and CI linting for secure coding standards.; Document a comprehensive safety and risk assessment report to complement the existing PDF.
 
 ---
 #### 🎙️ TechLead Opinion
-> The repository demonstrates a clear progression toward safer, more maintainable tooling. Key safety improvements include replacing the insecure `os.system` call with `subprocess.run` (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd), which mitigates command injection risks. Resource management is addressed by disabling OCR for RAM optimization (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438), reducing memory pressure in production. Architectural decisions such as moving to a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) and modular, reducer‑based state management (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc) improve scalability and testability. The introduction of deterministic judicial orchestration (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8, repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) further enhances predictability, a key aspect of safe engineering. The presence of well‑defined domain classes (Evidence, JudicialOpinion, CriterionResult, AuditReport) in the AST evidence shows an intention toward clear separation of concerns. While the improvements are substantial, the evidence does not show comprehensive automated testing, formal threat modeling, or runtime monitoring, leaving some residual risk. Hence a strong but not perfect rating of 4.
+> The repository demonstrates a strong pragmatic trajectory toward safe tool engineering. Key security hardening steps—replacing unsafe os.system calls with subprocess.run (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd), introducing a secure credential template with secret masking (repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f) and infrastructure hardening around a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) all indicate attention to production‑grade safety. The adoption of thread‑safe StateGraph transitions using Pydantic (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e) and accompanying unit tests for transition validation (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) further evidence a maintainable, test‑driven approach. Optimizations such as disabling OCR for RAM savings (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) show operational awareness. The orchestration layer (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8, repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) and clearly defined AST classes (repo_ast_0_1772291195‑repo_ast_5_1772291195) provide modular boundaries that aid deployability.
+
+However, the shift to a parallel graph architecture adds complexity that can impact long‑term maintainability and debugging. While unit tests exist, integration and performance testing for the new concurrency model are not explicitly referenced. The score reflects that the core safety fundamentals are solid, but the overall system still requires diligent monitoring and documentation to ensure the added architectural sophistication does not become a liability.
+
+Overall, the toolchain is ready for production with the caveat that further integration testing, observability, and documentation around the parallel graph are needed to achieve an excellent rating.
 
 **Evidence Cited**: 
 - [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
 - [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
 - [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
 - [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
 
 
 ---
@@ -330,51 +379,152 @@ Overall, while the project makes progress toward security, the above gaps consti
 ---
 
 ### 5. Structured Output Enforcement
-**Score**: `3/5.0` 
+**Score**: `4/5.0` 
  ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
 
 **Synthesis Verdict**: 
-**Nuanced consensus** reached at 3/5. Prosecutor flagged critical risks: _Absence of explicit schema validation for structured outputs; No runtime type enforcement on domain classes; Potential for inconsistent output formats due to undefined contracts_. Defense highlighted mitigating factors: _Introduce formal JSON schema validation for all CriterionResult and AuditReport instances.; Add unit‑tests that assert compliance with the schema across the entire pipeline.; Implement runtime type‑checking or use a library like pydantic to enforce structure automatically._. **CRITICAL**: Score capped due to verified security violations. Tech Lead weighted synthesis prioritized architectural stability.
+**Unanimous consensus** at 4/5. Defense highlighted mitigating factors: _Introduce a unified JSON schema registry and enforce validation on every output endpoint.; Add integration tests that exercise full end‑to‑end generation of each report type to catch schema drift.; Implement automated CI checks that reject commits lacking explicit schema annotations or tests._. Tech Lead weighted synthesis prioritized architectural stability.
 
 <details>
 <summary>📜 View Judicial Debate & Dialectics</summary>
 
 #### 🎙️ Prosecutor Opinion
-> The repository claims to implement a 'judicial swarm with structured output' (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) and defines domain classes (repo_ast_1_1772288510 through repo_ast_4_1772288510) that suggest an intended structured response format. However, there is no evidence of schema validation, type enforcement, or serialization safeguards. The commit messages lack any mention of JSON schema, pydantic models, or runtime checks that would guarantee deterministic structured output. The presence of a generic 'Call StateGraph' (repo_ast_0_1772288510) without clear contract specifications further indicates a brittle orchestration. Consequently, the system remains vulnerable to malformed, incomplete, or malicious payloads, violating the principle of strict structured output enforcement.
+> The repository demonstrates a concerted effort to enforce structured output. The commit 'feat: implement judicial swarm with structured output and deterministic chief justice' (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) explicitly introduces a structured‑output pipeline. Subsequent refactors (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e) employ Pydantic models for thread‑safe StateGraph transitions, providing schema validation at the data‑model level. Unit‑test additions (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) verify transition integrity and schema compliance, indicating test‑driven enforcement. The orchestration AST nodes (repo_ast_0_1772291195–repo_ast_5_1772291195) define explicit classes (Evidence, JudicialOpinion, CriterionResult, AuditReport, AgentState) that can be serialized into a deterministic format.
+
+However, the evidence also reveals gaps: there is no explicit mention of runtime output sanitisation or enforcement of output format boundaries when interfacing with external systems. The lack of a dedicated output‑validation layer could permit malformed JSON or injection attacks, especially given the parallel graph architecture introduced earlier (repo_git_851d3e244fe5732fc27a93270270c438f6e89450). Consequently, while the structural foundations are solid, the enforcement is not airtight, meriting a score of 4 out of 5.
 
 **Evidence Cited**: 
 - [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Mitigations**: Introduce strict JSON schema validation or use pydantic models for all output objects; Enforce compile‑time type hints and runtime checks before emitting any response; Document and unit‑test the exact output contract for each orchestrated component
-*   **Charges**: Absence of explicit schema validation for structured outputs; No runtime type enforcement on domain classes; Potential for inconsistent output formats due to undefined contracts
+*   **Mitigations**: Introduce a dedicated output sanitisation layer that validates JSON schema before emission; Implement strict input validation and type coercion for all StateGraph transition payloads; Add integration tests that simulate external attacker payloads to ensure robustness
+*   **Charges**: Missing runtime validation of serialized structured output; Potential injection vectors through unvalidated StateGraph input payloads
 
 ---
 #### 🎙️ Defense Opinion
-> The development history shows a clear, progressive effort toward structured output enforcement. The commit 'feat: implement judicial swarm with structured output and deterministic chief justice' (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) introduces a dedicated component for deterministic, structured results, which is a strong step in the right direction. Additionally, the orchestration pattern AST nodes define explicit classes such as CriterionResult and AuditReport (repo_ast_3_1772288510, repo_ast_4_1772288510), demonstrating an intentional design to encapsulate evaluation outcomes in structured objects. While the final polishing of schema validation, comprehensive type checking, and automated enforcement may still be pending, the existing architecture already supports deterministic output and provides a solid foundation for further hardening. The score reflects this substantial progress while recognizing the remaining work to achieve full, rigorous enforcement.
+> The repository shows clear, intentional work toward enforcing structured output. The commit ‘feat: implement judicial swarm with structured output and deterministic chief justice’ (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) introduces a dedicated mechanism for producing deterministic, schema‑driven results. This is reinforced by the refactor that makes StateGraph transitions thread‑safe and Pydantic‑backed (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e), ensuring that the data flowing through the system adheres to defined models. Unit tests for StateGraph transition validation and schema integrity (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) further demonstrate a pragmatic approach to catching violations early. The AST snapshots (repo_ast_0_1772291195 through repo_ast_5_1772291195) expose concrete class definitions for Evidence, JudicialOpinion, CriterionResult, AuditReport, and AgentState, laying the groundwork for a formal output contract.
+
+While the foundation is solid and the team has prioritized partial implementation over waiting for a perfect solution, some areas remain to be tightened: full runtime validation of every exported JSON payload against a master schema, automated schema versioning, and comprehensive coverage of edge‑case error handling are not yet evident. Nonetheless, the progressive, good‑faith effort—backed by security hardening, testing, and documentation—warrants a high rating.
+
+Overall, the project fulfills the spirit of structured output enforcement, delivering functional, test‑backed mechanisms while still leaving room for complete, exhaustive validation.
 
 **Evidence Cited**: 
 - [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Mitigations**: Introduce formal JSON schema validation for all CriterionResult and AuditReport instances.; Add unit‑tests that assert compliance with the schema across the entire pipeline.; Implement runtime type‑checking or use a library like pydantic to enforce structure automatically.
+*   **Mitigations**: Introduce a unified JSON schema registry and enforce validation on every output endpoint.; Add integration tests that exercise full end‑to‑end generation of each report type to catch schema drift.; Implement automated CI checks that reject commits lacking explicit schema annotations or tests.
 
 ---
 #### 🎙️ TechLead Opinion
-> The repository includes a dedicated feature commit that explicitly adds a ‘judicial swarm with structured output and deterministic chief justice’ (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8), indicating intent to enforce structured responses. Supporting this, the AST evidence defines concrete classes (Evidence, JudicialOpinion, CriterionResult, AuditReport) that form a clear schema for output data (repo_ast_1_1772288510 through repo_ast_4_1772288510). The orchestration pattern also calls a StateGraph (repo_ast_0_1772288510), suggesting a deterministic workflow that can reliably produce the defined structures. From a deployment perspective, these artifacts are modular and version‑controlled, making them easy to integrate into CI/CD pipelines. However, the evidence does not show explicit runtime validation (e.g., JSON schema checks) or comprehensive tests guaranteeing that every downstream component respects the schema, which could become a maintenance burden as the system scales. Hence, the implementation is solid but not perfect, warranting a score of 4.
+> The repository demonstrates a concrete effort to enforce structured output. The commit 'feat: implement judicial swarm with structured output and deterministic chief justice' (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) introduces deterministic handling of outputs. This is reinforced by the StateGraph refactor using Pydantic for schema validation (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e) and accompanying unit tests for transition validation (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06), indicating a testing mindset that promotes reliability. The orchestration AST entries define explicit classes for Evidence, JudicialOpinion, CriterionResult, AuditReport, and AgentState (repo_ast_1_1772291195 through repo_ast_5_1772291195), providing a clear contract for downstream consumers. Parallel graph architecture upgrades (repo_git_851d3e... and repo_git_44d6b2...) hint at scalability, while the usage of Pydantic keeps the schema enforcement maintainable and debuggable. 
+
+From a pragmatic deployment perspective, the solution is ready for production: it uses well‑known libraries, includes tests, and isolates state transitions for thread safety. The main gap is the absence of explicit performance benchmarks or monitoring around the structured output pipeline, which could surface scalability issues under heavy load. Hence, the score reflects strong architectural intent and implementation with a modest penalty for missing operational metrics.
 
 **Evidence Cited**: 
 - [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
+- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
+- [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
+
+
+---
+</details>
+
+
+#### ⚙️ Synthesis Transparency (Metacognition)
+- **Primary Path**: `STANDARD_WEIGHTED_AVERAGE`
+- **Applied Rules**: Standard Weighted Average
+- **Confidence**: `100.0%`
+
+---
+
+### 6. Judicial Nuance and Dialectics
+**Score**: `3/5.0` 
+ ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
+
+**Synthesis Verdict**: 
+**Nuanced consensus** reached at 3/5. Prosecutor flagged critical risks: _Loss of document nuance due to OCR disabling; Potential race conditions in parallel graph architecture; Insufficient input sanitization for judicial swarm and report generation_. Defense highlighted mitigating factors: _Expand the weighting logic for criteria to capture relative importance.; Add explicit justification snippets to the `JudicialOpinion` objects for better explainability.; Introduce unit tests that cover edge‑case decision paths within the StateGraph._. **CRITICAL**: Score capped due to verified security violations. Tech Lead weighted synthesis prioritized architectural stability.
+
+<details>
+<summary>📜 View Judicial Debate & Dialectics</summary>
+
+#### 🎙️ Prosecutor Opinion
+> The repository shows a patchwork of security improvements (e.g., replacement of os.system with subprocess.run, environment template for secret masking) but the evidence points to numerous lingering vulnerabilities that directly undermine nuanced judicial processing. Disabling OCR to save RAM (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) reduces the fidelity of document analysis, risking loss of subtle evidentiary cues. The parallel graph architecture upgrades (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) introduce concurrency without explicit verification of thread‑safety beyond a Pydantic‑based transition (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e); race conditions can cause nondeterministic state changes that erode nuanced opinion formation. The judicial swarm implementation (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) and dynamic report generation (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) lack documented input sanitization, opening injection vectors for crafted payloads. The final PDF report (repo_git_987d2693528ff443eac49ee6519fe736b89de2c7) is generated without mention of PDF hardening, exposing recipients to malicious PDF exploits. While unit tests (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) exist, they appear limited to schema integrity and do not cover the broader attack surface. Consequently, the system fails to preserve the nuanced processing required for judicial contexts, meriting a low score.
+
+**Evidence Cited**: 
+- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
+- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
+- [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
+- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
+- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+
+*   **Charges**: Loss of document nuance due to OCR disabling; Potential race conditions in parallel graph architecture; Insufficient input sanitization for judicial swarm and report generation; Possible command injection despite subprocess.run replacement; Unhardened PDF output exposing malicious payloads; Environment template for secret masking not enforced, risk of credential leakage
+
+---
+#### 🎙️ Defense Opinion
+> The repository demonstrates a solid commitment to embedding judicial nuance into the system. The commit titled "feat: implement judicial swarm with structured output and deterministic chief justice" (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) shows that the team has built a deterministic decision‑making entity (the chief justice) and a swarm‑based approach that can aggregate multiple perspectives, which is a clear nod toward nuanced adjudication. The follow‑up commit "feat: finalize judicial orchestration and dynamic report generation" (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) adds dynamic reporting, meaning the system can present its reasoning in a readable, structured format—another hallmark of nuanced judgment. 
+
+On the architectural side, the AST entries defining `JudicialOpinion`, `CriterionResult`, `AuditReport`, and `AgentState` (repo_ast_2_1772291195, repo_ast_3_1772291195, repo_ast_4_1772291195, repo_ast_5_1772291195) provide a rich domain model that can capture the layers of opinion, criteria evaluation, and audit trails. The `Call StateGraph` entry (repo_ast_0_1772291195) indicates that state transitions are orchestrated through a graph model, enabling complex, context‑aware flows rather than flat linear logic. 
+
+While the system does not yet exhibit exhaustive weighting schemes or a fully transparent explanation engine, the existing foundations are substantial and reflect intentional design choices aimed at nuanced judicial processing. Given the progress and the thoughtful modularization, a score of 4 reflects strong achievement with room for final refinements.
+
+**Evidence Cited**: 
+- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
+- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+
+*   **Mitigations**: Expand the weighting logic for criteria to capture relative importance.; Add explicit justification snippets to the `JudicialOpinion` objects for better explainability.; Introduce unit tests that cover edge‑case decision paths within the StateGraph.; Document the deterministic chief justice algorithm to aid future auditors.
+
+---
+#### 🎙️ TechLead Opinion
+> The repository shows a clear evolution toward a production‑ready judicial orchestration system. Evidence of a verified modular architecture (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc) and a parallel graph backbone (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) indicates scalability and resilience. The introduction of a deterministic "judicial swarm" (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) and dynamic report generation (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) demonstrates functional completeness. Security hardening (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd, repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f) and thread‑safe state transitions (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e) reduce operational risk. Unit test coverage (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) and documentation updates (repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83) improve maintainability. The AST evidence (repo_ast_0_1772291195‑repo_ast_5_1772291195) confirms a well‑defined domain model supporting the judicial workflow. While the foundation is solid, the evidence lacks explicit CI/CD pipelines and performance benchmarks, preventing a perfect score. Hence, a pragmatic rating of 4/5 is assigned.
+
+**Evidence Cited**: 
+- [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
+- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
+- [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
+- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
+- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
+- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83](#repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
 
 ---
@@ -389,40 +539,40 @@ Overall, while the project makes progress toward security, the above gaps consti
 
 ---
 
-### 6. Judicial Nuance and Dialectics
-**Score**: `5/5.0` 
- ✅ ![Master](https://img.shields.io/badge/-Master-brightgreen)
+### 7. Chief Justice Synthesis Engine
+**Score**: `4/5.0` 
+ ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
 
 **Synthesis Verdict**: 
-**Nuanced consensus** reached at 5/5. Defense highlighted mitigating factors: _Continue expanding deterministic chief‑justice logic to cover edge‑case legal doctrines.; Integrate richer contextual data sources (e.g., statutes, case law) to deepen nuance.; Add comprehensive unit tests for each judicial component to ensure consistent reasoning._. Tech Lead weighted synthesis prioritized architectural stability.
+**Nuanced consensus** reached at 4/5. Defense highlighted mitigating factors: _Complete end‑to‑end integration testing of the judicial swarm within the dynamic report generation flow.; Add performance benchmarks for the parallel graph architecture to validate scalability claims.; Expand documentation with usage examples for the StateGraph API and security best‑practice guidelines._. Tech Lead weighted synthesis prioritized architectural stability.
 
 <details>
 <summary>📜 View Judicial Debate & Dialectics</summary>
 
 #### 🎙️ Prosecutor Opinion
-> The collected evidence reveals a mixed picture. Commits such as the replacement of `os.system` with `subprocess.run` (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) demonstrate an awareness of shell‑injection risks, yet there is no proof that input sanitisation was implemented, leaving a residual attack surface. The parallel graph architecture upgrades (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) promise hardening but introduce concurrency complexity; without explicit synchronization, race conditions are a plausible vulnerability. The “judicial swarm” and “dynamic report generation” features (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8, repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) suggest deterministic output, yet deterministic algorithms can mask nondeterministic side‑effects, and the lack of visible validation logic raises concerns about injection or data‑corruption attacks. The AST evidence only shows class scaffolding (Evidence, JudicialOpinion, CriterionResult, AuditReport) with no methods or safeguards, indicating an incomplete implementation that could lead to unhandled exceptions. Overall, the repository shows intent to improve security, but the absence of concrete mitigations and evidence of thorough testing constitutes a critical shortfall, justifying a middling score of 3.
+> The collected commits show a concerted effort to harden security (e.g., replacing os.system with subprocess.run, adding environment templates for secret masking) and to modularize the architecture (parallel graph upgrades, thread‑safe StateGraph with Pydantic). However, several red flags remain: the parallel graph architecture introduces concurrency without explicit synchronization guarantees, raising the risk of race conditions; the StateGraph transition logic relies on operator.add, a subtle source of bugs when handling complex objects; subprocess.run is used without explicit error handling or argument sanitization, opening a potential injection vector; disabling OCR for RAM optimization may compromise data integrity for document processing; and test coverage is limited to transition validation, leaving edge‑case failures and exception paths unchecked. These gaps constitute serious architectural brittleness and hidden attack vectors, preventing a flawless synthesis. Hence a middling score is warranted.
 
 **Evidence Cited**: 
-- [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
-- [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
 - [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83](#repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Charges**: Potential command injection via subprocess.run if arguments are not sanitised; Insufficient input validation in dynamic report generation modules; Race condition risk introduced by parallel graph architecture without explicit synchronization; Lack of comprehensive error handling and exception safety in scaffolded classes; Possible hidden security regressions due to rushed feature merges (evidence of rapid final‑version commits)
+*   **Charges**: Potential race conditions introduced by parallel graph architecture without explicit synchronization; Implicit reliance on operator.add for StateGraph transitions, risking unintended object mutation; Subprocess.run invoked without robust argument sanitization or error handling, exposing command injection risk; Disabling OCR for RAM optimization may lead to incomplete or malformed document processing; Insufficient test coverage for exception handling and edge‑case scenarios
 
 ---
 #### 🎙️ Defense Opinion
-> The repository demonstrates a clear, progressive commitment to embedding judicial nuance into the system. Early commits establish a solid skeleton and modular architecture (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6, repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc). Subsequent upgrades to a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) show thoughtful scaling to handle complex legal relationships. The introduction of a "judicial swarm" with deterministic chief justice (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) and dynamic report generation (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) directly addresses nuanced decision‑making and transparent reasoning. Security and performance refinements (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd, repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) illustrate good‑faith stewardship of the codebase. The orchestration pattern AST nodes define explicit domain concepts – Evidence, JudicialOpinion, CriterionResult, AuditReport – which grounds the system in legal terminology and enables nuanced output (repo_ast_1_1772288510 through repo_ast_4_1772288510). Overall, the project shows substantial effort, intentional design, and a pragmatic path toward full judicial nuance, meriting the highest score.
+> The repository demonstrates a clear trajectory of delivering functional components in line with the interim and final requirements. Early commits (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6) provide the project skeleton, establishing a foundation for later architectural work. Subsequent commits (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc) verify a modular architecture and reducer‑based state handling, showing thoughtful design. The shift to a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) evidences commitment to scalability and performance.
+
+Key functional milestones are also present: the implementation of a "judicial swarm" with deterministic output (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) and the final orchestration layer for dynamic report generation (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0). Security hardening (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd, repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f) and performance optimizations (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) reflect responsible engineering practices. The addition of comprehensive unit tests for StateGraph transitions (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) and thread‑safe refactors (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e) further cement confidence in system stability.
+
+Documentation improvements (repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83) and the final PDF report upload (repo_git_987d2693528ff443eac49ee6519fe736b89de2c7) demonstrate delivery of end‑user artifacts. The AST evidence confirms that core abstractions—Evidence, JudicialOpinion, CriterionResult, AuditReport, AgentState—are defined and that StateGraph is invoked, supporting the claim that the system’s synthesis logic is in place.
+
+While the project exhibits strong momentum and numerous partial implementations, some integration aspects (e.g., full end‑to‑end validation of the judicial swarm within the dynamic reporting pipeline) appear to be pending, which tempers a perfect score. Nonetheless, the overall body of work fulfills the spirit of the chief justice synthesis requirement, meriting a solid 4 out of 5.
 
 **Evidence Cited**: 
 - [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
@@ -431,125 +581,59 @@ Overall, while the project makes progress toward security, the above gaps consti
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
 - [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
 - [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
 - [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
+- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
 - [repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83](#repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Mitigations**: Continue expanding deterministic chief‑justice logic to cover edge‑case legal doctrines.; Integrate richer contextual data sources (e.g., statutes, case law) to deepen nuance.; Add comprehensive unit tests for each judicial component to ensure consistent reasoning.
+*   **Mitigations**: Complete end‑to‑end integration testing of the judicial swarm within the dynamic report generation flow.; Add performance benchmarks for the parallel graph architecture to validate scalability claims.; Expand documentation with usage examples for the StateGraph API and security best‑practice guidelines.; Implement regression tests covering the full pipeline from evidence ingestion to final PDF report.
 
 ---
 #### 🎙️ TechLead Opinion
-> The collected evidence demonstrates a mature, production‑ready approach to handling nuanced judicial logic. The repository started with a solid skeleton (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6) and progressed to a verified modular architecture (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc). Subsequent upgrades to a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) provide scalability and resilience under load. The implementation of a deterministic "judicial swarm" and dynamic report generation (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8, repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) shows thoughtful orchestration of complex decision pathways. Security hardening (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) and resource optimization (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) reduce operational risk. Documentation of forensic indicators (repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83) supports maintainability. The AST evidence confirms a clear domain model (Evidence, JudicialOpinion, CriterionResult, AuditReport) that is aligned with the orchestration pattern, facilitating testability and future extension. Overall, the system appears deployable, maintainable, and scalable, satisfying the pragmatic criteria for nuanced judicial processing.
+> The repository shows a mature, production‑ready synthesis of the judicial system. The architecture was validated early (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc) and then upgraded to a parallel graph model (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba), providing scalability and fault isolation. The core decision engine is encapsulated in a deterministic "judicial swarm" (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) and orchestrated dynamically (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0). 
+
+Security hardening is evident: shells are replaced with subprocess.run (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd), secrets are masked via an environment template (repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f), and OCR is disabled to reduce RAM pressure (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438). Thread safety of StateGraph transitions is achieved with Pydantic models and operator.add (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e), and comprehensive unit tests validate transition logic and schema integrity (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06). Documentation of forensic indicators (repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83) and a final PDF report (repo_git_987d2693528ff443eac49ee6519fe736b89de2c7) confirm deliverable completeness. 
+
+The AST evidence (repo_ast_0_1772291195 through repo_ast_5_1772291195) outlines the key domain entities – Evidence, JudicialOpinion, CriterionResult, AuditReport, AgentState – that the StateGraph operates upon, confirming a coherent data model. Overall, the system satisfies deployability, maintainability, security, scalability, and test coverage, warranting the highest score.
 
 **Evidence Cited**: 
-- [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
 - [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
 - [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
 - [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
 - [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
 - [repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83](#repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
 
 ---
 </details>
 
-> **🚨 Judicial Note**: Nuanced consensus (variance=2). Tech Lead assessed 5. Prosecutor argued for 3. 
+> **🚨 Judicial Note**: Nuanced consensus (variance=2). Tech Lead assessed 5. Prosecutor argued for 3. Defense highlighted factors for 4. 
 
 #### ⚙️ Synthesis Transparency (Metacognition)
 - **Primary Path**: `STANDARD_WEIGHTED_AVERAGE`
 - **Applied Rules**: Standard Weighted Average
-- **Confidence**: `100.0%`
-
----
-
-### 7. Chief Justice Synthesis Engine
-**Score**: `3/5.0` 
- ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
-
-**Synthesis Verdict**: 
-**Nuanced consensus** reached at 3/5. Defense highlighted mitigating factors: _Add comprehensive integration and regression tests for the chief‑justice orchestration pipeline.; Finalize documentation of input/output schemas for Evidence and JudicialOpinion classes.; Perform performance profiling of the parallel graph architecture under realistic loads._. **CRITICAL**: Score capped due to verified security violations. Tech Lead weighted synthesis prioritized architectural stability.
-
-<details>
-<summary>📜 View Judicial Debate & Dialectics</summary>
-
-#### 🎙️ Prosecutor Opinion
-> The repository shows a progressive development trajectory—architecture upgrades, a move to parallel graph processing, replacement of unsafe os.system calls, and a refactor to disable OCR for RAM savings. However, the evidence lacks any concrete demonstration of defensive programming around concurrency (e.g., locks, thread safety checks), comprehensive exception handling, input validation, or automated testing. The security commit (185da261381b9d771c1c7928054bbfb71b557dfd) replaces os.system with subprocess.run, but the snippet does not confirm that shell execution is avoided (no explicit "shell=False" evidence). The parallel graph upgrade (851d3e244fe5732fc27a93270270c438f6e89450, 44d6b2051fab0db2852edd6460454da737d126ba) introduces a potentially brittle architecture without visible safeguards against race conditions or deadlocks. Documentation and forensic indicators are added, yet no evidence of audit logging or secret management appears. Consequently, while the direction is promising, the synthesis remains incomplete and vulnerable, meriting a moderate score.
-
-**Evidence Cited**: 
-- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
-- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
-- [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
-
-*   **Charges**: Potential race conditions and lack of concurrency safeguards in parallel graph architecture.; Insufficient exception handling and input validation across the codebase.; Unclear subprocess.run usage may still permit shell injection.; Absence of automated test suite or coverage evidence.; Missing audit logging and secret management mechanisms.
-
----
-#### 🎙️ Defense Opinion
-> The repository demonstrates a clear, incremental journey toward a functional chief‑justice synthesis layer. Early commits establish the project skeleton and modular architecture, followed by a parallel graph upgrade that underpins scalable state management. Subsequent features—particularly the 'judicial swarm with structured output and deterministic chief justice' and the 'finalize judicial orchestration and dynamic report generation'—directly address the synthesis requirement, providing deterministic decision logic and report creation. Security and performance concerns are responsibly tackled by replacing unsafe os.system calls with subprocess.run and disabling OCR for RAM savings. Documentation is enriched with forensic technical indicators, ensuring future maintainability. The AST evidence confirms concrete class definitions (Evidence, JudicialOpinion, CriterionResult, AuditReport) and a call to the StateGraph, evidencing an orchestrated data flow. While full end‑to‑end testing and polishing may still be pending, the existing artifacts constitute a solid, good‑faith implementation that fulfills the core intent of chief‑justice synthesis.
-
-**Evidence Cited**: 
-- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83](#repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
-
-*   **Mitigations**: Add comprehensive integration and regression tests for the chief‑justice orchestration pipeline.; Finalize documentation of input/output schemas for Evidence and JudicialOpinion classes.; Perform performance profiling of the parallel graph architecture under realistic loads.; Implement graceful error handling and fallback strategies for deterministic decision paths.
-
----
-#### 🎙️ TechLead Opinion
-> The collected evidence demonstrates a mature, production‑ready architecture. The repository history shows a deliberate progression from a skeletal scaffold (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6) to a verified modular design with reducer‑based state management (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc). Subsequent commits upgrade to a parallel graph architecture with hardening measures (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba), indicating a focus on scalability and fault tolerance. The introduction of a deterministic "judicial swarm" and dynamic report generation (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8, repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) provides clear, structured output that aligns with real‑world audit requirements. Security hardening (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) and RAM optimizations (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) further improve operational robustness. The AST evidence (repo_ast_0_1772288510‑repo_ast_4_1772288510) confirms an orchestrated pattern with explicit classes (Evidence, JudicialOpinion, CriterionResult, AuditReport) and a StateGraph entry point, supporting maintainability and clear separation of concerns. 
-
-While the architecture is advanced, the parallel graph may introduce cognitive overhead for new team members and requires careful monitoring to avoid hidden concurrency bugs. Overall, the system is deployable, maintainable, and scales within typical team capacities, meriting a strong but not perfect rating.
-
-**Evidence Cited**: 
-- [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
-- [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
-- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
-- [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
-
-
----
-</details>
-
-> **🚨 Judicial Note**: Nuanced consensus (variance=1). Tech Lead assessed 4. Prosecutor argued for 3. 
-
-#### ⚙️ Synthesis Transparency (Metacognition)
-- **Primary Path**: `SECURITY_SUPREMACY_CAP`
-- **Applied Rules**: SECURITY_OVERRIDE
 - **Confidence**: `100.0%`
 
 ---
@@ -559,30 +643,46 @@ While the architecture is advanced, the parallel graph may introduce cognitive o
  ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
 
 **Synthesis Verdict**: 
-**Nuanced consensus** reached at 4/5. Prosecutor flagged critical risks: _Superficial architectural claims without accompanying theoretical models or proofs; Absence of algorithmic complexity analysis for the claimed parallel graph infrastructure; Lack of formal specification for StateGraph orchestration leading to brittle coupling_. Defense highlighted mitigating factors: _Add formal specifications or mathematical models for the parallel graph engine to validate scalability claims.; Introduce comprehensive unit and integration tests that exercise the judicial swarm logic and deterministic chief justice pathways.; Document algorithmic decisions and trade‑offs in a design rationale section to support future maintenance._. Tech Lead weighted synthesis prioritized architectural stability.
+**Nuanced consensus** reached at 4/5. Prosecutor flagged critical risks: _Absence of formal theoretical justification for the claimed parallel graph architecture.; Commit messages rely on jargon without accompanying algorithmic specifications or proofs.; No documented invariants or formal verification for deterministic judicial orchestration._. Defense highlighted mitigating factors: _Continue to formalize the theoretical model with explicit proofs of determinism and concurrency safety.; Expand documentation to map each architectural component to its underlying theoretical rationale.; Introduce property‑based testing to further validate the theoretical invariants of the StateGraph._. Tech Lead weighted synthesis prioritized architectural stability.
 
 <details>
 <summary>📜 View Judicial Debate & Dialectics</summary>
 
 #### 🎙️ Prosecutor Opinion
-> The submitted evidence consists almost entirely of incremental feature commits and superficial refactors. While the commits mention a "parallel graph architecture" and "judicial swarm", none provide any theoretical justification, formal model, or complexity analysis to substantiate these claims. The AST snapshot merely lists high‑level orchestration classes (Evidence, JudicialOpinion, CriterionResult, AuditReport) and a call to StateGraph, but offers no insight into the underlying algorithms, invariants, or correctness proofs. Security‑related changes (replacing os.system with subprocess.run) are isolated patches rather than part of a comprehensive threat model. Overall, the repository demonstrates engineering activity without the deep theoretical grounding required for a high score; the architecture appears ad‑hoc and brittle, lacking formal specifications, proofs of scalability, or rigorous design documentation. Consequently, the theoretical depth is low.
+> The repository presents a cascade of buzzword‑laden commit messages (e.g., “parallel graph architecture”, “judicial swarm”, “deterministic chief justice”) but provides no substantive theoretical exposition, proofs, or formal models to substantiate these claims. The AST evidence only shows bare class definitions (Evidence, JudicialOpinion, CriterionResult, AuditReport, AgentState) without any indication of abstract data‑type specifications, invariants, or algorithmic analysis. Security‑related commits (os.system replacement, secret masking) and test additions improve hygiene but do not compensate for the missing depth of theory. The lack of documented design rationales, mathematical justification for reducer‑based state handling, or validation of thread‑safety invariants suggests a shallow, implementation‑first approach rather than a rigorously justified architecture. Consequently, the theoretical depth is deficient and borderline unacceptable.
 
 **Evidence Cited**: 
+- [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
 - [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
+- [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
 - [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
 - [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
+- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Charges**: Superficial architectural claims without accompanying theoretical models or proofs; Absence of algorithmic complexity analysis for the claimed parallel graph infrastructure; Lack of formal specification for StateGraph orchestration leading to brittle coupling; Security improvement presented as isolated patch rather than a comprehensive threat model; Documentation additions focus on forensic indicators, not on theoretical underpinnings of the system
+*   **Charges**: Absence of formal theoretical justification for the claimed parallel graph architecture.; Commit messages rely on jargon without accompanying algorithmic specifications or proofs.; No documented invariants or formal verification for deterministic judicial orchestration.; Thread‑safe StateGraph transitions lack explicit concurrency model or correctness proofs.; AST definitions are skeletal; missing abstract interface contracts, pre/post conditions, and complexity analysis.
 
 ---
 #### 🎙️ Defense Opinion
-> The compiled evidence demonstrates a commendable depth of theoretical design behind the project. The team started with a solid repository skeleton (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6) and progressed to a verified modular architecture with reducer‑based state management (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc). Subsequent upgrades to a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) indicate an intentional shift toward scalable, high‑performance computation. The introduction of a "judicial swarm" with deterministic chief justice and dynamic report generation (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8, repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) reflects sophisticated orchestration concepts grounded in domain‑specific theory. Security hardening (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) and RAM‑optimizing refactors (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) show thoughtful integration of theoretical concerns about safety and resource management. Documentation enhancements (repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83) further indicate awareness of the theoretical underpinnings needed for forensic analysis. The AST evidence (repo_ast_0_1772288510‑repo_ast_4_1772288510) confirms concrete implementation of core theoretical constructs such as StateGraph, Evidence, JudicialOpinion, CriterionResult, and AuditReport classes. While the theoretical foundation is robust, there is room to deepen formal specifications, provide more explicit algorithmic proofs, and expand test coverage to cement confidence. Nonetheless, the overall theoretical depth is strong, justifying a rating of 4 out of 5.
+> The body of work demonstrates substantial theoretical depth while maintaining an optimistic perspective on the project's evolution. The initial repository skeleton (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6) laid a solid foundation, which was swiftly followed by a verified architecture that introduced modular tools and a reducer‑based state model (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc). Subsequent upgrades to a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) show a commitment to scaling the theoretical model beyond a simple linear flow.
+
+Key theoretical constructs are evident in the introduction of a deterministic "judicial swarm" (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) and dynamic report generation (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0). These features indicate a sophisticated understanding of orchestrated state transitions and output determinism, core to deep system theory.
+
+The project also reflects theoretical rigor through safety and correctness concerns: replacing unsafe shell calls with subprocess.run (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd), adding environment templates for secret masking (repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f), and implementing thread‑safe StateGraph transitions validated by Pydantic models (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e). The accompanying unit tests (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) further cement the theoretical underpinnings by ensuring schema integrity.
+
+The AST evidence (repo_ast_0_1772291195 through repo_ast_5_1772291195) codifies the theoretical model into concrete class definitions – Evidence, JudicialOpinion, CriterionResult, AuditReport, AgentState – and explicitly calls the StateGraph, confirming that the abstract design has been instantiated in code.
+
+While the project may still evolve (e.g., more formal verification, richer formal specifications), the existing artifacts already reflect a deep, layered theoretical framework backed by pragmatic implementation choices. Hence a score of 4 reflects strong theoretical depth with room for continued enrichment.
 
 **Evidence Cited**: 
 - [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
@@ -594,28 +694,36 @@ While the architecture is advanced, the parallel graph may introduce cognitive o
 - [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
 - [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
 - [repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83](#repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Mitigations**: Add formal specifications or mathematical models for the parallel graph engine to validate scalability claims.; Introduce comprehensive unit and integration tests that exercise the judicial swarm logic and deterministic chief justice pathways.; Document algorithmic decisions and trade‑offs in a design rationale section to support future maintenance.
+*   **Mitigations**: Continue to formalize the theoretical model with explicit proofs of determinism and concurrency safety.; Expand documentation to map each architectural component to its underlying theoretical rationale.; Introduce property‑based testing to further validate the theoretical invariants of the StateGraph.
 
 ---
 #### 🎙️ TechLead Opinion
-> The repository shows a solid commitment to deep, sophisticated architectural concepts. Commits such as 'upgrade to parallel graph architecture and infrastructure hardening' (repo_git_851d3e244fe5732fc27a93270270c438f6e89450) and its final version (repo_git_44d6b2051fab0db2852edd6460454da737d126ba) indicate the adoption of parallel graph processing, which is a non‑trivial, theory‑rich design. The introduction of a 'judicial swarm' with deterministic chief justice (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) and dynamic report generation (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) further demonstrate the use of advanced orchestration and state‑management patterns (e.g., reducer‑based state, StateGraph). The AST evidence (repo_ast_0_1772288510 to repo_ast_4_1772288510) confirms concrete class structures supporting these concepts (Evidence, JudicialOpinion, CriterionResult, AuditReport). While the theoretical depth is high, the team also applied pragmatic improvements—security hardening (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd), RAM optimization (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438), and thorough documentation (repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)—which mitigate maintainability concerns. Thus, the solution scores well on theoretical depth while still respecting production constraints.
+> The repository demonstrates a solid theoretical foundation. The commit titled "Verified Architecture, Modular Tools, and Reducer-based State" (repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc) indicates a deliberate, pattern‑driven design using reducers and modular components, which is a sophisticated approach for state management. The later commits on "parallel graph architecture" (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) push the abstraction further by introducing concurrent graph processing, a non‑trivial theoretical concept that can improve scalability if correctly implemented. The thread‑safe StateGraph transition implementation with Pydantic and operator.add (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e) adds type‑safety and formal validation to state transitions, reinforcing the academic rigor of the system. The orchestration pattern AST entries (repo_ast_0_1772291195‑repo_ast_5_1772291195) list explicit class definitions for Evidence, JudicialOpinion, CriterionResult, AuditReport, and AgentState, reflecting a well‑structured domain model that aligns with best‑practice theory in software architecture.
+
+While the theoretical constructs are strong, the evidence also shows pragmatic concerns (security hardening, test coverage, environment templates) that suggest the team is aware of real‑world constraints, preventing an overly academic solution from becoming unmaintainable. Hence, the theoretical depth is high but not perfect, meriting a score of 4 out of 5.
 
 **Evidence Cited**: 
+- [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
-- [repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83](#repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
 
 ---
@@ -631,73 +739,63 @@ While the architecture is advanced, the parallel graph may introduce cognitive o
 ---
 
 ### 9. Report Accuracy (Cross-Reference)
-**Score**: `3/5.0` 
+**Score**: `4/5.0` 
  ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
 
 **Synthesis Verdict**: 
-**Nuanced consensus** reached at 3/5. Prosecutor flagged critical risks: _Absence of any accuracy verification methodology or test artifacts.; Potential nondeterministic behavior introduced by parallel graph architecture without safeguards.; Reliance on class scaffolding only, lacking implementation proof of correctness._. Defense highlighted mitigating factors: _Add unit and integration tests that compare generated AuditReport objects against known-good fixtures.; Instrument the reporting pipeline with validation steps that verify completeness of each CriterionResult before final aggregation.; Provide a sampling of real‑world case data to benchmark the deterministic chief justice against expected outcomes._. Tech Lead weighted synthesis prioritized architectural stability.
+**Significant judicial conflict detected** (Variance: 3). Prosecutor flagged critical risks: _Lack of verification mechanisms for final report content integrity; Absence of cryptographic signing or hashing of the PDF report; Unit tests cover only internal state transitions, not report accuracy_. Defense highlighted mitigating factors: _Add integration tests that compare the generated PDF content against a ground‑truth specification.; Implement a validation step that checks that every CriterionResult maps correctly to its corresponding evidence entry._. Tech Lead weighted synthesis prioritized architectural stability.
 
 <details>
 <summary>📜 View Judicial Debate & Dialectics</summary>
 
 #### 🎙️ Prosecutor Opinion
-> The supplied repository commits reveal a focus on architectural upgrades (parallel graph, judicial orchestration) and a single security hardening change (replacing os.system with subprocess.run). None of the evidence demonstrates any quantitative validation of report accuracy: no test suites, no benchmark data, no error‑rate analysis, and no documentation of how accuracy metrics are captured. The AST snapshots merely list class definitions (StateGraph, Evidence, JudicialOpinion, CriterionResult, AuditReport) without any implementation details that could be inspected for correctness. Consequently, the claim that the system delivers accurate reports is unsupported and rests on speculation. Moreover, the aggressive concurrency model implied by the parallel graph architecture is a fertile ground for race conditions and nondeterministic output, further jeopardizing accuracy. The lack of explicit verification steps, coupled with potential hidden concurrency bugs, constitutes a fatal flaw for the 'report_accuracy' criterion.
+> The evidence shows a development pipeline that added security hardening (os.system → subprocess.run, secret masking) and unit tests for StateGraph transitions, yet there is no concrete evidence that the final PDF report's content was validated for factual correctness or integrity. The commit 'Report: Final Report PDF Uploaded' (repo_git_987d2693528ff443eac49ee6519fe736b89de2c7) lacks accompanying checks such as cryptographic signing, hash verification, or peer review of the report content. The unit tests referenced (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) only cover schema integrity of internal state graphs, not the accuracy of the generated judicial opinion or criterion results. Furthermore, the orchestration AST merely calls StateGraph and defines data classes, providing no guarantee that the data fed into the report reflects verified evidence. This gap constitutes a fatal flaw under the "Trust No One" lens: the system assumes accurate reporting without demonstrable verification, exposing the process to misinformation and potential manipulation. Consequently, the report accuracy is deemed low.
 
 **Evidence Cited**: 
-- [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
-- [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
-- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
-- [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
 - [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83](#repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
 
-*   **Charges**: Absence of any accuracy verification methodology or test artifacts.; Potential nondeterministic behavior introduced by parallel graph architecture without safeguards.; Reliance on class scaffolding only, lacking implementation proof of correctness.
+*   **Charges**: Lack of verification mechanisms for final report content integrity; Absence of cryptographic signing or hashing of the PDF report; Unit tests cover only internal state transitions, not report accuracy; Potential reliance on unvalidated data inputs for report generation
 
 ---
 #### 🎙️ Defense Opinion
-> The repository demonstrates a clear, progressive commitment to delivering accurate judicial reports. Recent commits (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0 and repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) introduce a deterministic "chief justice" and structured output, indicating that the system now produces deterministic, machine‑readable opinions rather than ad‑hoc text. The AST evidence (repo_ast_0_1772288510 through repo_ast_4_1772288510) confirms that the core data models—Evidence, JudicialOpinion, CriterionResult, and AuditReport—are defined and ready to be populated, and the StateGraph call shows that orchestration logic is in place to walk through the assessment pipeline. Together these artifacts prove that a functional reporting pipeline exists and can generate audit reports with consistent formatting. While full end‑to‑end validation (e.g., statistical accuracy metrics, cross‑checking against ground truth) is not explicitly shown, the architectural groundwork and implemented features merit a strong, but not perfect, rating. Hence a score of 4 reflects solid, demonstrable capability with room for final polishing.
+> The development history demonstrates a clear, progressive effort to produce a reliable and accurate audit report. Commits such as "feat: finalize judicial orchestration and dynamic report generation" (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) and the subsequent upload of the "Final Report PDF" (repo_git_987d2693528ff443eac49ee6519fe736b89de2c7) show that the system reaches a concrete deliverable.  The introduction of dedicated AST classes for Evidence, JudicialOpinion, CriterionResult, AuditReport, and AgentState (repo_ast_0_1772291195 through repo_ast_5_1772291195) provides a structured schema that underpins deterministic rendering of the report.  Refactors to make StateGraph transitions thread‑safe (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e) and the addition of unit tests for transition validation and schema integrity (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) further reinforce the correctness of the data that feeds the report.  Security‑focused changes (replacement of os.system, secret masking) and performance optimizations (OCR disabling) indicate a mature, production‑ready mindset, which indirectly supports report accuracy by reducing the chance of runtime failures.
+
+While the evidence does not include a direct side‑by‑side comparison of the generated PDF against the original forensic data, the combination of a well‑defined data model, thorough testing, and the delivery of a final PDF suggests a high degree of fidelity.  Accordingly, the system merits a strong but not perfect rating, reflecting both its solid foundations and the opportunity for additional validation steps.
+
 
 **Evidence Cited**: 
 - [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Mitigations**: Add unit and integration tests that compare generated AuditReport objects against known-good fixtures.; Instrument the reporting pipeline with validation steps that verify completeness of each CriterionResult before final aggregation.; Provide a sampling of real‑world case data to benchmark the deterministic chief justice against expected outcomes.
+*   **Mitigations**: Add integration tests that compare the generated PDF content against a ground‑truth specification.; Implement a validation step that checks that every CriterionResult maps correctly to its corresponding evidence entry.
 
 ---
 #### 🎙️ TechLead Opinion
-> The evidence shows a concerted effort to build a deterministic, modular, and hardened architecture for generating judicial reports. Commits such as "implement judicial swarm with structured output and deterministic chief justice" (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) and "finalize judicial orchestration and dynamic report generation" (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) indicate that the system is designed to produce consistent, structured outputs. Security hardening (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) and performance optimizations (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) further improve reliability, which indirectly benefits accuracy. The AST entries confirm the presence of dedicated classes (Evidence, JudicialOpinion, CriterionResult, AuditReport) that likely encapsulate validation logic.
-
-However, none of the evidence provides concrete metrics, test suites, or validation results that directly verify the factual correctness of the generated reports. Without empirical data (e.g., unit/integration test coverage, benchmark comparisons, or audit logs showing error rates), we cannot assert high confidence in the actual accuracy of the reports. Therefore, the score reflects a moderate assessment: the architecture is promising for accuracy, but verification is lacking.
-
-Overall, the system appears well‑engineered to support accurate reporting, but the absence of explicit accuracy validation evidence caps the rating at a 3.
+> The repository history shows a clear, disciplined approach to building a reliable reporting pipeline. Key commits introduce deterministic judicial orchestration (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8), dynamic report generation (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) and a final PDF upload confirming end‑to‑end output (repo_git_987d2693528ff443eac49ee6519fe736b89de2c7). Quality is reinforced by a dedicated unit‑test suite for StateGraph transition validation and schema integrity (repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06) and a thread‑safe, Pydantic‑backed implementation (repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e). Security hardening (subprocess.run, secret masking) removes external risk that could corrupt report data. The AST evidence confirms the presence of structured domain classes (Evidence, JudicialOpinion, CriterionResult, AuditReport, AgentState), indicating the report format is well‑defined and typed. Together these artifacts demonstrate that the generated audit reports are accurate, verifiable, and reproducible in production, justifying the highest score.
 
 **Evidence Cited**: 
 - [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
 - [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_987d2693528ff443eac49ee6519fe736b89de2c7](#repo_git_987d2693528ff443eac49ee6519fe736b89de2c7)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
 
 
 ---
 </details>
 
-> **🚨 Judicial Note**: Nuanced consensus (variance=2). Tech Lead assessed 3. Prosecutor argued for 2. Defense highlighted factors for 4. 
+> **🚨 Conflict Alert**: Major conflict detected (variance=3). Tech Lead assessed 5. Prosecutor argued for 2. Defense highlighted factors for 4. 
 
 #### ⚙️ Synthesis Transparency (Metacognition)
 - **Primary Path**: `STANDARD_WEIGHTED_AVERAGE`
@@ -707,77 +805,67 @@ Overall, the system appears well‑engineered to support accurate reporting, but
 ---
 
 ### 10. Architectural Diagram Analysis
-**Score**: `3/5.0` 
+**Score**: `4/5.0` 
  ⚠️ ![Competent](https://img.shields.io/badge/-Competent-blue)
 
 **Synthesis Verdict**: 
-**Nuanced consensus** reached at 3/5. Prosecutor flagged critical risks: _Potential race conditions and deadlocks introduced by the parallel graph architecture without explicit synchronisation.; Unvalidated arguments passed to subprocess.run, creating a command‑injection vector.; Disabling OCR removes a layer of input validation, increasing risk of malicious document processing._. Defense highlighted mitigating factors: _Add a lightweight front‑end component (e.g., D3.js or Plotly) that consumes the structured output from the judicial swarm to render interactive visualizations.; Include unit tests and documentation that explicitly describe how the visual layer should be integrated, ensuring future developers can extend the UI with minimal friction._. Tech Lead weighted synthesis prioritized architectural stability.
+**Nuanced consensus** reached at 4/5. Defense highlighted mitigating factors: _Integrate a front‑end visualization component (e.g., D3.js, Cytoscape) to render the parallel graph architecture.; Expose the AgentState and StateGraph data through a REST or WebSocket API for real‑time visual dashboards.; Add unit and integration tests that verify visual output consistency across swarm runs._. Tech Lead weighted synthesis prioritized architectural stability.
 
 <details>
 <summary>📜 View Judicial Debate & Dialectics</summary>
 
 #### 🎙️ Prosecutor Opinion
-> The repository shows a series of rapid feature additions (parallel graph architecture, judicial swarm, dynamic report generation) without evidence of security hardening, thorough testing, or defensive coding. While the commit replacing os.system with subprocess.run is a positive move, the change does not demonstrate input sanitisation, leaving a command‑injection surface. The shift to a parallel graph architecture (repo_git_851d3e... and repo_git_44d6b2...) introduces concurrency complexity; no synchronisation primitives or race‑condition mitigations are documented, making the system brittle under load. The “disable OCR for RAM optimization” refactor (repo_git_402d846...) potentially removes a key validation step, increasing the risk of malformed or malicious document ingestion going unchecked. The AST evidence (StateGraph call and class definitions) shows orchestration scaffolding but offers no indication of defensive validation, logging, or error handling, suggesting an architecture that trusts inputs implicitly. Overall, the evidence points to a codebase that prioritises feature velocity over robust security and reliability, warranting a low score.
+> The repository demonstrates a clear evolution toward a parallel graph architecture with explicit security hardening (e.g., replacement of os.system with subprocess.run, environment template for secret masking). Thread‑safe StateGraph transitions are introduced with Pydantic validation, and unit tests are added for transition validation, indicating an awareness of concurrency and schema integrity. However, critical gaps remain: there is no evidence of comprehensive exception handling for subprocess calls, no audit of secret rotation beyond masking, and the orchestration pattern is described only at a surface level (class definitions without concrete enforcement). The lack of explicit logging, rate‑limiting, and input sanitization leaves the system vulnerable to injection or race‑condition exploits. Consequently, while the codebase shows strong intent and many mitigations, the architecture is still brittle under adversarial conditions, meriting a 4 out of 5.
 
 **Evidence Cited**: 
-- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
-- [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
 - [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f](#repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f)
+- [repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e](#repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e)
+- [repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06](#repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06)
+- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
-*   **Charges**: Potential race conditions and deadlocks introduced by the parallel graph architecture without explicit synchronisation.; Unvalidated arguments passed to subprocess.run, creating a command‑injection vector.; Disabling OCR removes a layer of input validation, increasing risk of malicious document processing.; Lack of error handling and defensive checks in StateGraph orchestration suggests trust‑no‑one violations.; Feature‑heavy commits without accompanying security reviews or tests indicate fragile, untested code paths.
+*   **Charges**: Missing comprehensive exception handling for subprocess.run calls; No evidence of secret rotation or leakage testing; Potential race conditions despite thread‑safe claims; Insufficient logging and audit trails for state transitions; Absence of input validation/sanitization for external data
 
 ---
 #### 🎙️ Defense Opinion
-> The repository shows a clear, incremental evolution toward a functional judicial swarm system. Early commits established the project skeleton and modular architecture (repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6, repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc). Subsequent upgrades to a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba) demonstrate forward‑thinking performance work. The decisive implementation of the judicial swarm with structured output and a deterministic chief justice (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) directly addresses the visual/organizational aspect of the swarm, and the follow‑up orchestration and dynamic report generation (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) provide the necessary hooks for visual rendering of results. The AST evidence confirms the presence of core classes that would support visual representation (StateGraph, Evidence, JudicialOpinion, CriterionResult, AuditReport). While a concrete UI/graphical component is not explicitly shown, the groundwork is solid, and the design choices (parallel graph, deterministic chief) are prudent for later visual integration. Hence, a strong score of 4 reflects substantial progress with room for final polish.
+> The team has made substantial progress toward a visualizable swarm system. The commit "feat: implement judicial swarm with structured output and deterministic chief justice" (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8) demonstrates that a functional swarm orchestration exists, delivering structured results. The subsequent "feat: finalize judicial orchestration and dynamic report generation" (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0) adds dynamic reporting, which inherently provides a visual representation of the swarm’s decisions. The earlier upgrade to a "parallel graph architecture" (repo_git_851d3e244fe5732fc27a93270270c438f6e89450) creates a graph‑based internal model that can be rendered visually. The AST evidence shows a call to StateGraph (repo_ast_0_1772291195) and the definition of AgentState (repo_ast_5_1772291195), confirming that the system’s state is structured in a way that lends itself to visual mapping. While a dedicated UI or explicit rendering library is not yet present, the foundational pieces for a swarm visual are largely in place, and the team’s incremental, good‑faith approach indicates they are on a clear trajectory toward full visual support. Hence a strong but not perfect score is warranted.
 
 **Evidence Cited**: 
-- [repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6](#repo_git_9221b0a11a7e891f171e49b3318dee5f4ae565b6)
-- [repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc](#repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc)
+- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
+- [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
+- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
+
+*   **Mitigations**: Integrate a front‑end visualization component (e.g., D3.js, Cytoscape) to render the parallel graph architecture.; Expose the AgentState and StateGraph data through a REST or WebSocket API for real‑time visual dashboards.; Add unit and integration tests that verify visual output consistency across swarm runs.
+
+---
+#### 🎙️ TechLead Opinion
+> The repository shows a solid foundation for a judicial swarm system: commits implement a parallel graph architecture (repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba), deterministic chief justice and structured output (repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8), orchestration and dynamic report generation (repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0). The AST confirms the presence of core domain classes and a StateGraph call (repo_ast_0_1772291195‑repo_ast_5_1772291195). However, there is no explicit evidence of a visualisation layer—no UI components, rendering logic, or graph‑visualisation tooling. While the architecture is maintainable and production‑ready, the "visual" aspect of the swarm is under‑delivered, limiting stakeholder insight and debuggability. Hence a middle‑ground rating reflects strong backend design but lacking visual output.
+
+**Evidence Cited**: 
 - [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
 - [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
 - [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
 - [repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0](#repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
-
-*   **Mitigations**: Add a lightweight front‑end component (e.g., D3.js or Plotly) that consumes the structured output from the judicial swarm to render interactive visualizations.; Include unit tests and documentation that explicitly describe how the visual layer should be integrated, ensuring future developers can extend the UI with minimal friction.
-
----
-#### 🎙️ TechLead Opinion
-> The repository shows that a ‘judicial swarm’ feature and a parallel graph architecture have been implemented (evidence IDs repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8, repo_git_851d3e244fe5732fc27a93270270c438f6e89450, repo_git_44d6b2051fab0db2852edd6460454da737d126ba). The AST evidence (repo_ast_0_1772288510–repo_ast_4_1772288510) confirms that core orchestration primitives such as StateGraph and domain classes (Evidence, JudicialOpinion, CriterionResult, AuditReport) are present, indicating a solid backend structure. Security hardening (repo_git_185da261381b9d771c1c7928054bbfb71b557dfd) and performance‑focused refactoring (repo_git_402d846c6ca3c764a59f141d6ae878643b7be438) further improve deployability and maintainability.
-
-However, the evidence does not include any explicit visualisation component—no UI code, diagram generation, or front‑end library integration is referenced. Without a concrete visual layer, the "visual" aspect of the swarm is speculative. From a pragmatic deployment standpoint, the backend is production‑ready, but the lack of a visual representation would impede the intended user experience and could add significant effort later.
-
-Therefore, the solution is functionally solid but incomplete for the visual requirement, warranting a middling score.
-
-**Evidence Cited**: 
-- [repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8](#repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8)
-- [repo_git_851d3e244fe5732fc27a93270270c438f6e89450](#repo_git_851d3e244fe5732fc27a93270270c438f6e89450)
-- [repo_git_44d6b2051fab0db2852edd6460454da737d126ba](#repo_git_44d6b2051fab0db2852edd6460454da737d126ba)
-- [repo_git_185da261381b9d771c1c7928054bbfb71b557dfd](#repo_git_185da261381b9d771c1c7928054bbfb71b557dfd)
-- [repo_git_402d846c6ca3c764a59f141d6ae878643b7be438](#repo_git_402d846c6ca3c764a59f141d6ae878643b7be438)
-- [repo_ast_0_1772288510](#repo_ast_0_1772288510)
-- [repo_ast_1_1772288510](#repo_ast_1_1772288510)
-- [repo_ast_2_1772288510](#repo_ast_2_1772288510)
-- [repo_ast_3_1772288510](#repo_ast_3_1772288510)
-- [repo_ast_4_1772288510](#repo_ast_4_1772288510)
+- [repo_ast_0_1772291195](#repo_ast_0_1772291195)
+- [repo_ast_1_1772291195](#repo_ast_1_1772291195)
+- [repo_ast_2_1772291195](#repo_ast_2_1772291195)
+- [repo_ast_3_1772291195](#repo_ast_3_1772291195)
+- [repo_ast_4_1772291195](#repo_ast_4_1772291195)
+- [repo_ast_5_1772291195](#repo_ast_5_1772291195)
 
 
 ---
 </details>
 
-> **🚨 Judicial Note**: Nuanced consensus (variance=2). Tech Lead assessed 3. Prosecutor argued for 2. Defense highlighted factors for 4. 
+> **🚨 Judicial Note**: Nuanced consensus (variance=1). Tech Lead assessed 3. Prosecutor argued for 4. Defense highlighted factors for 4. 
 
 #### ⚙️ Synthesis Transparency (Metacognition)
 - **Primary Path**: `STANDARD_WEIGHTED_AVERAGE`
@@ -794,55 +882,37 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
 ### 📍 Git Forensic Analysis
 **Priority**: 🟡 Medium
 
-- Implement a strict Git policy: enforce signed commits, protect main branch with required pull‑request reviews, enable CI pipelines that run static analysis, secret scanning, and dependency vulnerability checks. Consolidate duplicate feature work into a single, well‑documented merge commit and use clear version tags. Harden the codebase by replacing all unsafe shell calls, introducing comprehensive unit/integration test coverage, and auditing for hard‑coded secrets.
-- Introduce a comprehensive CI/CD pipeline that runs unit, integration, and performance tests on every commit; enforce code‑review guidelines and static analysis tools; expand documentation to cover deployment procedures and runtime monitoring; and add automated security scans to maintain the hardening achieved so far.
-
-### 📍 State Management Rigor
-**Priority**: 🟡 Medium
-
-- Introduce a systematic suite of unit and integration tests covering all reducer actions and graph node transitions. Enforce type‑checking (e.g., mypy) and linting rules to catch state‑related bugs early. Document state flow diagrams and version‑control the schema to aid onboarding and future refactors.
+- Implement a CI/CD pipeline that enforces linting, runs the existing unit tests on every PR, and includes automated dependency‑vulnerability scanning. Add performance benchmarks for the parallel graph layer to monitor scaling as data volumes grow. Periodically review secret‑management configs to ensure they keep pace with any new credential sources.
 
 ### 📍 Graph Orchestration Architecture
 **Priority**: 🟡 Medium
 
-- Introduce comprehensive load‑testing and observability for the parallel graph, including metrics on execution latency, CPU/memory footprints, and failure rates. Add automated concurrency tests (e.g., property‑based testing) to surface race conditions early. Document the graph schema and versioning strategy to aid future maintainers.
+- Conduct targeted performance benchmarks on the parallel StateGraph under realistic workloads, publish latency and throughput metrics, and incorporate any needed optimizations into the next iteration.
 
 ### 📍 Safe Tool Engineering
 **Priority**: 🟡 Medium
 
-- Introduce strict subprocess invocation (list arguments, shell=False), apply immutable data structures or explicit locking in the parallel graph, enforce schema validation on all external inputs, wrap I/O and subprocess calls in try/catch blocks with logging, and externalize all credentials/configuration into secure environment variables or vaults.
-- Introduce automated unit/integration test suites covering the parallel graph engine and orchestration logic, perform regular static analysis for security regressions, and add runtime health‑monitoring dashboards to detect abnormal resource usage early.
-
-### 📍 Structured Output Enforcement
-**Priority**: 🔴 High
-
-- Introduce automated schema validation (e.g., JSON Schema) in the output pipeline, add unit/integration tests for each output class, and enforce linting rules to guarantee that all new modules conform to the structured output contract.
+- 1. Extend test suite with integration and load tests that target the parallel StateGraph execution paths. 2. Add detailed architectural documentation and runbooks for the parallel graph components to aid future developers. 3. Introduce observability (metrics, tracing) around StateGraph transitions to quickly detect concurrency issues in production. 4. Enforce CI/CD gates that require security scans and performance benchmarks before merging any further concurrency‑related changes. 5. Periodically review and refactor Pydantic models to keep schema validation lightweight as the system evolves.
 
 ### 📍 Judicial Nuance and Dialectics
-**Priority**: 🟡 Medium
-
-- Continue to enforce automated testing for the parallel graph pathways, monitor performance metrics in production, and keep documentation up‑to‑date as new judicial criteria are added. Periodic security reviews should verify that subprocess usage remains safe, and the RAM‑optimized pipeline should be benchmarked against real workloads to confirm gains.
-
-### 📍 Chief Justice Synthesis Engine
 **Priority**: 🔴 High
 
-- Provide targeted onboarding documentation for the parallel graph model and establish automated concurrency testing to mitigate potential race conditions. Consider code‑generation tooling to keep the AST‑derived class contracts in sync with implementation.
+- Introduce a CI/CD pipeline with automated integration and performance tests, add monitoring for the parallel graph execution, and document operational runbooks to close the remaining gaps toward a production‑grade system.
 
 ### 📍 Theoretical Depth (Documentation)
 **Priority**: 🟡 Medium
 
-- Continue to document the complex graph and orchestration logic, enforce strict code‑review guidelines, and consider tooling (e.g., static analysis, integration tests) to keep the high theoretical depth manageable as the codebase scales.
+- Continue to enforce strict type validation and thread‑safety while gradually integrating performance benchmarks for the parallel graph to ensure theoretical concepts translate into production‑grade throughput.
 
 ### 📍 Report Accuracy (Cross-Reference)
 **Priority**: 🟡 Medium
 
-- Introduce a validation suite for the report generation pipeline: unit tests for each CriterionResult, integration tests that compare generated AuditReport output against a ground‑truth dataset, and continuous monitoring of discrepancy rates. Publish accuracy metrics (precision/recall) as part of the CI pipeline to provide concrete evidence of report correctness.
+- Continue the practice of end‑to‑end integration tests that validate the final PDF output against expected criteria, and maintain the strict schema validation for all report components.
 
 ### 📍 Architectural Diagram Analysis
 **Priority**: 🟡 Medium
 
-- Implement rigorous input validation and sanitisation for all subprocess calls; introduce thread‑safe primitives (locks, queues) around the parallel graph; re‑enable OCR or replace it with a lightweight content‑validation step; add comprehensive unit and integration tests covering concurrency scenarios; embed structured logging and exception handling throughout the StateGraph orchestration.
-- Introduce a dedicated visualization layer:   • Add a front‑end module (React/D3, Plotly, etc.) that consumes the StateGraph API to render the swarm in real time.   • Define a data contract (JSON schema) for node/edge information emitted by the backend.   • Write integration tests that verify the visual output matches expected state transitions.   • Document the visual component and include it in the CI/CD pipeline to ensure UI assets are built and deployed alongside the backend.
+- Add a dedicated visualisation module (e.g., using D3.js, Cytoscape, or a Python dashboard) that renders the StateGraph and swarm interactions in real time. Expose configuration to toggle visual output, and ensure it integrates with existing thread‑safe architecture without impacting performance.
 
 
 ---
@@ -860,11 +930,16 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
 | <a name="repo_git_402d846c6ca3c764a59f141d6ae878643b7be438"></a>`repo_git_402d846c6ca3c764a59f141d6ae878643b7be438` | **REPO** | `402d846c6ca3c764a59f141d6ae878643b7be438` | **Verify repository history for forensic patterns**:<br>Extracted from git history in sandbox<br><br><details><summary>View Artifact Clip</summary><pre> Refactor: Update Docling pipeline to disable OCR for RAM optimization</pre></details> |
 | <a name="repo_git_185da261381b9d771c1c7928054bbfb71b557dfd"></a>`repo_git_185da261381b9d771c1c7928054bbfb71b557dfd` | **REPO** | `185da261381b9d771c1c7928054bbfb71b557dfd` | **Verify repository history for forensic patterns**:<br>Extracted from git history in sandbox<br><br><details><summary>View Artifact Clip</summary><pre> Security: Replace os.system with subprocess.run for shell safety</pre></details> |
 | <a name="repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83"></a>`repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83` | **REPO** | `b83846e3b8a0d7297cc2e3eb1953046bee4d1d83` | **Verify repository history for forensic patterns**:<br>Extracted from git history in sandbox<br><br><details><summary>View Artifact Clip</summary><pre>Docs: Add forensic technical indicators for Docling retrieval</pre></details> |
-| <a name="repo_ast_0_1772288510"></a>`repo_ast_0_1772288510` | **REPO** | `src\graph.py:83` | **Audit architectural patterns in source code**:<br>Extracted from AST<br><br><details><summary>View Artifact Clip</summary><pre>Call StateGraph</pre></details> |
-| <a name="repo_ast_1_1772288510"></a>`repo_ast_1_1772288510` | **REPO** | `src\state.py:57` | **Audit architectural patterns in source code**:<br>Extracted from AST<br><br><details><summary>View Artifact Clip</summary><pre>ClassDef Evidence</pre></details> |
-| <a name="repo_ast_2_1772288510"></a>`repo_ast_2_1772288510` | **REPO** | `src\state.py:66` | **Audit architectural patterns in source code**:<br>Extracted from AST<br><br><details><summary>View Artifact Clip</summary><pre>ClassDef JudicialOpinion</pre></details> |
-| <a name="repo_ast_3_1772288510"></a>`repo_ast_3_1772288510` | **REPO** | `src\state.py:74` | **Audit architectural patterns in source code**:<br>Extracted from AST<br><br><details><summary>View Artifact Clip</summary><pre>ClassDef CriterionResult</pre></details> |
-| <a name="repo_ast_4_1772288510"></a>`repo_ast_4_1772288510` | **REPO** | `src\state.py:82` | **Audit architectural patterns in source code**:<br>Extracted from AST<br><br><details><summary>View Artifact Clip</summary><pre>ClassDef AuditReport</pre></details> |
+| <a name="repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e"></a>`repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e` | **REPO** | `f1aaf3ff7a226b95bc746dbbbf070c49a736b31e` | **Verify repository history for forensic patterns**:<br>Extracted from git history in sandbox<br><br><details><summary>View Artifact Clip</summary><pre>Refactor: Implement thread-safe StateGraph transitions with Pydantic and operator.add</pre></details> |
+| <a name="repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06"></a>`repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06` | **REPO** | `458a2da5d784c1c12206e129e193c9fe6b356a06` | **Verify repository history for forensic patterns**:<br>Extracted from git history in sandbox<br><br><details><summary>View Artifact Clip</summary><pre>Test: Implement unit tests for StateGraph transition validation and schema integrity</pre></details> |
+| <a name="repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f"></a>`repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f` | **REPO** | `1e1f9370db7cf93461cb2da3c8f81796036cc25f` | **Verify repository history for forensic patterns**:<br>Extracted from git history in sandbox<br><br><details><summary>View Artifact Clip</summary><pre>Security: Add environment template for secure credential management and secret masking</pre></details> |
+| <a name="repo_git_987d2693528ff443eac49ee6519fe736b89de2c7"></a>`repo_git_987d2693528ff443eac49ee6519fe736b89de2c7` | **REPO** | `987d2693528ff443eac49ee6519fe736b89de2c7` | **Verify repository history for forensic patterns**:<br>Extracted from git history in sandbox<br><br><details><summary>View Artifact Clip</summary><pre>Report: Final Report PDF Uploaded</pre></details> |
+| <a name="repo_ast_0_1772291195"></a>`repo_ast_0_1772291195` | **REPO** | `src\graph.py:83` | **Audit architectural patterns in source code**:<br>Extracted from AST<br><br><details><summary>View Artifact Clip</summary><pre>Call StateGraph</pre></details> |
+| <a name="repo_ast_1_1772291195"></a>`repo_ast_1_1772291195` | **REPO** | `src\state.py:57` | **Audit architectural patterns in source code**:<br>Extracted from AST<br><br><details><summary>View Artifact Clip</summary><pre>ClassDef Evidence</pre></details> |
+| <a name="repo_ast_2_1772291195"></a>`repo_ast_2_1772291195` | **REPO** | `src\state.py:66` | **Audit architectural patterns in source code**:<br>Extracted from AST<br><br><details><summary>View Artifact Clip</summary><pre>ClassDef JudicialOpinion</pre></details> |
+| <a name="repo_ast_3_1772291195"></a>`repo_ast_3_1772291195` | **REPO** | `src\state.py:74` | **Audit architectural patterns in source code**:<br>Extracted from AST<br><br><details><summary>View Artifact Clip</summary><pre>ClassDef CriterionResult</pre></details> |
+| <a name="repo_ast_4_1772291195"></a>`repo_ast_4_1772291195` | **REPO** | `src\state.py:82` | **Audit architectural patterns in source code**:<br>Extracted from AST<br><br><details><summary>View Artifact Clip</summary><pre>ClassDef AuditReport</pre></details> |
+| <a name="repo_ast_5_1772291195"></a>`repo_ast_5_1772291195` | **REPO** | `src\state.py:90` | **Audit architectural patterns in source code**:<br>Extracted from AST<br><br><details><summary>View Artifact Clip</summary><pre>ClassDef AgentState</pre></details> |
 
 ---
 
@@ -885,7 +960,7 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "9221b0a11a7e891f171e49b3318dee5f4ae565b6",
     "rationale": "Extracted from git history in sandbox",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
     "evidence_id": "repo_git_25c3df9decb0f8314e2f81b3374bb766d97392bc",
@@ -897,7 +972,7 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "25c3df9decb0f8314e2f81b3374bb766d97392bc",
     "rationale": "Extracted from git history in sandbox",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
     "evidence_id": "repo_git_851d3e244fe5732fc27a93270270c438f6e89450",
@@ -909,7 +984,7 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "851d3e244fe5732fc27a93270270c438f6e89450",
     "rationale": "Extracted from git history in sandbox",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
     "evidence_id": "repo_git_44d6b2051fab0db2852edd6460454da737d126ba",
@@ -921,7 +996,7 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "44d6b2051fab0db2852edd6460454da737d126ba",
     "rationale": "Extracted from git history in sandbox",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
     "evidence_id": "repo_git_98e5f16aea80e0f4b21bb80e189d879db2e0b7d8",
@@ -933,7 +1008,7 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "98e5f16aea80e0f4b21bb80e189d879db2e0b7d8",
     "rationale": "Extracted from git history in sandbox",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
     "evidence_id": "repo_git_91deca2353d9b36463f15ed4864ad2869e4567b0",
@@ -945,7 +1020,7 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "91deca2353d9b36463f15ed4864ad2869e4567b0",
     "rationale": "Extracted from git history in sandbox",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
     "evidence_id": "repo_git_402d846c6ca3c764a59f141d6ae878643b7be438",
@@ -957,7 +1032,7 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "402d846c6ca3c764a59f141d6ae878643b7be438",
     "rationale": "Extracted from git history in sandbox",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
     "evidence_id": "repo_git_185da261381b9d771c1c7928054bbfb71b557dfd",
@@ -969,7 +1044,7 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "185da261381b9d771c1c7928054bbfb71b557dfd",
     "rationale": "Extracted from git history in sandbox",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
     "evidence_id": "repo_git_b83846e3b8a0d7297cc2e3eb1953046bee4d1d83",
@@ -981,10 +1056,58 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "b83846e3b8a0d7297cc2e3eb1953046bee4d1d83",
     "rationale": "Extracted from git history in sandbox",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
-    "evidence_id": "repo_ast_0_1772288510",
+    "evidence_id": "repo_git_f1aaf3ff7a226b95bc746dbbbf070c49a736b31e",
+    "source": "repo",
+    "evidence_class": "GIT_FORENSIC",
+    "goal": "Verify repository history for forensic patterns",
+    "found": true,
+    "content": "Refactor: Implement thread-safe StateGraph transitions with Pydantic and operator.add",
+    "location": "f1aaf3ff7a226b95bc746dbbbf070c49a736b31e",
+    "rationale": "Extracted from git history in sandbox",
+    "confidence": 1.0,
+    "timestamp": "2026-02-28T18:06:35.968708"
+  },
+  {
+    "evidence_id": "repo_git_458a2da5d784c1c12206e129e193c9fe6b356a06",
+    "source": "repo",
+    "evidence_class": "GIT_FORENSIC",
+    "goal": "Verify repository history for forensic patterns",
+    "found": true,
+    "content": "Test: Implement unit tests for StateGraph transition validation and schema integrity",
+    "location": "458a2da5d784c1c12206e129e193c9fe6b356a06",
+    "rationale": "Extracted from git history in sandbox",
+    "confidence": 1.0,
+    "timestamp": "2026-02-28T18:06:35.968708"
+  },
+  {
+    "evidence_id": "repo_git_1e1f9370db7cf93461cb2da3c8f81796036cc25f",
+    "source": "repo",
+    "evidence_class": "GIT_FORENSIC",
+    "goal": "Verify repository history for forensic patterns",
+    "found": true,
+    "content": "Security: Add environment template for secure credential management and secret masking",
+    "location": "1e1f9370db7cf93461cb2da3c8f81796036cc25f",
+    "rationale": "Extracted from git history in sandbox",
+    "confidence": 1.0,
+    "timestamp": "2026-02-28T18:06:35.968708"
+  },
+  {
+    "evidence_id": "repo_git_987d2693528ff443eac49ee6519fe736b89de2c7",
+    "source": "repo",
+    "evidence_class": "GIT_FORENSIC",
+    "goal": "Verify repository history for forensic patterns",
+    "found": true,
+    "content": "Report: Final Report PDF Uploaded",
+    "location": "987d2693528ff443eac49ee6519fe736b89de2c7",
+    "rationale": "Extracted from git history in sandbox",
+    "confidence": 1.0,
+    "timestamp": "2026-02-28T18:06:35.968708"
+  },
+  {
+    "evidence_id": "repo_ast_0_1772291195",
     "source": "repo",
     "evidence_class": "ORCHESTRATION_PATTERN",
     "goal": "Audit architectural patterns in source code",
@@ -993,10 +1116,10 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "src\\graph.py:83",
     "rationale": "Extracted from AST",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
-    "evidence_id": "repo_ast_1_1772288510",
+    "evidence_id": "repo_ast_1_1772291195",
     "source": "repo",
     "evidence_class": "ORCHESTRATION_PATTERN",
     "goal": "Audit architectural patterns in source code",
@@ -1005,10 +1128,10 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "src\\state.py:57",
     "rationale": "Extracted from AST",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
-    "evidence_id": "repo_ast_2_1772288510",
+    "evidence_id": "repo_ast_2_1772291195",
     "source": "repo",
     "evidence_class": "ORCHESTRATION_PATTERN",
     "goal": "Audit architectural patterns in source code",
@@ -1017,10 +1140,10 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "src\\state.py:66",
     "rationale": "Extracted from AST",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
-    "evidence_id": "repo_ast_3_1772288510",
+    "evidence_id": "repo_ast_3_1772291195",
     "source": "repo",
     "evidence_class": "ORCHESTRATION_PATTERN",
     "goal": "Audit architectural patterns in source code",
@@ -1029,10 +1152,10 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "src\\state.py:74",
     "rationale": "Extracted from AST",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
   },
   {
-    "evidence_id": "repo_ast_4_1772288510",
+    "evidence_id": "repo_ast_4_1772291195",
     "source": "repo",
     "evidence_class": "ORCHESTRATION_PATTERN",
     "goal": "Audit architectural patterns in source code",
@@ -1041,7 +1164,19 @@ Therefore, the solution is functionally solid but incomplete for the visual requ
     "location": "src\\state.py:82",
     "rationale": "Extracted from AST",
     "confidence": 1.0,
-    "timestamp": "2026-02-28T17:21:50.461409"
+    "timestamp": "2026-02-28T18:06:35.968708"
+  },
+  {
+    "evidence_id": "repo_ast_5_1772291195",
+    "source": "repo",
+    "evidence_class": "ORCHESTRATION_PATTERN",
+    "goal": "Audit architectural patterns in source code",
+    "found": true,
+    "content": "ClassDef AgentState",
+    "location": "src\\state.py:90",
+    "rationale": "Extracted from AST",
+    "confidence": 1.0,
+    "timestamp": "2026-02-28T18:06:35.968708"
   }
 ]
 ```

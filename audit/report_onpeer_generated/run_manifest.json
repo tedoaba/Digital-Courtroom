@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-28T14:29:30.531926+00:00",
+  "timestamp": "2026-02-28T15:10:49.945227+00:00",
   "status": "STARTED",
   "execution_rules": {
     "strict_layer_sync": true,
@@ -7,7 +7,7 @@
     "max_re_eval_cycles": 1
   },
   "data_trace": {
-    "correlation_id": "ee48a21d-ac18-4f55-9286-183a01b6cbd4",
+    "correlation_id": "8e0832a8-f88d-40e5-87c2-1f7b1bb2dd47",
     "run_status": "STARTED",
     "pipeline_integrity": "FAILED",
     "consistency_report": {
