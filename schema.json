@@ -87,8 +87,7 @@
         "dimension_name",
         "numeric_score",
         "reasoning",
-        "relevance_confidence",
-        "judge_opinions"
+        "relevance_confidence"
       ],
       "title": "CriterionResult",
       "type": "object"

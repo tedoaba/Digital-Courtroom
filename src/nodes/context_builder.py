@@ -23,7 +23,6 @@ from typing import Any
 
 from src.utils.logger import StructuredLogger
 from src.utils.observability import node_traceable
-from src.utils.security import sanitize_repo_url
 
 # --- Constants (Const. XX.5: No hardcoded values) ---
 
@@ -42,6 +41,7 @@ def _validate_repo_url(url: str) -> str | None:
 
     # FR-002: Strict GitHub HTTPS check
     import re
+
     github_pattern = r"^https://github\.com/[a-zA-Z0-9-._]+/[a-zA-Z0-9-._/]+$"
     if not re.match(github_pattern, url):
         return f"Invalid URL format: {url}"
