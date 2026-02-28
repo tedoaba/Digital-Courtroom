@@ -276,7 +276,10 @@ async def run_audit(args):
     from src.state import AuditRequest
 
     try:
-        validated_request = AuditRequest(**vars(args))
+        # Filter out 'command' and other extra attributes from argparse
+        allowed_keys = AuditRequest.model_fields.keys()
+        args_dict = {k: v for k, v in vars(args).items() if k in allowed_keys}
+        validated_request = AuditRequest(**args_dict)
     except ValidationError as e:
         console.print(f"\n[bold red]Input Validation Error:[/bold red] {e}")
         sys.exit(2)
