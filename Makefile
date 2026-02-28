@@ -44,6 +44,8 @@ help:
 	@echo "  make cli                     - Launch the courtroom TUI"
 	@echo "  make test                    - Run all unit and integration tests"
 	@echo "  make lint                    - Run ruff for python linting"
+	@echo "  make check-schema            - Verify schema conformance"
+	@echo "  make verify                  - Run all local CI checks (lint, test, schema)"
 	@echo "  make docker-build             - Build the Digital Courtroom image"
 	@echo "  make docker-run SPEC=...      - Run the containerized auditor"
 	@echo "  make clean                   - Remove build and test artifacts"
@@ -60,6 +62,17 @@ test: .check-uv
 lint: .check-uv
 	uv run ruff check .
 	uv run ruff format --check .
+
+check-schema: .check-uv
+	uv run python -c "import json; from src.state import AuditReport; json.dump(AuditReport.model_json_schema(), open('schema.json', 'w', encoding='utf-8'), indent=2)"
+	git diff --exit-code schema.json
+
+hadolint:
+	@echo "Linting Dockerfile with hadolint..."
+	docker run --rm -i hadolint/hadolint < Dockerfile
+
+verify: lint test check-schema hadolint
+	@echo "All local verification checks PASSED."
 
 docker-build:
 	docker build -t digital-courtroom:latest .
