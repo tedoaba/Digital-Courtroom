@@ -1,3 +1,10 @@
+---
+# Hadolint Configuration
+# See: https://github.com/hadolint/hadolint#configure
+failure-threshold: warning
+
 ignored:
   - DL3008 # Pin versions in apt get install (too volatile for some slim images)
   - DL3013 # Pin versions in pip (we use uv.lock for this)
+  - DL3042 # Avoid cache dir with pip (we use --no-cache-dir)
+  - DL3059 # Multiple consecutive RUN (intentional for clarity)

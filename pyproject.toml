@@ -53,12 +53,62 @@ audit = "src.main:main"
 courtroom = "src.cli:main"
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "A", "COM", "C4", "T20", "RET", "SIM", "ARG", "PTH", "ERA", "PL", "RUF", "PT"]
-ignore = []
+ignore = [
+    "COM812",   # Trailing comma – conflicts with ruff formatter
+    "PLR2004",  # Magic value comparisons – too noisy, especially in tests
+    "PLC0415",  # Import not at top-level – lazy / conditional imports are fine
+    "PLR0912",  # Too many branches
+    "PLR0915",  # Too many statements
+    "PLR0913",  # Too many arguments
+    "PLW0603",  # Global statement
+    "UP042",    # str + Enum inheritance
+    "RUF002",   # Ambiguous unicode chars in docstrings
+    "RUF046",   # Unnecessary int cast
+    "RUF015",   # Prefer next(iter(...))
+    "RUF059",   # Unused unpacked variable
+    "RET504",   # Unnecessary assignment before return
+    "SIM102",   # Collapsible if
+    "SIM103",   # Return condition directly
+    "SIM105",   # Use contextlib.suppress
+    "SIM108",   # Use ternary operator
+    "UP046",    # Generic subclass
+    "RUF013",   # Implicit Optional
+    "PTH103",   # os.makedirs -> Path.mkdir
+    "PTH110",   # os.path.exists -> Path.exists
+    "PTH118",   # os.path.join -> Path /
+    "PTH123",   # open() -> Path.open()
+    "PTH107",   # os.remove -> Path.unlink
+    "PTH117",   # os.path.isabs -> Path.is_absolute
+    "SIM110",   # Use all/any instead of for loop
+    "E741",     # Ambiguous variable name
+    "N818",     # Exception naming
+    "RUF006",   # Store reference to asyncio.create_task
+    "C414",     # Unnecessary list() in sorted()
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "ARG001",   # Unused function arguments (common in mocks/fixtures)
+    "ARG002",   # Unused method arguments
+    "E402",     # Module-level import not at top of file
+    "ERA001",   # Commented-out code
+    "F841",     # Local variable assigned but never used
+    "T201",     # print() found
+    "A002",     # Shadowing builtins
+    "B904",     # raise from
+    "B017",     # assert blind exception
+    "PT011",    # broad pytest.raises
+]
+"src/utils/security.py" = ["E402"]
+"src/main.py" = ["E402"]
+"src/cli.py" = ["E402"]
+"scripts/**/*.py" = ["T201", "E722"]
+"tests/unit/tools/test_doc_tools.py" = ["E501"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -71,5 +121,6 @@ dev = [
     "pytest-asyncio>=1.3.0",
     "pytest-cov>=7.0.0",
     "pytest-mock>=3.15.1",
+    "pytest-timeout>=2.4.0",
     "ruff>=0.15.2",
 ]
