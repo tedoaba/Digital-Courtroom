@@ -68,11 +68,33 @@ uv pip install -e .
 
 ### **Environment Setup**
 
-Create a `.env` file from the example:
+Create a `.env` file and configure your API keys and the new **Judicial Performance** settings:
 
 ```bash
-cp .env.example .env
-# Edit .env with your API keys
+# API Keys
+GEMINI_API_KEY=...
+LANGCHAIN_API_KEY=...
+
+# --- Judicial Performance (012-bounded-agent-eval) ---
+# Global concurrency limit for LLM requests (1-50)
+MAX_CONCURRENT_LLM_CALLS=5
+
+# Retry policy with exponential backoff
+RETRY_INITIAL_DELAY=1.0
+RETRY_MAX_DELAY=60.0
+RETRY_MAX_ATTEMPTS=3
+
+# Per-request timeout for hung calls
+LLM_CALL_TIMEOUT=120.0
+
+# Performance: Enable structured evaluation batching
+BATCHING_ENABLED=false
+
+# --- Model Selection ---
+PROSECUTOR_MODEL=deepseek-v3.1:671b-cloud
+DEFENSE_MODEL=deepseek-v3.1:671b-cloud
+TECHLEAD_MODEL=deepseek-v3.1:671b-cloud
+VISION_MODEL=gemini-2.0-flash
 ```
 
 ### **Basic Usage**

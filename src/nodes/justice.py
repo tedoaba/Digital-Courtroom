@@ -25,8 +25,15 @@ def chief_justice_node(state: AgentState) -> AgentState:
     Consolidates varying judicial opinions deterministically using strict precedence rules.
     (FR-001, FR-002, FR-008, FR-009)
     """
+    correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
+    logger.log_node_entry("chief_justice_node", correlation_id=correlation_id)
+    
     opinions = state.get("opinions", [])
     evidences = state.get("evidences", {})
+    rubric_dimensions = state.get("rubric_dimensions", [])
+    
+    # Map dimension IDs to names for the result
+    dimension_map = {d["id"]: d.get("name", d["id"]) for d in rubric_dimensions}
     
     # 1. Group opinions by criterion
     grouped_opinions: Dict[str, List[JudicialOpinion]] = {}
@@ -39,7 +46,8 @@ def chief_justice_node(state: AgentState) -> AgentState:
     
     # 2. Process each criterion
     for criterion_id, ops in grouped_opinions.items():
-        criterion_results[criterion_id] = synthesize_criterion(criterion_id, ops, evidences)
+        name = dimension_map.get(criterion_id, criterion_id)
+        criterion_results[criterion_id] = synthesize_criterion(criterion_id, name, ops, evidences)
     
     # 3. Calculate Re-evaluation Needed (FR-005)
     re_eval_needed = any(res.re_evaluation_required for res in criterion_results.values())
@@ -49,7 +57,7 @@ def chief_justice_node(state: AgentState) -> AgentState:
     if re_eval_needed and current_re_eval_count < 1:
         state["re_eval_needed"] = True
         state["re_eval_count"] = current_re_eval_count + 1
-        logger.info(f"Re-evaluation triggered (cycle {state['re_eval_count']})")
+        logger.info(f"Re-evaluation triggered (cycle {state['re_eval_count']})", correlation_id=correlation_id)
     else:
         state["re_eval_needed"] = False
     
@@ -71,6 +79,7 @@ def route_after_justice(state: AgentState) -> str:
 
 def synthesize_criterion(
     criterion_id: str, 
+    dimension_name: str,
     opinions: List[JudicialOpinion], 
     evidences: Dict[str, List[Evidence]]
 ) -> CriterionResult:
@@ -79,7 +88,13 @@ def synthesize_criterion(
     Hierarchy: 1. Security Override, 2. Fact Supremacy, 3. FunctionALITY Weight
     """
     applied_rules = []
-    execution_log = {"criterion_id": criterion_id, "penalties": [], "events": []}
+    execution_log = {
+        "criterion_id": criterion_id, 
+        "dimension_name": dimension_name,
+        "penalties": [], 
+        "events": [],
+        "synthesis_path": "STANDARD_WEIGHTED_AVERAGE"
+    }
     
     # Pre-process evidence for fast lookup
     evidence_pool = {}
@@ -93,6 +108,7 @@ def synthesize_criterion(
         raise SynthesisError(f"Zero judges for {criterion_id}")
     elif num_judges < 3:
         applied_rules.append("DEGRADED_SYNTHESIS")
+        execution_log["synthesis_path"] = "DEGRADED_SYNTHESIS"
 
     # --- FR-003: Raw Variance Calculation ---
     raw_scores = [op.score for op in opinions]
@@ -105,16 +121,19 @@ def synthesize_criterion(
     for op in opinions:
         score = op.score
         found_hallucination = False
+        invalid_citations = []
         for eid in op.cited_evidence:
             ev = evidence_pool.get(eid)
             if not ev or not ev.found:
                 found_hallucination = True
+                invalid_citations.append(eid)
                 break
         
         if found_hallucination:
             score = max(1, score - 2)
             applied_rules.append("FACT_SUPREMACY_PENALTY")
-            execution_log["penalties"].append(f"{op.judge} penalized for invalid evidence citation.")
+            execution_log["penalties"].append(f"{op.judge} penalized for invalid evidence citation: {', '.join(invalid_citations)}.")
+            execution_log["synthesis_path"] = "FACT_SUPREMACY_OVERRIDE"
         
         adjusted_opinions.append({"judge": op.judge, "score": score, "original_op": op})
 
@@ -130,7 +149,8 @@ def synthesize_criterion(
     
     final_float = total_weighted_score / total_weight
     execution_log["weighted_calc"] = {
-        "final_float": final_float
+        "final_float": final_float,
+        "weights_applied": weights
     }
 
     # --- FR-004: Security Override ---
@@ -148,7 +168,8 @@ def synthesize_criterion(
     if not security_violation:
         sec_keywords = {
             "shell injection", "rce", "hardcoded credentials", 
-            "path traversal", "sql injection", "xss", "insecure deserialization"
+            "path traversal", "sql injection", "xss", "insecure deserialization",
+            "os.system", "unsafe clone"
         }
         for op in opinions:
             if op.judge == "Prosecutor" and op.charges:
@@ -161,6 +182,7 @@ def synthesize_criterion(
     if security_violation:
         final_float = min(final_float, 3.0)
         applied_rules.append("SECURITY_OVERRIDE")
+        execution_log["synthesis_path"] = "SECURITY_SUPREMACY_CAP"
 
     final_int = round_score(final_float)
     execution_log["final_int"] = final_int
@@ -169,7 +191,6 @@ def synthesize_criterion(
     re_evaluation = variance > 2
     dissent = None
     if variance > 0:
-        # Template-based summary (Research §Decision: Deterministic Dissent Summary)
         p_op = next((op for op in opinions if op.judge == "Prosecutor"), None)
         d_op = next((op for op in opinions if op.judge == "Defense"), None)
         t_op = next((op for op in opinions if op.judge == "TechLead"), None)
@@ -178,25 +199,62 @@ def synthesize_criterion(
         dissent = f"{prefix} (variance={variance}). "
         if t_op:
             dissent += f"Tech Lead assessed {t_op.score}. "
-        if p_op and p_op.score != t_op.score:
+        if p_op and (not t_op or p_op.score != t_op.score):
             dissent += f"Prosecutor argued for {p_op.score}. "
-        if d_op and d_op.score != t_op.score:
+        if d_op and (not t_op or d_op.score != t_op.score):
             dissent += f"Defense highlighted factors for {d_op.score}. "
 
-    # Aggregate remediation
-    remediations = []
+    # Aggregate remediation with unique filtering and cleaning
+    unique_remediations = []
+    seen = set()
     for op in opinions:
         if op.remediation:
-            remediations.append(op.remediation)
+            clean = op.remediation.strip()
+            if clean and clean.lower() not in seen:
+                unique_remediations.append(clean)
+                seen.add(clean.lower())
     
+    # --- FR-010: Final Narrative Reasoning (SC-004) ---
+    p_op = next((op for op in opinions if op.judge == "Prosecutor"), None)
+    d_op = next((op for op in opinions if op.judge == "Defense"), None)
+    t_op = next((op for op in opinions if op.judge == "TechLead"), None)
+    
+    reasoning_parts = []
+    
+    if variance == 0:
+        reasoning_parts.append(f"**Unanimous consensus** at {final_int}/5.")
+    elif variance <= 2:
+        reasoning_parts.append(f"**Nuanced consensus** reached at {final_int}/5.")
+    else:
+        reasoning_parts.append(f"**Significant judicial conflict detected** (Variance: {variance}).")
+
+    if p_op and p_op.score < 3 and p_op.charges:
+        # Use first 3 charges for brevity
+        charges_text = "; ".join([c.strip() for c in p_op.charges if c.strip()][:3])
+        reasoning_parts.append(f"Prosecutor flagged critical risks: _{charges_text}_.")
+    
+    if d_op and d_op.score > 3 and d_op.mitigations:
+        mits_text = "; ".join([m.strip() for m in d_op.mitigations if m.strip()][:3])
+        reasoning_parts.append(f"Defense highlighted mitigating factors: _{mits_text}_.")
+        
+    if security_violation:
+        reasoning_parts.append("**CRITICAL**: Score capped due to verified security violations.")
+    
+    if t_op:
+        focus = "stability" if t_op.score >= 3 else "risks"
+        reasoning_parts.append(f"Tech Lead weighted synthesis prioritized architectural {focus}.")
+
+    final_reasoning = " ".join(reasoning_parts)
+
     return CriterionResult(
         criterion_id=criterion_id,
+        dimension_name=dimension_name,
         numeric_score=final_int,
-        reasoning="Synthesis report generated deterministically.",
+        reasoning=final_reasoning,
         relevance_confidence=1.0,
         judge_opinions=opinions,
         dissent_summary=dissent,
-        remediation=" | ".join(remediations) if remediations else None,
+        remediation="\n".join([f"- {r}" for r in unique_remediations]) if unique_remediations else None,
         applied_rules=list(set(applied_rules)),
         execution_log=execution_log,
         security_violation_found=security_violation,
