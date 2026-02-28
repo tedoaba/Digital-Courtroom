@@ -1,6 +1,8 @@
 # Use pinned python slim image
 FROM python:3.12.9-slim AS base
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # Install uv via pip (more robust than GHCR copy in some restricted networks)
 RUN pip install --no-cache-dir uv
 
@@ -46,7 +48,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 RUN tr -d '\r' < scripts/docker-entrypoint.sh > scripts/docker-entrypoint.sh.tmp && \
     mv scripts/docker-entrypoint.sh.tmp scripts/docker-entrypoint.sh && \
     chmod +x scripts/docker-entrypoint.sh && \
-    head -n 1 scripts/docker-entrypoint.sh | cat -e
+    head -n 1 scripts/docker-entrypoint.sh
 
 # Use non-root user
 USER courtroom_user
