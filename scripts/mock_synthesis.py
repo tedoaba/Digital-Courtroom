@@ -73,7 +73,7 @@ def run_mock():
     print("\n[Result] Synthesis Complete:")
     print(f"  Criterion: {result.criterion_id}")
     print(
-        f"  Final Score: {result.numeric_score} (Original was 5, but Security Override applied)"
+        f"  Final Score: {result.numeric_score} (Original was 5, but Security Override applied)",
     )
     print(f"  Applied Rules: {result.applied_rules}")
     print(f"  Security Violation Found: {result.security_violation_found}")

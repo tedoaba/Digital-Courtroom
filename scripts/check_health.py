@@ -4,6 +4,7 @@ Swarm Health & Monitoring Dashboard (CLI).
 """
 
 import pathlib
+import re
 import sys
 
 from rich.console import Console
@@ -20,7 +21,7 @@ console = Console()
 
 def run_checks():
     console.print(
-        Panel("[bold blue]Digital Courtroom: Swarm Health Dashboard[/bold blue]")
+        Panel("[bold blue]Digital Courtroom: Swarm Health Dashboard[/bold blue]"),
     )
 
     # 1. Configuration Audit
@@ -72,7 +73,9 @@ def run_checks():
 
     status_style = "green" if analysis["status"] == "pass" else "red"
     cons_table.add_row(
-        "OVERALL CONSISTENCY", analysis["status"].upper(), style=status_style
+        "OVERALL CONSISTENCY",
+        analysis["status"].upper(),
+        style=status_style,
     )
 
     if analysis["violations"]:
@@ -97,17 +100,15 @@ def run_checks():
 
     try:
         log = subprocess.check_output(
-            ["git", "log", "-n", "3", "--pretty=format:%s"], text=True
+            ["git", "log", "-n", "3", "--pretty=format:%s"],
+            text=True,
         )
         compliant = all(
-            re.match(r"^(feat|fix|chore|docs|style|refactor|perf|test)(\(.*\))?: .*", l)
-            for l in log.splitlines()
+            re.match(r"^(feat|fix|chore|docs|style|refactor|perf|test)(\(.*\))?: .*", l) for l in log.splitlines()
         )
         env_table.add_row(
             "Recent Commit Compliance",
-            "[green]PASS[/green]"
-            if compliant
-            else "[yellow]WARN (Non-standard commits)[/yellow]",
+            "[green]PASS[/green]" if compliant else "[yellow]WARN (Non-standard commits)[/yellow]",
         )
     except:
         env_table.add_row("Recent Commit Compliance", "[blue]N/A (No Git)[/blue]")
