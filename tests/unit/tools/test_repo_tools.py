@@ -18,7 +18,8 @@ def test_clone_repository_success(mocker, tmp_path):
 
 def test_clone_repository_timeout(mocker, tmp_path):
     mocker.patch(
-        "subprocess.run", side_effect=subprocess.TimeoutExpired(cmd="git", timeout=60)
+        "subprocess.run",
+        side_effect=subprocess.TimeoutExpired(cmd="git", timeout=60),
     )
     with pytest.raises(TimeoutError, match="timed out"):
         clone_repository("https://example.com/repo.git", str(tmp_path), timeout=60)
@@ -28,7 +29,9 @@ def test_clone_repository_failure(mocker, tmp_path):
     mocker.patch(
         "subprocess.run",
         side_effect=subprocess.CalledProcessError(
-            returncode=1, cmd="git", stderr="Not found"
+            returncode=1,
+            cmd="git",
+            stderr="Not found",
         ),
     )
     with pytest.raises(RuntimeError, match="Cloning failed"):
@@ -70,7 +73,8 @@ def test_check_tool_safety(tmp_path):
     # Setup test file
     test_file = tmp_path / "unsafe.py"
     test_file.write_text(
-        "import os\nos.system('echo hi')\neval('1+1')\n", encoding="utf-8"
+        "import os\nos.system('echo hi')\neval('1+1')\n",
+        encoding="utf-8",
     )
 
     findings = check_tool_safety(str(tmp_path))

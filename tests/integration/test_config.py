@@ -10,7 +10,7 @@ def test_hardened_config_loading_from_env():
     """T011: Test HardenedConfig loads variables from environment."""
     # Mock environment variables
     os.environ["COURTROOM_MODELS"] = json.dumps(
-        {"search": "gpt-4o", "judge": "claude-3-5-sonnet"}
+        {"search": "gpt-4o", "judge": "claude-3-5-sonnet"},
     )
     os.environ["COURTROOM_ENDPOINTS"] = json.dumps({"github": "https://api.github.com"})
     os.environ["COURTROOM_TIMEOUTS"] = json.dumps({"short": 5, "long": 60})

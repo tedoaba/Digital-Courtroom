@@ -30,9 +30,7 @@ def test_sandbox_resource_limiting():
     )
 
     # Use a script that actively keeps memory in use to trigger the monitor
-    heavy_script = (
-        "import time; x = bytearray(100 * 1024 * 1024); time.sleep(1)"  # 100MB
-    )
+    heavy_script = "import time; x = bytearray(100 * 1024 * 1024); time.sleep(1)"  # 100MB
 
     result = sandbox.execute_tool(["python", "-c", heavy_script])
     assert result["success"] is False

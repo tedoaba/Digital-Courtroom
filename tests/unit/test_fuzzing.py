@@ -8,7 +8,7 @@ from src.state import JudicialOpinion
 
 def random_string(length=10):
     return "".join(
-        random.choices(string.ascii_letters + string.digits + " \n\t", k=length)
+        random.choices(string.ascii_letters + string.digits + " \n\t", k=length),
     )
 
 
@@ -25,7 +25,7 @@ def generate_garbage_dict():
                 [random_string(5) for _ in range(5)],
                 None,
                 {"nested": random_string(10)},
-            ]
+            ],
         )
         data[key] = val
     return data
@@ -43,7 +43,7 @@ def test_judicial_opinion_fuzzing(iteration):
     # Randomly inject valid-ish keys to see if they get correctly extracted
     if random.random() > 0.5:
         garbage["rating"] = random.choice(
-            [1, 2, 3, 4, 5, "5", "Score is 4/5", 0.8, -10]
+            [1, 2, 3, 4, 5, "5", "Score is 4/5", 0.8, -10],
         )
     if random.random() > 0.5:
         garbage["rationale"] = random_string(200)
@@ -60,7 +60,7 @@ def test_judicial_opinion_fuzzing(iteration):
 
     except Exception as e:
         pytest.fail(
-            f"Fuzzer crashed validator on iteration {iteration} with data: {garbage}. Error: {e}"
+            f"Fuzzer crashed validator on iteration {iteration} with data: {garbage}. Error: {e}",
         )
 
 

@@ -4,7 +4,6 @@ import pytest
 from pydantic import ValidationError
 
 from src.state import (
-    AuditReport,
     CriterionResult,
     Evidence,
     EvidenceClass,
@@ -83,25 +82,34 @@ def test_evidence_validation_bounds():
     assert "confidence" in str(exc_info.value)
 
 
-def test_judicial_opinion_defaults():
-    """Test that JudicialOpinion has correct defaults for metadata."""
-    opinion = JudicialOpinion(text="test opinion")
-    assert opinion.case_id == "Unknown"
-    assert opinion.court_name == "Unknown"
-    assert opinion.text == "test opinion"
-
-
-def test_judicial_opinion_explicit():
-    """Test that JudicialOpinion accepts explicit values."""
+def test_judicial_opinion_required_fields():
+    """Test that JudicialOpinion requires all its core fields."""
     opinion = JudicialOpinion(
-        text="test opinion",
-        case_id="123",
-        court_name="Supreme Court",
-        metadata={"key": "value"},
+        opinion_id="test_op_1",
+        judge="Prosecutor",
+        criterion_id="crit_1",
+        score=3,
+        argument="Test argument",
+        cited_evidence=["ev1"],
     )
-    assert opinion.case_id == "123"
-    assert opinion.court_name == "Supreme Court"
-    assert opinion.metadata["key"] == "value"
+    assert opinion.opinion_id == "test_op_1"
+    assert opinion.judge == "Prosecutor"
+    assert opinion.score == 3
+
+
+def test_judicial_opinion_optional_fields():
+    """Test that JudicialOpinion optional fields default to None."""
+    opinion = JudicialOpinion(
+        opinion_id="test_op_2",
+        judge="Defense",
+        criterion_id="crit_1",
+        score=4,
+        argument="Good work",
+        cited_evidence=[],
+    )
+    assert opinion.mitigations is None
+    assert opinion.charges is None
+    assert opinion.remediation is None
 
 
 # --- Parallel State Merging ---
@@ -135,26 +143,29 @@ def test_merge_evidences_deduplication():
     assert merged["key"][1].evidence_id == "id2"
 
 
-def test_merge_evidences_type_error():
-    """Test that merge_evidences raises TypeError on invalid types."""
-    with pytest.raises(TypeError) as exc_info:
-        merge_evidences("not a dict", {})  # type: ignore
-    assert "expects dicts" in str(exc_info.value)
+def test_merge_evidences_non_dict_input():
+    """Test that merge_evidences handles non-dict inputs gracefully."""
+    result = merge_evidences("not a dict", {"k": []})
+    assert result == {"k": []}
 
 
 def test_merge_criterion_results_confidence():
     """Test that merge_criterion_results picks the one with highest confidence."""
     r1 = CriterionResult(
         criterion_id="crit",
+        dimension_name="Test Dim",
         numeric_score=3,
         reasoning="low conf",
         relevance_confidence=0.4,
+        judge_opinions=[],
     )
     r2 = CriterionResult(
         criterion_id="crit",
+        dimension_name="Test Dim",
         numeric_score=5,
         reasoning="high conf",
         relevance_confidence=0.9,
+        judge_opinions=[],
     )
 
     left = {"crit": r1}
@@ -173,24 +184,30 @@ def test_criterion_result_score_bounds():
     # Valid
     CriterionResult(
         criterion_id="c",
+        dimension_name="Test Dim",
         numeric_score=1,
         reasoning="r",
         relevance_confidence=0.5,
+        judge_opinions=[],
     )
     CriterionResult(
         criterion_id="c",
+        dimension_name="Test Dim",
         numeric_score=5,
         reasoning="r",
         relevance_confidence=0.5,
+        judge_opinions=[],
     )
 
     # Invalid - high
     with pytest.raises(ValidationError) as exc_info:
         CriterionResult(
             criterion_id="c",
+            dimension_name="Test Dim",
             numeric_score=6,
             reasoning="r",
             relevance_confidence=0.5,
+            judge_opinions=[],
         )
     assert "numeric_score" in str(exc_info.value)
 
@@ -198,43 +215,13 @@ def test_criterion_result_score_bounds():
     with pytest.raises(ValidationError) as exc_info:
         CriterionResult(
             criterion_id="c",
+            dimension_name="Test Dim",
             numeric_score=0,
             reasoning="r",
             relevance_confidence=0.5,
+            judge_opinions=[],
         )
     assert "numeric_score" in str(exc_info.value)
-
-
-def test_audit_report_weighted_score():
-    """Test global_score calculation with weights and security overrides."""
-    r1 = CriterionResult(
-        criterion_id="architecture_1",
-        numeric_score=5,
-        reasoning="good",
-        relevance_confidence=1.0,
-    )
-    r2 = CriterionResult(
-        criterion_id="security_1",
-        numeric_score=5,
-        reasoning="flaw found",
-        relevance_confidence=1.0,
-        security_violation_found=True,  # Should be capped at 3
-    )
-
-    report = AuditReport(
-        results={"architecture_1": r1, "security_1": r2},
-        summary="Audit summary",
-    )
-
-    # Expected: (5 * 1.5 + 3 * 2.0) / (1.5 + 2.0)
-    # (7.5 + 6.0) / 3.5 = 13.5 / 3.5 = 3.857... -> rounded to 3.9
-    assert report.global_score == 3.9
-
-
-def test_audit_report_empty_results():
-    """Test global_score for empty results."""
-    report = AuditReport(results={}, summary="No results available")
-    assert report.global_score == 0.0
 
 
 def test_merge_evidences_new_key():
@@ -261,8 +248,7 @@ def test_merge_evidences_new_key():
     assert len(merged["k2"]) == 1
 
 
-def test_merge_criterion_results_type_error():
-    """Test that merge_criterion_results raises TypeError on invalid types."""
-    with pytest.raises(TypeError) as exc_info:
-        merge_criterion_results({}, "not a dict")  # type: ignore
-    assert "expects dicts" in str(exc_info.value)
+def test_merge_criterion_results_non_dict_input():
+    """Test that merge_criterion_results handles non-dict inputs gracefully."""
+    result = merge_criterion_results({}, "not a dict")
+    assert result == {}

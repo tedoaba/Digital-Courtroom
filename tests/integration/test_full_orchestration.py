@@ -3,9 +3,11 @@ Integration test for the full LangGraph orchestration.
 Verifies that all nodes execute in the correct order and produce artifacts.
 """
 
+import importlib
 import os
 import pathlib
 import shutil
+import sys
 from datetime import datetime
 
 import pytest
@@ -32,8 +34,12 @@ def mock_initial_state():
 
         json.dump(rubric_content, f)
 
+    # Create mock.pdf to satisfy ContextBuilder validation
+    with open("tests/mock.pdf", "w") as f:
+        f.write("mock")
+
     yield {
-        "repo_url": "https://github.com/test/repo",
+        "repo_url": "https://github.com/orchestration/test-repo",
         "pdf_path": "tests/mock.pdf",  # Doesn't need to exist if we mock nodes
         "rubric_path": rubric_path,
         "evidences": {},
@@ -47,9 +53,12 @@ def mock_initial_state():
 
     if os.path.exists(rubric_path):
         os.remove(rubric_path)
+    if os.path.exists("tests/mock.pdf"):
+        os.remove("tests/mock.pdf")
 
 
-def test_full_swarm_execution(mock_initial_state, mocker):
+@pytest.mark.asyncio
+async def test_full_swarm_execution(mock_initial_state, mocker):
     """
     Tests that the full LangGraph swarm executes correctly.
     We mock the detective and judge tools to avoid actual network/LLM calls.
@@ -57,6 +66,7 @@ def test_full_swarm_execution(mock_initial_state, mocker):
     # 1. Mock the node functions at their source before importing graph
     repo_mock = mocker.patch(
         "src.nodes.detectives.repo_investigator",
+        new_callable=mocker.AsyncMock,
         return_value={
             "evidences": {
                 "repo": [
@@ -72,25 +82,29 @@ def test_full_swarm_execution(mock_initial_state, mocker):
                         confidence=1.0,
                         timestamp=datetime.now(),
                     ),
-                ]
+                ],
             },
         },
     )
     repo_mock.__name__ = "repo_investigator"
 
     doc_mock = mocker.patch(
-        "src.nodes.detectives.doc_analyst", return_value={"evidences": {"docs": []}}
+        "src.nodes.detectives.doc_analyst",
+        new_callable=mocker.AsyncMock,
+        return_value={"evidences": {"docs": []}},
     )
     doc_mock.__name__ = "doc_analyst"
 
     vis_mock = mocker.patch(
         "src.nodes.detectives.vision_inspector",
+        new_callable=mocker.AsyncMock,
         return_value={"evidences": {"vision": []}},
     )
     vis_mock.__name__ = "vision_inspector"
 
     judge_mock = mocker.patch(
         "src.nodes.judges.evaluate_criterion",
+        new_callable=mocker.AsyncMock,
         return_value={
             "opinions": [
                 JudicialOpinion(
@@ -107,10 +121,13 @@ def test_full_swarm_execution(mock_initial_state, mocker):
     judge_mock.__name__ = "evaluate_criterion"
 
     # 2. Import graph AFTER patching
+    # 2. Import graph AFTER patching
+    if "src.graph" in sys.modules:
+        importlib.reload(sys.modules["src.graph"])
     from src.graph import courtroom_swarm
 
     # Run the swarm
-    final_state = courtroom_swarm.invoke(mock_initial_state)
+    final_state = await courtroom_swarm.ainvoke(mock_initial_state)
 
     # Assertions
     assert "criterion_results" in final_state
@@ -118,7 +135,7 @@ def test_full_swarm_execution(mock_initial_state, mocker):
     assert final_state["criterion_results"]["typing"].numeric_score == 5
 
     # Verify report was generated
-    repo_name = sanitize_repo_name("repo")
+    repo_name = sanitize_repo_name(mock_initial_state["repo_url"])
     root = pathlib.Path(__file__).resolve().parent.parent.parent
     report_root = root / "audit" / "reports" / repo_name
 

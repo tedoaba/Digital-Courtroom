@@ -1,27 +1,21 @@
 import datetime
-from typing import Any
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
+import pytest
 from langgraph.graph import END, START, StateGraph
 
 from src.nodes.judges import evaluate_criterion, execute_judicial_layer
 from src.state import AgentState, Evidence, EvidenceClass, JudicialOpinion
 
 
-def dummy_evaluate(state: AgentState, config: Any) -> dict:
-    pass  # Real node would be evaluate_criterion
-
-
-@patch("src.nodes.judges.get_llm")
-def test_full_judicial_workflow(mock_get_llm):
-    # Setup mock LLM
-    mock_llm = MagicMock()
-    mock_get_llm.return_value = mock_llm
-
-    # Return different mock results based on the judge parsing
-    def mock_invoke(messages):
-        sys_msg = messages[0].content
-        if "Prosecutor" in sys_msg:
+@pytest.mark.asyncio
+@patch("src.nodes.judges.bounded_llm_call", new_callable=AsyncMock)
+@patch("src.nodes.judges.get_concurrency_controller")
+async def test_full_judicial_workflow(mock_controller, mock_bounded_llm_call):
+    # Determine the return value inside the bounded_llm_call side_effect
+    async def mock_call(**kwargs):
+        agent = kwargs.get("agent", "")
+        if agent == "Prosecutor":
             return JudicialOpinion(
                 opinion_id="Prosecutor_test_1",
                 judge="Prosecutor",
@@ -31,7 +25,7 @@ def test_full_judicial_workflow(mock_get_llm):
                 cited_evidence=["e1"],
                 charges=["Bad code"],
             )
-        if "Defense" in sys_msg:
+        if agent == "Defense":
             return JudicialOpinion(
                 opinion_id="Defense_test_1",
                 judge="Defense",
@@ -41,7 +35,6 @@ def test_full_judicial_workflow(mock_get_llm):
                 cited_evidence=["e1"],
                 mitigations=["Tried hard"],
             )
-        # TechLead
         return JudicialOpinion(
             opinion_id="TechLead_test_1",
             judge="TechLead",
@@ -52,7 +45,7 @@ def test_full_judicial_workflow(mock_get_llm):
             remediation="Fix it",
         )
 
-    mock_llm.with_structured_output.return_value.invoke.side_effect = mock_invoke
+    mock_bounded_llm_call.side_effect = mock_call
 
     # Build LangGraph
     builder = StateGraph(AgentState)
@@ -90,7 +83,7 @@ def test_full_judicial_workflow(mock_get_llm):
         opinion_text="",
     )
 
-    final_state = graph.invoke(init_state)
+    final_state = await graph.ainvoke(init_state)
 
     # Check outcomes
     opinions = final_state.get("opinions", [])

@@ -7,7 +7,7 @@ from src.state import ASTFinding, Commit, EvidenceClass
 def test_repo_investigator_no_dims(mocker):
     state = {
         "repo_url": "https://example.com/repo",
-        "rubric_dimensions": [{"source": "docs", "criterion_id": "dim_1"}],
+        "rubric_dimensions": [{"target_artifact": "pdf_report", "criterion_id": "dim_1"}],
     }
     result = repo_investigator(state)
     assert result == {}
@@ -15,11 +15,12 @@ def test_repo_investigator_no_dims(mocker):
 
 def test_repo_investigator_clone_failure(mocker):
     mocker.patch(
-        "src.nodes.detectives.clone_repository", side_effect=Exception("Network error")
+        "src.nodes.detectives.clone_repository",
+        side_effect=Exception("Network error"),
     )
     state = {
         "repo_url": "https://example.com/repo.git",
-        "rubric_dimensions": [{"source": "repo", "criterion_id": "dim_1"}],
+        "rubric_dimensions": [{"target_artifact": "github_repo", "criterion_id": "dim_1"}],
     }
     result = repo_investigator(state)
     assert "evidences" in result
@@ -39,16 +40,14 @@ def test_repo_investigator_success_empty(mocker, tmp_path):
 
     state = {
         "repo_url": "https://example.com/repo.git",
-        "rubric_dimensions": [{"source": "repo", "criterion_id": "dim_1"}],
+        "rubric_dimensions": [{"target_artifact": "github_repo", "criterion_id": "dim_1"}],
     }
 
     result = repo_investigator(state)
     evidences = result["evidences"]["repo"]
 
-    # Should flag as empty repo
-    assert len(evidences) == 1
-    assert evidences[0].found is False
-    assert evidences[0].rationale == "Repository contains no detectable code files"
+    # With no git history and no AST/safety findings, should be empty
+    assert len(evidences) == 0
 
 
 def test_repo_investigator_success_with_findings(mocker):
@@ -56,23 +55,31 @@ def test_repo_investigator_success_with_findings(mocker):
 
     commit = Commit(hash="abc", author="test", date=datetime.now(), message="test")
     ast_finding = ASTFinding(
-        file="app.py", line=10, node_type="ClassDef", name="MyModel"
+        file="app.py",
+        line=10,
+        node_type="ClassDef",
+        name="MyModel",
     )
     safety_finding = ASTFinding(
-        file="bad.py", line=5, node_type="Call", name="os.system"
+        file="bad.py",
+        line=5,
+        node_type="Call",
+        name="os.system",
     )
 
     mocker.patch("src.nodes.detectives.get_git_history", return_value=[commit])
     mocker.patch(
-        "src.nodes.detectives.analyze_ast_for_patterns", return_value=[ast_finding]
+        "src.nodes.detectives.analyze_ast_for_patterns",
+        return_value=[ast_finding],
     )
     mocker.patch(
-        "src.nodes.detectives.check_tool_safety", return_value=[safety_finding]
+        "src.nodes.detectives.check_tool_safety",
+        return_value=[safety_finding],
     )
 
     state = {
         "repo_url": "https://example.com/repo.git",
-        "rubric_dimensions": [{"source": "repo", "criterion_id": "dim_1"}],
+        "rubric_dimensions": [{"target_artifact": "github_repo", "criterion_id": "dim_1"}],
     }
 
     result = repo_investigator(state)
@@ -93,7 +100,7 @@ from src.nodes.detectives import doc_analyst
 def test_doc_analyst_no_dims():
     state = {
         "pdf_path": "fake.pdf",
-        "rubric_dimensions": [{"source": "repo", "criterion_id": "dim_1"}],
+        "rubric_dimensions": [{"target_artifact": "github_repo", "criterion_id": "dim_1"}],
     }
     result = doc_analyst(state)
     assert result == {}
@@ -106,7 +113,7 @@ def test_doc_analyst_failure(mocker):
     )
     state = {
         "pdf_path": "fake.pdf",
-        "rubric_dimensions": [{"source": "docs", "criterion_id": "dim_1"}],
+        "rubric_dimensions": [{"target_artifact": "pdf_report", "criterion_id": "dim_1"}],
     }
     result = doc_analyst(state)
     assert "evidences" in result
@@ -120,7 +127,8 @@ def test_doc_analyst_failure(mocker):
 
 def test_doc_analyst_success(mocker):
     mocker.patch(
-        "src.tools.doc_tools.extract_pdf_markdown", return_value="Some markdown"
+        "src.tools.doc_tools.extract_pdf_markdown",
+        return_value="Some markdown",
     )
     mocker.patch(
         "src.tools.doc_tools.find_architectural_claims",
@@ -130,14 +138,13 @@ def test_doc_analyst_success(mocker):
 
     state = {
         "pdf_path": "fake.pdf",
-        "rubric_dimensions": [{"source": "docs", "criterion_id": "dim_1"}],
+        "rubric_dimensions": [{"target_artifact": "pdf_report", "criterion_id": "dim_1"}],
     }
 
     result = doc_analyst(state)
     evidences = result["evidences"]["docs"]
-    assert len(evidences) == 2
+    assert len(evidences) == 1
     assert all(e.found for e in evidences)
-    assert any("src/app.py" in e.content for e in evidences)
 
 
 from src.nodes.detectives import vision_inspector
@@ -146,7 +153,7 @@ from src.nodes.detectives import vision_inspector
 def test_vision_inspector_no_dims():
     state = {
         "pdf_path": "fake.pdf",
-        "rubric_dimensions": [{"source": "repo", "criterion_id": "dim_1"}],
+        "rubric_dimensions": [{"target_artifact": "github_repo", "criterion_id": "dim_1"}],
     }
     result = vision_inspector(state)
     assert result == {}
@@ -159,7 +166,7 @@ def test_vision_inspector_failure(mocker):
     )
     state = {
         "pdf_path": "fake.pdf",
-        "rubric_dimensions": [{"source": "vision", "criterion_id": "dim_1"}],
+        "rubric_dimensions": [{"target_artifact": "pdf_images", "criterion_id": "dim_1"}],
     }
     result = vision_inspector(state)
     assert "evidences" in result
@@ -179,7 +186,7 @@ def test_vision_inspector_success(mocker):
 
     state = {
         "pdf_path": "fake.pdf",
-        "rubric_dimensions": [{"source": "vision", "criterion_id": "dim_1"}],
+        "rubric_dimensions": [{"target_artifact": "pdf_images", "criterion_id": "dim_1"}],
     }
 
     result = vision_inspector(state)

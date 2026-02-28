@@ -13,9 +13,13 @@ from src.config import JudicialSettings
 class TestJudicialSettingsValidation:
     """Tests for config validation and sync."""
 
-    def test_default_values(self):
-        """Verify default values are correct."""
-        settings = JudicialSettings()
+    def test_default_values(self, monkeypatch, tmp_path):
+        """Verify default values are correct (without .env interference)."""
+        # Create empty env file to avoid picking up project .env
+        empty_env = tmp_path / ".env"
+        empty_env.write_text("")
+        monkeypatch.chdir(tmp_path)
+        settings = JudicialSettings(_env_file=str(empty_env))
         assert settings.max_concurrent_llm_calls == 5
         assert settings.retry_initial_delay == 1.0
         assert settings.retry_max_delay == 60.0
@@ -25,12 +29,8 @@ class TestJudicialSettingsValidation:
 
     def test_valid_concurrency_range(self):
         """FR-001: 1-50 is valid."""
-        assert (
-            JudicialSettings(max_concurrent_llm_calls=1).max_concurrent_llm_calls == 1
-        )
-        assert (
-            JudicialSettings(max_concurrent_llm_calls=50).max_concurrent_llm_calls == 50
-        )
+        assert JudicialSettings(max_concurrent_llm_calls=1).max_concurrent_llm_calls == 1
+        assert JudicialSettings(max_concurrent_llm_calls=50).max_concurrent_llm_calls == 50
 
     def test_invalid_concurrency_too_low(self):
         """FR-001: < 1 should raise ValueError."""

@@ -4,10 +4,9 @@ from datetime import datetime
 
 import pytest
 
-from src.graph import create_graph
 from src.nodes.justice import chief_justice_node
 from src.nodes.report_generator import report_generator_node as report_generator
-from src.state import AgentState, Evidence, EvidenceClass, JudicialOpinion
+from src.state import Evidence, EvidenceClass, JudicialOpinion
 from src.utils.orchestration import sanitize_repo_name
 
 
@@ -75,7 +74,7 @@ def test_full_report_pipeline(complex_agent_state):
     state_after_report = report_generator(state_after_synthesis)
 
     # 3. Verify Filesystem Artifacts
-    repo_name = sanitize_repo_name("complex-repo")
+    repo_name = sanitize_repo_name(complex_agent_state["repo_url"])
     root = pathlib.Path(__file__).resolve().parent.parent.parent
     report_root = root / "audit" / "reports" / repo_name
 
@@ -91,10 +90,10 @@ def test_full_report_pipeline(complex_agent_state):
     assert manifest_file.exists()
 
     content = report_file.read_text()
-    assert "# Audit Report: complex-repo" in content
-    assert "Score: 4/5" in content
+    assert "# ⚖️ Audit Report: complex-repo" in content
+    assert "4.0 / 5.0" in content
     assert "Core logic is fully typed" in content
-    assert "Remediation Plan" in content
+    assert "Remediation Dashboard" in content
     assert "src/math.py:1" in content
 
     # Cleanup
@@ -105,12 +104,12 @@ def test_judicial_note_rendering(complex_agent_state):
     """FR-015: Verifies that 'Judicial Note' is rendered for low variance."""
     # Scores 4 and 5 (variance 1)
     complex_agent_state["opinions"][0] = complex_agent_state["opinions"][0].model_copy(
-        update={"score": 4}
+        update={"score": 4},
     )
 
     state = report_generator(chief_justice_node(complex_agent_state))
 
-    repo_name = sanitize_repo_name("complex-repo")
+    repo_name = sanitize_repo_name(complex_agent_state["repo_url"])
     root = pathlib.Path(__file__).resolve().parent.parent.parent
     report_root = root / "audit" / "reports" / repo_name
     latest_run = max(list(report_root.iterdir()), key=lambda p: p.name)

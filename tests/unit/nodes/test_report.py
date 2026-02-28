@@ -135,9 +135,7 @@ def test_report_generator_creates_files(mock_agent_state):
 def test_evidence_truncation(mock_agent_state):
     """FR-011: Verifies that long evidence content is truncated."""
     long_content = "X" * 6000
-    mock_agent_state["evidences"]["repo"][0] = mock_agent_state["evidences"]["repo"][
-        0
-    ].model_copy(
+    mock_agent_state["evidences"]["repo"][0] = mock_agent_state["evidences"]["repo"][0].model_copy(
         update={"content": long_content},
     )
 

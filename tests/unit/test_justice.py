@@ -1,4 +1,4 @@
-from src.nodes.justice import chief_justice_node, synthesize_criterion
+from src.nodes.justice import synthesize_criterion
 from src.utils.orchestration import round_half_up, round_score
 
 
@@ -70,14 +70,13 @@ def test_synthesize_criterion_basic():
         cited_evidence=[],
     )
 
-    from src.nodes.justice import synthesize_criterion
-
-    result = synthesize_criterion("crit1", [op1, op2, op3], {})
+    result = synthesize_criterion("crit1", "Test Criterion", [op1, op2, op3], {})
 
     # (2*1 + 4*1 + 3*2) / 4 = 12 / 4 = 3
     assert result.numeric_score == 3
     assert result.re_evaluation_required is False
-    assert result.dissent_summary is None
+    # Variance = 4-2 = 2, so there will be a nuanced dissent
+    assert result.dissent_summary is not None
 
 
 def test_synthesize_criterion_high_variance():
@@ -107,9 +106,7 @@ def test_synthesize_criterion_high_variance():
         cited_evidence=[],
     )
 
-    from src.nodes.justice import synthesize_criterion
-
-    result = synthesize_criterion("crit1", [op1, op2, op3], {})
+    result = synthesize_criterion("crit1", "Test Criterion", [op1, op2, op3], {})
 
     # max(1,5,2) - min(1,5,2) = 4 > 2
     assert result.re_evaluation_required is True
@@ -144,9 +141,7 @@ def test_security_override_prosecutor_trigger():
         cited_evidence=[],
     )
 
-    from src.nodes.justice import synthesize_criterion
-
-    result = synthesize_criterion("crit1", [op1, op2, op3], {})
+    result = synthesize_criterion("crit1", "Test Criterion", [op1, op2, op3], {})
 
     # Weighted avg would be (1*1 + 5*1 + 5*2) / 4 = 16 / 4 = 4.0
     # But security override should cap it at 3.0
@@ -203,9 +198,7 @@ def test_security_override_evidence_trigger():
 
     evidences = {"repo": [sec_evidence]}
 
-    from src.nodes.justice import synthesize_criterion
-
-    result = synthesize_criterion("crit1", [op1, op2, op3], evidences)
+    result = synthesize_criterion("crit1", "Test Criterion", [op1, op2, op3], evidences)
 
     assert result.numeric_score == 3
     assert "SECURITY_OVERRIDE" in result.applied_rules
@@ -239,10 +232,8 @@ def test_fact_supremacy_penalty():
         cited_evidence=[],
     )
 
-    from src.nodes.justice import synthesize_criterion
-
     # Evidence pool is empty or does not contain 'missing_01'
-    result = synthesize_criterion("crit1", [op1, op2, op3], {})
+    result = synthesize_criterion("crit1", "Test Criterion", [op1, op2, op3], {})
 
     # Original scores: P=3, D=5, T=3
     # Adjusted scores: P=3, D=5-2=3, T=3

@@ -122,9 +122,7 @@ class TestSemaphoreAcquireRelease:
 
         tasks = [worker(f"Agent{i}", f"DIM{i}") for i in range(10)]
         await asyncio.gather(*tasks)
-        assert max_concurrent_seen <= limit, (
-            f"Max concurrent was {max_concurrent_seen}, expected <= {limit}"
-        )
+        assert max_concurrent_seen <= limit, f"Max concurrent was {max_concurrent_seen}, expected <= {limit}"
         assert controller.active_count == 0
 
 

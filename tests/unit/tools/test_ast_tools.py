@@ -57,16 +57,12 @@ def test_scan_repository_valid_syntax(mock_repo_with_code):
     assert findings is not None
 
     # Check for User class
-    class_findings = [
-        f for f in findings if f.node_type == "ClassDef" and f.name == "User"
-    ]
+    class_findings = [f for f in findings if f.node_type == "ClassDef" and f.name == "User"]
     assert len(class_findings) == 1
     assert "BaseModel" in class_findings[0].details.get("bases", [])
 
     # Check for function
-    func_findings = [
-        f for f in findings if f.node_type == "FunctionDef" and f.name == "get_user"
-    ]
+    func_findings = [f for f in findings if f.node_type == "FunctionDef" and f.name == "get_user"]
     assert len(func_findings) == 1
 
 

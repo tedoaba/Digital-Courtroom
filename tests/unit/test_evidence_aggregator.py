@@ -5,7 +5,9 @@ from src.state import Evidence, EvidenceClass
 
 
 def create_mock_evidence(
-    id: str, source: str = "repo", location: str = "file.py"
+    id: str,
+    source: str = "repo",
+    location: str = "file.py",
 ) -> Evidence:
     return Evidence(
         evidence_id=id,
@@ -88,10 +90,14 @@ def test_aggregator_node_cross_reference():
             "docs": [
                 # One real file, one hallucination
                 create_mock_evidence(
-                    "docs_1", source="docs", location="src/existing.py"
+                    "docs_1",
+                    source="docs",
+                    location="src/existing.py",
                 ),
                 create_mock_evidence(
-                    "docs_2", source="docs", location="src/hallucination.py"
+                    "docs_2",
+                    source="docs",
+                    location="src/hallucination.py",
                 ),
             ],
         },
@@ -107,11 +113,7 @@ def test_aggregator_node_cross_reference():
     # docs_2 is linked to src/hallucination.py which is NOT in repo.
 
     # The aggregator adds a new Evidence object for hallucinated paths
-    hallucinations = [
-        e
-        for e in docs_evidences
-        if e.evidence_class == EvidenceClass.DOCUMENT_CLAIM and not e.found
-    ]
+    hallucinations = [e for e in docs_evidences if e.evidence_class == EvidenceClass.DOCUMENT_CLAIM and not e.found]
     assert len(hallucinations) == 1
     assert hallucinations[0].location == "src/hallucination.py"
     assert "Path cited in documentation does not exist" in hallucinations[0].rationale
@@ -149,14 +151,8 @@ def test_aggregator_performance_benchmark():
 
     # SC-002: <50ms for datasets < 1000 items
     # Create 500 repo items and 500 doc items
-    repo_items = [
-        create_mock_evidence(f"repo_{i}", location=f"src/file_{i}.py")
-        for i in range(500)
-    ]
-    doc_items = [
-        create_mock_evidence(f"docs_{i}", source="docs", location=f"src/file_{i}.py")
-        for i in range(500)
-    ]
+    repo_items = [create_mock_evidence(f"repo_{i}", location=f"src/file_{i}.py") for i in range(500)]
+    doc_items = [create_mock_evidence(f"docs_{i}", source="docs", location=f"src/file_{i}.py") for i in range(500)]
 
     state = {
         "evidences": {
@@ -183,7 +179,7 @@ def test_integration_simulated_graph_flow():
             "repo": [create_mock_evidence("r1", location="valid.py")],
             "docs": [create_mock_evidence("d1", source="docs", location="hallu.py")],
             "vision": [
-                create_mock_evidence("v1", source="vision", location="image.png")
+                create_mock_evidence("v1", source="vision", location="image.png"),
             ],
         },
         "errors": [],

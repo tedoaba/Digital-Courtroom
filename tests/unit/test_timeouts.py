@@ -81,9 +81,7 @@ class TestTimeoutBehavior:
         except Exception:
             pass
 
-        assert controller.active_count == 0, (
-            "Semaphore slot must be released after timeout"
-        )
+        assert controller.active_count == 0, "Semaphore slot must be released after timeout"
 
     @pytest.mark.asyncio
     async def test_successful_call_within_timeout(self):

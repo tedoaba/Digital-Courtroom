@@ -9,7 +9,7 @@ def test_valid_audit_request():
     req = AuditRequest(
         repo="https://github.com/my/project",
         spec="requirements.pdf",
-        rubric="rubric.json"
+        rubric="rubric.json",
     )
     assert req.repo == "https://github.com/my/project"
     assert req.spec == "requirements.pdf"
@@ -24,7 +24,7 @@ def test_audit_request_invalid_url():
         AuditRequest(
             repo="ftp://github.com/my/project",  # Invalid protocol
             spec="requirements.pdf",
-            rubric="rubric.json"
+            rubric="rubric.json",
         )
     assert "String should match pattern" in str(exc.value)
 
@@ -32,7 +32,7 @@ def test_audit_request_invalid_url():
         AuditRequest(
             repo="just-a-string",  # Invalid format
             spec="reqs.pdf",
-            rubric="rubric.json"
+            rubric="rubric.json",
         )
     assert "String should match pattern" in str(exc2.value)
 
@@ -54,6 +54,6 @@ def test_audit_request_extra_fields_forbidden():
         AuditRequest(
             repo="https://github.com/my/project",
             spec="req.pdf",
-            malicious_payload="rm -rf /"
+            malicious_payload="rm -rf /",
         )
     assert "Extra inputs are not permitted" in str(exc.value)

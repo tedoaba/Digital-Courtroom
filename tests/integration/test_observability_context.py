@@ -1,4 +1,4 @@
-from langsmith import get_current_run_tree, traceable
+from langsmith import get_current_run_tree, traceable, tracing_context
 
 
 @traceable(name="parent_function")
@@ -22,18 +22,12 @@ def test_tracing_context_propagation(monkeypatch):
     monkeypatch.setenv("LANGCHAIN_TRACING_V2", "true")
     monkeypatch.setenv("LANGCHAIN_API_KEY", "test-key")
 
-    # We need to ensure LangChain/LangSmith doesn't actually try to hit the network
-    # or fails gracefully if it does. Mocking or keeping it to context check.
-
-    run_tree, result = parent_function(5)
+    with tracing_context(enabled=True):
+        run_tree, result = parent_function(5)
 
     assert result == 12
     # If tracing is working, run_tree should not be None
     assert run_tree is not None
     assert run_tree.name == "child_function"
     # The parent should be 'parent_function'
-    # In some versions, we might need to look at parent_run_id or similar
-    assert (
-        run_tree.parent_run is not None
-        or getattr(run_tree, "parent_run_id", None) is not None
-    )
+    assert run_tree.parent_run is not None or getattr(run_tree, "parent_run_id", None) is not None

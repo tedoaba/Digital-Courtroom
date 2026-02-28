@@ -64,7 +64,9 @@ def minimal_rubric(tmp_path: Path) -> str:
 
 @pytest.fixture
 def base_state(
-    valid_repo_url: str, valid_pdf_path: str, valid_rubric_path: str
+    valid_repo_url: str,
+    valid_pdf_path: str,
+    valid_rubric_path: str,
 ) -> dict:
     """Create a valid base state for testing."""
     return {
@@ -97,7 +99,9 @@ class TestSuccessfulAuditInitialization:
         assert len(result["rubric_dimensions"]) == len(expected["dimensions"])
 
     def test_loads_synthesis_rules(
-        self, base_state: dict, valid_rubric_path: str
+        self,
+        base_state: dict,
+        valid_rubric_path: str,
     ) -> None:
         """FR-005: Node loads synthesis_rules from the rubric JSON."""
         result = build_context(base_state)
@@ -123,7 +127,8 @@ class TestSuccessfulAuditInitialization:
         assert result["opinions"] == []
 
     def test_initializes_criterion_results_as_empty_dict(
-        self, base_state: dict
+        self,
+        base_state: dict,
     ) -> None:
         """FR-009: criterion_results initialized as empty dict."""
         result = build_context(base_state)
@@ -150,7 +155,9 @@ class TestSuccessfulAuditInitialization:
         assert result["rubric_dimensions"] == expected["dimensions"]
 
     def test_validates_dimensions_key_exists(
-        self, tmp_path: Path, valid_pdf_path: str
+        self,
+        tmp_path: Path,
+        valid_pdf_path: str,
     ) -> None:
         """FR-010: Node must validate the dimensions key exists and is non-empty."""
         rubric_no_dims = {
@@ -170,7 +177,9 @@ class TestSuccessfulAuditInitialization:
         assert any("dimensions" in e for e in result.get("errors", []))
 
     def test_validates_dimensions_not_empty(
-        self, tmp_path: Path, valid_pdf_path: str
+        self,
+        tmp_path: Path,
+        valid_pdf_path: str,
     ) -> None:
         """FR-010: Node must fail if dimensions is an empty array."""
         rubric_empty_dims = {
