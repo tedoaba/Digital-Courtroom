@@ -2,20 +2,25 @@ import ast
 import os
 import subprocess
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from src.state import ASTFinding, Commit
-from src.utils.security import sanitize_repo_url
+from src.utils.security import sanitize_repo_url, SandboxEnvironment
 
-def clone_repository(repo_url: str, dest_dir: str, timeout: int = 60) -> None:
+def clone_repository(repo_url: str, dest_dir: str, timeout: int = 60, sandbox: Optional[SandboxEnvironment] = None) -> None:
     """Clones a git repository to a specific directory with a timeout."""
-    # Defense in depth: sanitize URL again before shell interaction
     repo_url = sanitize_repo_url(repo_url)
+    cmd = ["git", "clone", repo_url, dest_dir]
     
+    if sandbox:
+        result = sandbox.execute_tool(cmd)
+        if not result["success"]:
+            raise RuntimeError(f"Cloning failed: {result['error']}")
+        return
+
     try:
         subprocess.run(
-            ["git", "clone", repo_url, dest_dir],
-
+            cmd,
             check=True,
             timeout=timeout,
             capture_output=True,
@@ -26,25 +31,34 @@ def clone_repository(repo_url: str, dest_dir: str, timeout: int = 60) -> None:
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Cloning failed: {e.stderr}")
 
-def get_git_history(repo_dir: str, limit: int = 50) -> List[Commit]:
+def get_git_history(repo_dir: str, limit: int = 50, sandbox: Optional[SandboxEnvironment] = None) -> List[Commit]:
     """Fetches the git commit history."""
-    try:
-        # Get formatted history: Hash|Author|UnixTime|Message
-        res = subprocess.run(
-            ["git", "log", f"-n{limit}", "--oneline", "--reverse", "--format=%H|%an|%at|%s"],
-            cwd=repo_dir,
-            check=True,
-            capture_output=True,
-            text=True
-        )
-    except subprocess.CalledProcessError:
-        return []
+    cmd = ["git", "log", f"-n{limit}", "--oneline", "--reverse", "--format=%H|%an|%at|%s"]
+    
+    if sandbox:
+        result = sandbox.execute_tool(cmd)
+        if not result["success"]:
+            return []
+        stdout = result["output"]
+    else:
+        try:
+            # Get formatted history: Hash|Author|UnixTime|Message
+            res = subprocess.run(
+                cmd,
+                cwd=repo_dir,
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            stdout = res.stdout
+        except subprocess.CalledProcessError:
+            return []
 
     commits = []
-    if not res.stdout.strip():
+    if not stdout.strip():
         return commits
 
-    for line in res.stdout.strip().split('\n'):
+    for line in stdout.strip().split('\n'):
         parts = line.split('|', 3)
         if len(parts) == 4:
             commits.append(
@@ -61,7 +75,6 @@ def analyze_ast_for_patterns(repo_dir: str) -> List[ASTFinding]:
     """Scans Python files for Pydantic models (BaseModel) and LangGraph (StateGraph)."""
     findings = []
     for root, _, files in os.walk(repo_dir):
-        # Skip hidden directories like .git
         if "/." in root.replace('\\', '/') or "\\." in root:
             continue
         for file in files:
@@ -94,7 +107,6 @@ def analyze_ast_for_patterns(repo_dir: str) -> List[ASTFinding]:
                                     details={}
                                 ))
                 except Exception:
-                    # Ignore parsing errors from invalid Python files
                     pass
     return findings
 

@@ -1,10 +1,54 @@
-"""
-Configuration management for the Digital Courtroom.
-Uses Pydantic Settings for environment-based configuration.
-"""
-from typing import Optional
-from pydantic import field_validator
+from typing import Optional, Dict, Literal
+from pydantic import field_validator, SecretStr, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import json
+
+
+class HardenedConfig(BaseSettings):
+    """
+    Centralized storage for all swarm configuration derived from environment and vault.
+    (013-ironclad-hardening)
+    """
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore')
+
+    # Configurable sets (usually passed as JSON strings in ENV)
+    models: Dict[str, str] = Field(default_factory=dict, validation_alias="COURTROOM_MODELS")
+    endpoints: Dict[str, str] = Field(default_factory=dict, validation_alias="COURTROOM_ENDPOINTS")
+    timeouts: Dict[str, int] = Field(default_factory=dict, validation_alias="COURTROOM_TIMEOUTS")
+    
+    # Vault / Security
+    vault_key: Optional[SecretStr] = Field(default=None, validation_alias="COURTROOM_VAULT_KEY")
+    vault_secrets: Dict[str, SecretStr] = Field(default_factory=dict)
+
+    @field_validator("models", "endpoints", "timeouts", mode="before")
+    @classmethod
+    def parse_json_strings(cls, v):
+        """Allow JSON string inputs for dict types from environment variables."""
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return {}
+        return v
+
+    @field_validator("models")
+    @classmethod
+    def validate_models(cls, v: Dict[str, str]) -> Dict[str, str]:
+        """All model names must be non-empty."""
+        for name, model_id in v.items():
+            if not model_id:
+                raise ValueError(f"Model ID for {name} cannot be empty")
+        return v
+
+    @field_validator("timeouts")
+    @classmethod
+    def validate_timeouts(cls, v: Dict[str, int]) -> Dict[str, int]:
+        """Timeouts must be between 1 and 300 seconds."""
+        for name, timeout in v.items():
+            if not (1 <= timeout <= 300):
+                raise ValueError(f"Timeout {name} must be between 1 and 300s, got {timeout}")
+        return v
+
 
 
 class ObservabilitySettings(BaseSettings):
@@ -34,7 +78,15 @@ class DetectiveSettings(BaseSettings):
 
     # Multimodal LLM parameters (FR-011)
     llm_temperature: float = 0.0
-    vision_model: str = "gemini-2.0-flash"
+    
+    # Vision Config
+    vision_provider: Literal["google", "ollama"] = Field(default="google", validation_alias="VISION_PROVIDER")
+    vision_model_id: str = Field(default="gemini-2.0-flash", validation_alias="VISION_MODEL")
+
+    @property
+    def vision_model(self) -> str:
+        """Pull from hardened_config or fallback to default."""
+        return hardened_config.models.get("vision", self.vision_model_id)
 
 
 class JudicialSettings(BaseSettings):
@@ -46,10 +98,22 @@ class JudicialSettings(BaseSettings):
     gemini_api_key: Optional[str] = None
     google_api_key: Optional[str] = None
     
-    # Model Selection
-    prosecutor_model: str = "deepseek-v3.1:671b-cloud"
-    defense_model: str = "deepseek-v3.1:671b-cloud"
-    techlead_model: str = "deepseek-v3.1:671b-cloud"
+    # Model Selection (picked up from ENV such as PROSECUTOR_MODEL)
+    prosecutor_model_id: str = Field(default="deepseek-v3.1:671b-cloud", validation_alias="PROSECUTOR_MODEL")
+    defense_model_id: str = Field(default="deepseek-v3.1:671b-cloud", validation_alias="DEFENSE_MODEL")
+    techlead_model_id: str = Field(default="deepseek-v3.1:671b-cloud", validation_alias="TECHLEAD_MODEL")
+
+    @property
+    def prosecutor_model(self) -> str:
+        return hardened_config.models.get("prosecutor", self.prosecutor_model_id)
+    
+    @property
+    def defense_model(self) -> str:
+        return hardened_config.models.get("defense", self.defense_model_id)
+    
+    @property
+    def techlead_model(self) -> str:
+        return hardened_config.models.get("techlead", self.techlead_model_id)
 
     # --- Bounded Concurrency Settings (012-bounded-agent-eval) ---
     root_node: Optional[str] = None
@@ -70,6 +134,9 @@ class JudicialSettings(BaseSettings):
     # FR-005: Toggle for structured batching mode
     batching_enabled: bool = False
 
+    # (013-ironclad-hardening) Redundancy and Leader Election
+    judicial_redundancy_factor: int = Field(default=1, ge=1, le=5, validation_alias="JUDICIAL_REDUNDANCY_FACTOR")
+
     @field_validator("max_concurrent_llm_calls")
     @classmethod
     def validate_concurrency_limit(cls, v: int) -> int:
@@ -88,3 +155,4 @@ class JudicialSettings(BaseSettings):
 settings = ObservabilitySettings()
 detective_settings = DetectiveSettings()
 judicial_settings = JudicialSettings()
+hardened_config = HardenedConfig()

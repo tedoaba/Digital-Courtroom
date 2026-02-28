@@ -20,16 +20,17 @@ from src.nodes.judges import evaluate_criterion, evaluate_batch_criterion, execu
 from src.nodes.justice import chief_justice_node, route_after_justice
 from src.nodes.report_generator import report_generator_node
 from src.nodes.error_handler import error_handler_node
+from src.nodes.consistency_guard import consistency_guard_node
 
 # Initialize global logger
 logger = StructuredLogger("orchestrator")
 
-# Apply Timeouts (SC-004: increased to 300s for first-run stability)
-timed_repo_investigator = timeout_wrapper(300)(repo_investigator)
-timed_doc_analyst = timeout_wrapper(300)(doc_analyst)
-timed_vision_inspector = timeout_wrapper(300)(vision_inspector)
-timed_evaluate_criterion = timeout_wrapper(300)(evaluate_criterion)
-timed_evaluate_batch_criterion = timeout_wrapper(300)(evaluate_batch_criterion)
+# Apply Timeouts (SC-004: increased to 900s to support slow models and multiple retries)
+timed_repo_investigator = timeout_wrapper(900)(repo_investigator)
+timed_doc_analyst = timeout_wrapper(900)(doc_analyst)
+timed_vision_inspector = timeout_wrapper(900)(vision_inspector)
+timed_evaluate_criterion = timeout_wrapper(900)(evaluate_criterion)
+timed_evaluate_batch_criterion = timeout_wrapper(900)(evaluate_batch_criterion)
 
 # Routing Functions for US2 (Fault Tolerance)
 def route_after_aggregator(state: AgentState) -> Union[List[Send], str]:
@@ -70,6 +71,7 @@ def create_graph() -> StateGraph:
     # Finalization
     builder.add_node("report_generator", report_generator_node)
     builder.add_node("error_handler", error_handler_node)
+    builder.add_node("consistency_guard", consistency_guard_node)
     
     # 2. Define Edges
     builder.add_edge(START, "context_builder")
@@ -101,13 +103,14 @@ def create_graph() -> StateGraph:
         route_after_justice_with_errors,
         {
             "judges": "aggregator",
-            "report": "report_generator",
+            "report": "consistency_guard",
             "error_handler": "error_handler"
         }
     )
     
+    builder.add_edge("consistency_guard", "report_generator")
     builder.add_edge("report_generator", END)
-    builder.add_edge("error_handler", "report_generator") # Fatal path
+    builder.add_edge("error_handler", "consistency_guard") # Fatal path
     
     return builder
 

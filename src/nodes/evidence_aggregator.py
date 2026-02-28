@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from src.state import AgentState, Evidence, EvidenceClass
 
 from src.utils.logger import StructuredLogger
+from src.utils.observability import node_traceable
 
 logger = StructuredLogger("evidence_aggregator")
 
@@ -52,6 +53,7 @@ def generate_hallucination_id(path: str) -> str:
     path_hash = hashlib.sha256(path.encode()).hexdigest()[:8]
     return f"docs_DOCUMENT_CLAIM_{path_hash}"
 
+@node_traceable
 def aggregator_node(state: AgentState) -> dict:
     """
     Evidence Aggregator Node (Layer 1.5).

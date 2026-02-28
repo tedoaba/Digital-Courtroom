@@ -14,6 +14,7 @@ from src.config import judicial_settings
 from src.nodes.judicial_nodes import get_concurrency_controller, bounded_llm_call
 
 from src.utils.logger import StructuredLogger
+from src.utils.observability import node_traceable
 
 logger = StructuredLogger("judges")
 
@@ -89,6 +90,7 @@ async def _invoke_llm_with_validation(llm, messages, retries=0, schema=JudicialO
         logger.error(f"LLM invocation failed: {str(e)}", payload={"messages_len": len(messages)})
         raise e
 
+@node_traceable
 async def evaluate_criterion(task: JudicialTask) -> dict[str, list[JudicialOpinion]]:
     judge = task["judge_name"]
     criterion_id = task["criterion_id"]
@@ -191,6 +193,7 @@ Ensure you return ONLY the JSON object. Do not add markdown wrappers around the 
             "errors": [f"Persistent failure for judge {judge} on criterion {criterion_id}: {err_msg}"]
         }
 
+@node_traceable
 async def evaluate_batch_criterion(task: JudicialBatchTask) -> dict[str, list[JudicialOpinion]]:
     """
     Structured Batching Node (US3).
@@ -330,6 +333,7 @@ def _format_evidence(evidences: dict) -> str:
             text += f"- ID: {e_id} | Class: {e_class_val} | Confidence: {e_conf}\n  Content: {e_content}\n"
     return text
 
+@node_traceable
 def execute_judicial_layer(state: AgentState) -> list[Send]:
     """Fan-out function to launch judicial evaluations."""
     controller = get_concurrency_controller()
@@ -341,17 +345,19 @@ def execute_judicial_layer(state: AgentState) -> list[Send]:
     judges = ["Prosecutor", "Defense", "TechLead"]
     
     sends = []
+    redundancy = judicial_settings.judicial_redundancy_factor
     
     # FR-005: Optional Batching Toggle
     if judicial_settings.batching_enabled:
         for judge in judges:
-            task = JudicialBatchTask(
-                judge_name=judge,
-                dimensions=dimensions,
-                evidences=evidences,
-                correlation_id=correlation_id
-            )
-            sends.append(Send("evaluate_batch_criterion", task))
+            for i in range(redundancy):
+                task = JudicialBatchTask(
+                    judge_name=judge,
+                    dimensions=dimensions,
+                    evidences=evidences,
+                    correlation_id=f"{correlation_id}_r{i}"
+                )
+                sends.append(Send("evaluate_batch_criterion", task))
     else:
         # Sequential-like fan-out for individual criterions
         for dim in dimensions:
@@ -360,13 +366,14 @@ def execute_judicial_layer(state: AgentState) -> list[Send]:
             if not crit_id:
                 continue
             for judge in judges:
-                task = JudicialTask(
-                    judge_name=judge, 
-                    criterion_id=crit_id,
-                    criterion_description=crit_desc,
-                    evidences=evidences,
-                    correlation_id=correlation_id
-                )
-                sends.append(Send("evaluate_criterion", task))
+                for i in range(redundancy):
+                    task = JudicialTask(
+                        judge_name=judge, 
+                        criterion_id=crit_id,
+                        criterion_description=crit_desc,
+                        evidences=evidences,
+                        correlation_id=f"{correlation_id}_r{i}"
+                    )
+                    sends.append(Send("evaluate_criterion", task))
     
     return sends

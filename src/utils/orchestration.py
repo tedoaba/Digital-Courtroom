@@ -1,120 +1,215 @@
 """
-Orchestration utilities for layer synchronization, timeouts, and error handling.
+Orchestration and resilience utilities for Operation Ironclad Swarm.
+(013-ironclad-hardening)
 """
-import functools
-import threading
-import logging
-from typing import Any, Callable, Dict, TypeVar
-
-T = TypeVar("T")
-
+import time
 import asyncio
-import inspect
-
-logger = logging.getLogger(__name__)
-
-def timeout_wrapper(seconds: int = 120):
-    """
-    Decorator to enforce a timeout on both synchronous and asynchronous functions.
-    Returns the original state with an error message appended if the timeout is hit.
-    """
-    def is_async(f):
-        return asyncio.iscoroutinefunction(f) or inspect.iscoroutinefunction(f) or (hasattr(f, "__code__") and f.__code__.co_flags & 0x80)
-
-    def decorator(func: Callable[[Dict[str, Any]], Dict[str, Any]]):
-        if is_async(func):
-            @functools.wraps(func)
-            async def async_wrapper(state: Dict[str, Any]) -> Dict[str, Any]:
-                try:
-                    return await asyncio.wait_for(func(state), timeout=seconds)
-                except asyncio.TimeoutError:
-                    node_name = func.__name__
-                    error_msg = f"TimeoutError: Node '{node_name}' exceeded {seconds}s limit."
-                    logger.error(error_msg)
-                    return {"errors": [error_msg]}
-                except Exception as e:
-                    node_name = func.__name__
-                    error_msg = f"Exception in '{node_name}': {str(e)}"
-                    logger.error(error_msg)
-                    return {"errors": [error_msg]}
-            return async_wrapper
-        else:
-            @functools.wraps(func)
-            def sync_wrapper(state: Dict[str, Any]) -> Dict[str, Any]:
-                result_container = []
-                exception_container = []
-
-                def target():
-                    try:
-                        res = func(state)
-                        result_container.append(res)
-                    except Exception as e:
-                        exception_container.append(e)
-
-                thread = threading.Thread(target=target)
-                thread.daemon = True
-                thread.start()
-                thread.join(timeout=seconds)
-
-                if thread.is_alive():
-                    # Timeout occurred
-                    node_name = func.__name__
-                    error_msg = f"TimeoutError: Node '{node_name}' exceeded {seconds}s limit."
-                    return {"errors": [error_msg]}
-                
-                if exception_container:
-                    # Re-raise or handle internal exception
-                    e = exception_container[0]
-                    node_name = func.__name__
-                    error_msg = f"Exception in '{node_name}': {str(e)}"
-                    return {"errors": [error_msg]}
-
-                if result_container:
-                    return result_container[0]
-                
-                return {}
-            return sync_wrapper
-
-    return decorator
-
-
 import re
 import pathlib
+from typing import Optional, List, Dict, Any, Callable
+from functools import wraps
 from datetime import datetime
+from src.state import CircuitBreakerStatus, CircuitBreakerState
 
-def sanitize_repo_name(name: str) -> str:
-    """Sanitizes repository name for use in filesystem paths."""
-    sanitized = re.sub(r'[\\/:*?"<>|]', '_', name)
-    sanitized = re.sub(r'\.\.+', '_', sanitized)
-    return sanitized.lstrip('_')
+def timeout_wrapper(seconds: float):
+    """Decorator to apply asyncio timeout to a node function."""
+    def decorator(func: Callable):
+        import inspect
+        from functools import wraps
 
-def get_report_workspace(repo_name: str) -> pathlib.Path:
-    """Initializes and returns a timestamped workspace directory for audit artifacts."""
-    sanitized_name = sanitize_repo_name(repo_name)
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            try:
+                # Check if it's definitely an async function
+                if inspect.iscoroutinefunction(func):
+                    coro = func(*args, **kwargs)
+                    return await asyncio.wait_for(coro, timeout=seconds)
+                
+                # Otherwise, it might be sync or a wrapper (like LangSmith)
+                # To avoid blocking the main loop for slow sync functions, we use to_thread.
+                # BUT if it's a wrapper for an async function, calling it in a thread
+                # will return a coroutine, which we then must await in the main loop.
+                result = await asyncio.to_thread(func, *args, **kwargs)
+                
+                if inspect.isawaitable(result):
+                    return await asyncio.wait_for(result, timeout=seconds)
+                return result
+
+            except asyncio.TimeoutError:
+                # Log timeout and inject error into state if applicable
+                from src.utils.logger import StructuredLogger
+                logger = StructuredLogger("timeout_wrapper")
+                logger.error(f"Node {func.__name__} timed out after {seconds}s")
+                # If the first arg is state, append an error
+                if args and isinstance(args[0], dict) and "errors" in args[0]:
+                    args[0]["errors"].append(f"TIMEOUT: Node {func.__name__} exceeded {seconds}s limit.")
+                raise
+        return wrapper
+    return decorator
+
+class CircuitBreaker:
+    """
+    Stateful circuit breaker for API resilience (T028).
+    (FR-008, FR-011)
+    """
+    def __init__(self, name: str, failure_threshold: int = 3, reset_timeout: int = 30):
+        self.name = name
+        self.failure_threshold = failure_threshold
+        self.reset_timeout = reset_timeout
+        self.state = CircuitBreakerStatus.CLOSED
+        self.failures = 0
+        self.last_failure_time: Optional[float] = None
+
+    def can_execute(self) -> bool:
+        if self.state == CircuitBreakerStatus.CLOSED:
+            return True
+        if self.state == CircuitBreakerStatus.OPEN:
+            if time.time() - (self.last_failure_time or 0) > self.reset_timeout:
+                self.state = CircuitBreakerStatus.HALF_OPEN
+                return True
+            return False
+        if self.state == CircuitBreakerStatus.HALF_OPEN:
+            return True
+        return False
+
+    def record_success(self):
+        if self.state == CircuitBreakerStatus.HALF_OPEN:
+            self.state = CircuitBreakerStatus.CLOSED
+            self.failures = 0
+
+    def record_failure(self):
+        self.failures += 1
+        self.last_failure_time = time.time()
+        if self.failures >= self.failure_threshold:
+            self.state = CircuitBreakerStatus.OPEN
+
+    async def aexecute(self, func: Callable, *args, **kwargs):
+        """Execute async call with circuit breaker protection."""
+        if not self.can_execute():
+            raise RuntimeError(f"Circuit Breaker '{self.name}' is OPEN. Call rejected.")
+        
+        try:
+            import inspect
+            if inspect.iscoroutinefunction(func):
+                res = func(*args, **kwargs)
+            else:
+                # Use to_thread to support sync calls and avoid blocking loop
+                res = await asyncio.to_thread(func, *args, **kwargs)
+            
+            if inspect.isawaitable(res):
+                result = await res
+            else:
+                result = res
+            self.record_success()
+            return result
+        except Exception as e:
+            self.record_failure()
+            raise e
+
+    def get_status(self) -> CircuitBreakerState:
+        """Return current status."""
+        return CircuitBreakerState(
+            resource_name=self.name,
+            status=self.state,
+            failure_count=self.failures,
+            last_failure_time=datetime.fromtimestamp(self.last_failure_time) if self.last_failure_time else None
+        )
+
+def trigger_rollback(last_valid_state: Dict[str, Any], error: str) -> Dict[str, Any]:
+    """FR-009: Restore system to last known valid state (T030)."""
+    rollback_state = last_valid_state.copy()
+    if "metadata" not in rollback_state:
+        rollback_state["metadata"] = {}
+    rollback_state["metadata"]["rollback_triggered"] = True
+    rollback_state["metadata"]["rollback_reason"] = error
+    rollback_state["metadata"]["rollback_timestamp"] = datetime.now().isoformat()
+    return rollback_state
+
+def detect_cascading_failure(errors: List[str]) -> bool:
+    """FR-011: Check if core streams are failing."""
+    forensic_count = sum(1 for e in errors if any(kw in e for kw in ["FORENSIC", "CRITICAL", "FATAL"]))
+    return forensic_count >= 3
+
+_cb_registry: Dict[str, CircuitBreaker] = {}
+
+def get_circuit_breaker(name: str) -> CircuitBreaker:
+    """Registry for circuit breakers per resource (T029)."""
+    if name not in _cb_registry:
+        _cb_registry[name] = CircuitBreaker(name)
+    return _cb_registry[name]
+
+class TokenBucketRateLimiter:
+    """
+    FR-011: Traffic shaping for outbound API bursts.
+    Ensures we don't exceed model tier quotas.
+    """
+    def __init__(self, rate: float, capacity: float):
+        self.rate = rate
+        self.capacity = capacity
+        self.tokens = capacity
+        self.last_refill = time.time()
+        self._lock = asyncio.Lock()
+
+    async def consume(self, amount: float = 1.0):
+        async with self._lock:
+            now = time.time()
+            elapsed = now - self.last_refill
+            self.tokens = min(self.capacity, self.tokens + elapsed * self.rate)
+            self.last_refill = now
+            
+            if self.tokens < amount:
+                wait_time = (amount - self.tokens) / self.rate
+                await asyncio.sleep(wait_time)
+                self.tokens = 0
+            else:
+                self.tokens -= amount
+
+_limiter: Optional[TokenBucketRateLimiter] = None
+
+def get_global_rate_limiter() -> TokenBucketRateLimiter:
+    global _limiter
+    if _limiter is None:
+        # Defaults to 2 calls per second with burst of 5
+        _limiter = TokenBucketRateLimiter(rate=2.0, capacity=5.0)
+    return _limiter
+
+# --- Restored Orchestration Helpers ---
+
+def sanitize_repo_name(url: str) -> str:
+    """Extracts a filesystem-safe name from a GitHub URL (FR-014, FR-016)."""
+    # 1. Strip protocol and common domains if present
+    name = re.sub(r'^https?://[^/]+/', '', url)
+    # 2. Strip .git suffix
+    if name.endswith('.git'):
+        name = name[:-4]
+    
+    # 3. Handle special delimiters to match test requirements
+    name = name.replace('..', '_')
+    name = name.replace('/', '_')
+    
+    # 4. Strip leading/trailing underscores and dots (filesystem protection)
+    name = name.lstrip('_').lstrip('.')
+    
+    # 5. Replace all remaining non-alphanumeric (except - and _) with underscores
+    return re.sub(r'[^a-zA-Z0-9_\-]', '_', name)
+
+def get_report_workspace(repo_url: str, base_dir: str = "audit/reports") -> pathlib.Path:
+    """Creates a dedicated output directory for the audit run (FR-014)."""
+    repo_name = sanitize_repo_name(repo_url)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    
-    # Anchor to project root
-    root = pathlib.Path(__file__).resolve().parent.parent.parent
-    workspace = root / "audit" / "reports" / sanitized_name / timestamp
-    
-    workspace.mkdir(parents=True, exist_ok=True)
-    return workspace
+    path = pathlib.Path(base_dir) / repo_name / timestamp
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
-
-import math
-from decimal import Decimal, ROUND_HALF_UP
-
-def round_half_up(n: float, decimals: int = 0) -> float:
-    """Standard 'round half up' logic."""
+def round_half_up(n, decimals=0):
+    """Correct rounding behavior for financial/judicial precision."""
     multiplier = 10**decimals
-    return float(math.floor(n * multiplier + 0.5) / multiplier)
+    return float(int(n * multiplier + 0.5) / multiplier)
 
 def round_score(score: float) -> int:
-    """Deterministic score rounding to nearest integer."""
-    return int(
-        Decimal(str(score)).quantize(Decimal("1"), rounding=ROUND_HALF_UP),
-    )
+    """Rounds judicial scores to the nearest integer 1-5."""
+    return int(max(1, min(5, round_half_up(score))))
 
 class SynthesisError(Exception):
-    """Raised when synthesis fails due to missing inputs."""
+    """Raised when judicial consensus fails due to structural reasons."""
     pass

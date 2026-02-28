@@ -25,6 +25,7 @@ from typing import Any
 from src.state import AgentState
 from src.utils.logger import StructuredLogger
 from src.utils.security import sanitize_repo_url
+from src.utils.observability import node_traceable
 
 # --- Constants (Const. XX.5: No hardcoded values) ---
 
@@ -103,6 +104,7 @@ def _load_rubric(rubric_path: str) -> tuple[list[dict], dict[str, str], list[str
     return dimensions, synthesis_rules, errors
 
 
+@node_traceable
 def build_context(state: dict[str, Any]) -> dict[str, Any]:
     """
     ContextBuilder node function for the Digital Courtroom StateGraph.

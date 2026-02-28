@@ -5,14 +5,21 @@ Handles user inputs and initiates the LangGraph orchestration.
 import argparse
 import sys
 import uuid
+import asyncio
+import os
 from typing import Optional
+
+from dotenv import load_dotenv
+
+# Load environment variables from .env before any other imports that might depend on them
+load_dotenv()
 
 from src.graph import courtroom_swarm
 from src.utils.logger import StructuredLogger
+from src.config import settings, hardened_config
+from src.utils.observability import DashboardManager
 
 logger = StructuredLogger("cli")
-
-import asyncio
 
 async def main():
     parser = argparse.ArgumentParser(description="Digital Courtroom Audit CLI")
@@ -20,11 +27,23 @@ async def main():
     parser.add_argument("--spec", required=True, help="Path to Specification PDF")
     parser.add_argument("--output", help="Output directory for reports", default="audit/reports/")
     parser.add_argument("--rubric", help="Path to rubric JSON", default="rubric/week2_rubric.json")
+    parser.add_argument("--dashboard", action="store_true", help="Enable real-time TUI dashboard")
     
     args = parser.parse_args()
     
+    # FR-003: Hardening - Verify Vault key at startup
+    if not hardened_config.vault_key:
+        logger.warning("COURTROOM_VAULT_KEY is missing. Decryption of protected secrets will fail.")
+
     correlation_id = str(uuid.uuid4())
     
+    # Initialize Observability
+    dashboard = None
+    if args.dashboard:
+        dashboard = DashboardManager()
+        dashboard.start()
+        logger.info("TUI Dashboard enabled.", correlation_id=correlation_id)
+
     # Initialize basic state
     initial_state = {
         "repo_url": args.repo,
@@ -47,31 +66,36 @@ async def main():
     logger.info(f"Starting audit for {args.repo}", correlation_id=correlation_id)
     
     try:
-        # Execute the graph
         config = {
             "configurable": {"thread_id": correlation_id},
-            "max_concurrency": 3  # Mitigate 429 Too Many Requests
         }
-        # MUST use ainvoke because the graph now contains async nodes (Layer 2)
+        
+        # FR-009: Observability - Wrap graph nodes to update dashboard
+        # This is a bit complex without custom graph listeners, 
+        # but the nodes themselves now have @node_traceable.
+        # We could also use graph.astream() to monitor events.
+        
         final_state = await courtroom_swarm.ainvoke(initial_state, config=config)
         
-        # Check for errors in final state
         errors = final_state.get("errors", [])
         if errors:
             logger.warning(f"Audit completed with {len(errors)} errors.")
-            for err in errors:
-                logger.warning(f"  - {err}")
         
-        # Success exit
         logger.info("Audit workflow completed successfully.")
+        if dashboard:
+             dashboard.stop()
         sys.exit(0)
         
     except KeyboardInterrupt:
         logger.error("Audit interrupted by user.")
+        if dashboard:
+             dashboard.stop()
         sys.exit(130)
     except Exception as e:
-        logger.critical(f"Catastrophic failure in orchestration: {e}")
-        # Partial report should have been attempted by error_handler + report_generator in graph
+        err_type = type(e).__name__
+        logger.critical(f"Catastrophic failure in orchestration ({err_type}): {e}")
+        if dashboard:
+             dashboard.stop()
         sys.exit(3)
 
 if __name__ == "__main__":

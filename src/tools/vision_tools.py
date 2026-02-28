@@ -10,6 +10,7 @@ except ImportError:
     fitz = None
 
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
 from src.config import detective_settings, judicial_settings
 
 def extract_images_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
@@ -54,15 +55,21 @@ def classify_diagram(image_base64: str) -> str:
     """
     Sends an image to Gemini Pro Vision for classification.
     """
-    api_key = judicial_settings.google_api_key or judicial_settings.gemini_api_key
-    if not api_key:
-        return "Image analysis skipped: Missing Google API Key."
+    if detective_settings.vision_provider == "ollama":
+        llm = ChatOllama(
+            model=detective_settings.vision_model,
+            temperature=detective_settings.llm_temperature,
+        )
+    else:
+        api_key = judicial_settings.google_api_key or judicial_settings.gemini_api_key
+        if not api_key:
+            return "Image analysis skipped: Missing Google API Key."
 
-    llm = ChatGoogleGenerativeAI(
-        model=detective_settings.vision_model,
-        temperature=detective_settings.llm_temperature,
-        google_api_key=api_key
-    )
+        llm = ChatGoogleGenerativeAI(
+            model=detective_settings.vision_model,
+            temperature=detective_settings.llm_temperature,
+            google_api_key=api_key
+        )
     
     # Construct multimodal message
     from langchain_core.messages import HumanMessage

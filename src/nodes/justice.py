@@ -14,12 +14,11 @@ from src.utils.orchestration import (
     round_score, 
     SynthesisError
 )
+from src.utils.observability import node_traceable
 
 logger = StructuredLogger("justice_node")
 
-
-
-
+@node_traceable
 def chief_justice_node(state: AgentState) -> AgentState:
     """
     Consolidates varying judicial opinions deterministically using strict precedence rules.
@@ -66,7 +65,6 @@ def chief_justice_node(state: AgentState) -> AgentState:
     
     return state
 
-
 def route_after_justice(state: AgentState) -> str:
     """
     Conditional edge routing after Chief Justice synthesis.
@@ -75,7 +73,6 @@ def route_after_justice(state: AgentState) -> str:
     if state.get("re_eval_needed", False):
         return "judges"
     return "report"
-
 
 def synthesize_criterion(
     criterion_id: str, 
@@ -110,15 +107,41 @@ def synthesize_criterion(
         applied_rules.append("DEGRADED_SYNTHESIS")
         execution_log["synthesis_path"] = "DEGRADED_SYNTHESIS"
 
+    # --- FR-003: Redundancy & Leader Election (013-ironclad-hardening) ---
+    judge_groups = {}
+    for op in opinions:
+        if op.judge not in judge_groups:
+            judge_groups[op.judge] = []
+        judge_groups[op.judge].append(op)
+    
+    elected_opinions = []
+    for judge_type, group in judge_groups.items():
+        if len(group) == 1:
+            elected_opinions.append(group[0])
+        else:
+            # Leader Election: Select the opinion with the most evidence cited,
+            # or the highest score if detail is tied (preferring non-fallback arguments).
+            leader = max(group, key=lambda op: (
+                len(op.cited_evidence) if op.cited_evidence and op.cited_evidence[0] != "NO_EVIDENCE" else 0,
+                op.score if "[PARTIAL_VALIDATION]" not in op.argument else -1,
+                len(op.argument)
+            ))
+            elected_opinions.append(leader)
+            applied_rules.append(f"LEADER_ELECTION_{judge_type.upper()}")
+            execution_log["events"].append(f"Leader elected for {judge_type} from {len(group)} redundant instances.")
+
+    # Proceed with elected opinions for synthesis
+    synthesis_opinions = elected_opinions
+
     # --- FR-003: Raw Variance Calculation ---
-    raw_scores = [op.score for op in opinions]
+    raw_scores = [op.score for op in synthesis_opinions]
     variance = max(raw_scores) - min(raw_scores)
-    execution_log["raw_scores"] = {op.judge: op.score for op in opinions}
+    execution_log["raw_scores"] = {op.judge: op.score for op in synthesis_opinions}
     execution_log["raw_variance"] = variance
 
     # --- FR-005: Fact Supremacy Penalty ---
     adjusted_opinions = []
-    for op in opinions:
+    for op in synthesis_opinions:
         score = op.score
         found_hallucination = False
         invalid_citations = []
@@ -171,7 +194,7 @@ def synthesize_criterion(
             "path traversal", "sql injection", "xss", "insecure deserialization",
             "os.system", "unsafe clone"
         }
-        for op in opinions:
+        for op in synthesis_opinions:
             if op.judge == "Prosecutor" and op.charges:
                 for charge in op.charges:
                     if any(kw in charge.lower() for kw in sec_keywords):
@@ -191,9 +214,9 @@ def synthesize_criterion(
     re_evaluation = variance > 2
     dissent = None
     if variance > 0:
-        p_op = next((op for op in opinions if op.judge == "Prosecutor"), None)
-        d_op = next((op for op in opinions if op.judge == "Defense"), None)
-        t_op = next((op for op in opinions if op.judge == "TechLead"), None)
+        p_op = next((op for op in synthesis_opinions if op.judge == "Prosecutor"), None)
+        d_op = next((op for op in synthesis_opinions if op.judge == "Defense"), None)
+        t_op = next((op for op in synthesis_opinions if op.judge == "TechLead"), None)
         
         prefix = "Major conflict detected" if variance > 2 else "Nuanced consensus"
         dissent = f"{prefix} (variance={variance}). "
@@ -207,7 +230,7 @@ def synthesize_criterion(
     # Aggregate remediation with unique filtering and cleaning
     unique_remediations = []
     seen = set()
-    for op in opinions:
+    for op in synthesis_opinions:
         if op.remediation:
             clean = op.remediation.strip()
             if clean and clean.lower() not in seen:
@@ -215,9 +238,9 @@ def synthesize_criterion(
                 seen.add(clean.lower())
     
     # --- FR-010: Final Narrative Reasoning (SC-004) ---
-    p_op = next((op for op in opinions if op.judge == "Prosecutor"), None)
-    d_op = next((op for op in opinions if op.judge == "Defense"), None)
-    t_op = next((op for op in opinions if op.judge == "TechLead"), None)
+    p_op = next((op for op in synthesis_opinions if op.judge == "Prosecutor"), None)
+    d_op = next((op for op in synthesis_opinions if op.judge == "Defense"), None)
+    t_op = next((op for op in synthesis_opinions if op.judge == "TechLead"), None)
     
     reasoning_parts = []
     
@@ -261,9 +284,6 @@ def synthesize_criterion(
         re_evaluation_required=re_evaluation
     )
 
-
-
 def fallback_render(state: AgentState, error: Exception) -> AgentState:
     """FR-007: Generates a basic error report if the main generator fails."""
-    # This logic will be moved to report_generator.py in next task
     return state
