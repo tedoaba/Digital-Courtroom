@@ -60,13 +60,13 @@ def get_philosophy(judge_name: str) -> str:
     return TECHLEAD_PHILOSOPHY  # Fallback
 
 
-def get_google_llm():
-    # Placeholder for LLM fetching logic
+def get_google_llm(model_name: str):
+    # Dynamic LLM fetching logic
     from langchain_google_genai import ChatGoogleGenerativeAI
 
-    api_key = judicial_settings.google_api_key or judicial_settings.gemini_api_key
+    api_key = judicial_settings.api_key
     return ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
+        model=model_name,
         temperature=judicial_settings.llm_temperature,
         google_api_key=api_key,
     )
@@ -160,7 +160,10 @@ Ensure you return ONLY the JSON object. Do not add markdown wrappers around the 
     controller = get_concurrency_controller()
 
     async def llm_call():
-        llm = get_ollama_llm(model_name)
+        if judicial_settings.judicial_provider == "google":
+            llm = get_google_llm(model_name)
+        else:
+            llm = get_ollama_llm(model_name)
         # Use JudicialOutcome for structured output parsing
         outcome = await _invoke_llm_with_validation(
             llm, messages, schema=JudicialOutcome
@@ -286,7 +289,10 @@ Example: {{"opinions": [{{"criterion_id": "DIM1", "judge": "{judge}", "score": 4
     )
 
     async def llm_call():
-        llm = get_ollama_llm(model_name)
+        if judicial_settings.judicial_provider == "google":
+            llm = get_google_llm(model_name)
+        else:
+            llm = get_ollama_llm(model_name)
 
         class BatchOutcomeResponse(BaseModel):
             opinions: list[JudicialOutcome]

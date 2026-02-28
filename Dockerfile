@@ -36,18 +36,21 @@ COPY --from=builder /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Copy source code
-COPY . .
+COPY --chown=courtroom_user:courtroom . .
 
 # Final sync to install the project itself (entrypoints)
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
 
-# Ensure entrypoint is executable
-RUN chmod +x scripts/docker-entrypoint.sh
+# Fix potential Windows CRLF line endings and ensure entrypoint is executable
+RUN tr -d '\r' < scripts/docker-entrypoint.sh > scripts/docker-entrypoint.sh.tmp && \
+    mv scripts/docker-entrypoint.sh.tmp scripts/docker-entrypoint.sh && \
+    chmod +x scripts/docker-entrypoint.sh && \
+    head -n 1 scripts/docker-entrypoint.sh | cat -e
 
 # Use non-root user
 USER courtroom_user
 
 # Entrypoint
-ENTRYPOINT ["scripts/docker-entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "/app/scripts/docker-entrypoint.sh"]
 CMD ["courtroom"]

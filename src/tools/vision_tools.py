@@ -65,7 +65,7 @@ def classify_diagram(image_base64: str) -> str:
             base_url=detective_settings.ollama_base_url,
         )
     else:
-        api_key = judicial_settings.google_api_key or judicial_settings.gemini_api_key
+        api_key = judicial_settings.api_key
         if not api_key:
             return "Image analysis skipped: Missing Google API Key."
 

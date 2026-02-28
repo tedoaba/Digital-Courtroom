@@ -11,6 +11,9 @@ ignored/
 #.agent/
 #memory/
 
+# Digital Courtroom Reports
+audit/reports/
+
 # Distribution / packaging
 .Python
 build/
@@ -216,5 +219,4 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 
-# Digital Courtroom Reports
-audit/
+

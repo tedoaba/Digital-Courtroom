@@ -32,7 +32,7 @@ endif
 	@uv --version > $(NULL) 2>&1 || (echo "ERROR: uv MISSING detected. Run 'make setup' or create FILE."; exit 1)
 
 .check-env:
-	@if [ -f .env ] || [ -f .env.example ]; then true; else echo "ERROR: .env MISSING detected. Run 'make setup' or create FILE."; exit 1; fi
+	@$(if $(wildcard .env)$(wildcard .env.example),true,echo "ERROR: .env MISSING detected. Run 'make setup' or create FILE."; exit 1)
 
 .check-dirs:
 	@if [ ! -d audit ]; then $(MKDIR_P) audit; fi
@@ -68,8 +68,8 @@ docker-run: .check-env .check-dirs
 	@if [ -z "$(REPO)" ] || [ -z "$(SPEC)" ]; then echo "USAGE: make docker-run REPO=... SPEC=..."; exit 1; fi
 	MSYS_NO_PATHCONV=1 docker run --rm -it \
 		--env-file .env \
-		-v "$(shell pwd)/reports:/reports:ro" \
-		-v "$(shell pwd)/audit:/app/audit:rw" \
+		-v "$(CURDIR)/reports:/reports:ro" \
+		-v "$(CURDIR)/audit:/app/audit:rw" \
 		digital-courtroom:latest \
 		audit --repo "$(REPO)" --spec "/reports/$(notdir $(SPEC))" --rubric "$(RUBRIC)"
 
@@ -77,8 +77,8 @@ docker-ui: .check-env .check-dirs
 	@if [ -z "$(REPO)" ] || [ -z "$(SPEC)" ]; then echo "USAGE: make docker-ui REPO=... SPEC=..."; exit 1; fi
 	MSYS_NO_PATHCONV=1 docker run --rm -it \
 		--env-file .env \
-		-v "$(shell pwd)/reports:/reports:ro" \
-		-v "$(shell pwd)/audit:/app/audit:rw" \
+		-v "$(CURDIR)/reports:/reports:ro" \
+		-v "$(CURDIR)/audit:/app/audit:rw" \
 		digital-courtroom:latest \
 		courtroom audit --repo "$(REPO)" --spec "/reports/$(notdir $(SPEC))" --rubric "$(RUBRIC)"
 

@@ -1,7 +1,7 @@
 import json
 from typing import Literal
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import AliasChoices, Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -129,10 +129,19 @@ class JudicialSettings(BaseSettings):
 
     # Judicial LLM parameters
     llm_temperature: float = 0.0
-    gemini_api_key: str | None = None
-    google_api_key: str | None = None
+    google_api_key: SecretStr | None = Field(
+        default=None, validation_alias=AliasChoices("GOOGLE_API_KEY", "GEMINI_API_KEY")
+    )
+
+    @property
+    def api_key(self) -> str | None:
+        """Unified access point for Google API Key."""
+        return self.google_api_key.get_secret_value() if self.google_api_key else None
 
     # Model Selection (picked up from ENV such as PROSECUTOR_MODEL)
+    judicial_provider: Literal["google", "ollama"] = Field(
+        default="ollama", validation_alias="JUDICIAL_PROVIDER"
+    )
     prosecutor_model_id: str = Field(
         default="deepseek-v3.1:671b-cloud", validation_alias="PROSECUTOR_MODEL"
     )
