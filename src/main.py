@@ -37,6 +37,15 @@ async def amain():
 
     args = parser.parse_args()
 
+    from pydantic import ValidationError
+    from src.state import AuditRequest
+
+    try:
+        validated_request = AuditRequest(**vars(args))
+    except ValidationError as e:
+        logger.error(f"Input validation failed: {e}")
+        sys.exit(2)
+
     # FR-003: Hardening - Verify Vault key at startup
     if not hardened_config.vault_key:
         logger.warning(
@@ -54,9 +63,9 @@ async def amain():
 
     # Initialize basic state
     initial_state = {
-        "repo_url": args.repo,
-        "pdf_path": args.spec,
-        "rubric_path": args.rubric,
+        "repo_url": validated_request.repo,
+        "pdf_path": validated_request.spec,
+        "rubric_path": validated_request.rubric,
         "rubric_dimensions": [],
         "synthesis_rules": {},
         "evidences": {},
@@ -71,7 +80,7 @@ async def amain():
         "re_eval_needed": False,
     }
 
-    logger.info(f"Starting audit for {args.repo}", correlation_id=correlation_id)
+    logger.info(f"Starting audit for {validated_request.repo}", correlation_id=correlation_id)
 
     try:
         config = {

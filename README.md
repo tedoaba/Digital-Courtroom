@@ -175,6 +175,17 @@ Digital-Courtroom/
 └── tests/                  # Unit, Integration, and Chaos testing suites
 ```
 
+## 📄 Formal Output Schema
+
+To guarantee machine-readable compliance and seamless integrations with external dashboards, all final audits strictly conform to a **Pydantic formal output schema**.
+You can re-generate the most up-to-date schema via:
+
+```bash
+uv run python -c "import json; from src.state import AuditReport; print(json.dumps(AuditReport.model_json_schema(), indent=2))" > schema.json
+```
+
+The exact schema definition is validated rigorously on every run and guaranteed to conform to property constraints.
+
 ## 📈 Observability & Forensics
 
 Every execution is a "Forensic Event." You can audit the results through:

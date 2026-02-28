@@ -286,19 +286,28 @@ async def execute_swarm_with_ui(
 
 async def run_audit(args):
     """Subcommand: audit run"""
+    from pydantic import ValidationError
+    from src.state import AuditRequest
+
+    try:
+        validated_request = AuditRequest(**vars(args))
+    except ValidationError as e:
+        console.print(f"\n[bold red]Input Validation Error:[/bold red] {e}")
+        sys.exit(2)
+
     # Pre-flight check before opening the Live screen
-    if not Path(args.spec).exists():
+    if not Path(validated_request.spec).exists():
         console.print(
-            f"[bold red]Error:[/bold red] Specification PDF not found at {args.spec}"
+            f"[bold red]Error:[/bold red] Specification PDF not found at {validated_request.spec}"
         )
         sys.exit(1)
-    if not Path(args.rubric).exists():
+    if not Path(validated_request.rubric).exists():
         console.print(
-            f"[bold red]Error:[/bold red] Rubric JSON not found at {args.rubric}"
+            f"[bold red]Error:[/bold red] Rubric JSON not found at {validated_request.rubric}"
         )
         sys.exit(1)
 
-    dashboard_ui = CourtroomDashboard(args.repo)
+    dashboard_ui = CourtroomDashboard(validated_request.repo)
 
     with Live(dashboard_ui.layout, refresh_per_second=10, screen=True) as live:
         try:
@@ -311,9 +320,9 @@ async def run_audit(args):
             ticker_task = asyncio.create_task(ticker())
 
             await execute_swarm_with_ui(
-                repo_url=args.repo,
-                pdf_path=args.spec,
-                rubric_path=args.rubric,
+                repo_url=validated_request.repo,
+                pdf_path=validated_request.spec,
+                rubric_path=validated_request.rubric,
                 dashboard_ui=dashboard_ui,
             )
 

@@ -19,6 +19,21 @@ class StrictModel(BaseModel):
     )
 
 
+class AuditRequest(StrictModel):
+    """External Interface Schema for validating incoming CLI/API arguments."""
+
+    repo: str = Field(
+        ..., pattern=r"^https?://", description="Must be a valid HTTP/HTTPS URL."
+    )
+    spec: str = Field(..., description="Must be a valid path to the specification PDF.")
+    rubric: str = Field(
+        default="rubric/week2_rubric.json",
+        description="Must be a valid path to the rubric JSON.",
+    )
+    output: str = Field(default="audit/reports/", description="Output directory.")
+    dashboard: bool = Field(default=False, description="Enable real-time TUI dashboard.")
+
+
 class EvidenceClass(str, Enum):
     """Forensic classes for evidence categorisation."""
 

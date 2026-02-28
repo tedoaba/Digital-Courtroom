@@ -1,0 +1,249 @@
+{
+  "$defs": {
+    "CriterionResult": {
+      "additionalProperties": false,
+      "description": "Final synthesized verdict.",
+      "properties": {
+        "criterion_id": {
+          "title": "Criterion Id",
+          "type": "string"
+        },
+        "dimension_name": {
+          "title": "Dimension Name",
+          "type": "string"
+        },
+        "numeric_score": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Numeric Score",
+          "type": "integer"
+        },
+        "reasoning": {
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "relevance_confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Relevance Confidence",
+          "type": "number"
+        },
+        "judge_opinions": {
+          "items": {
+            "$ref": "#/$defs/JudicialOpinion"
+          },
+          "title": "Judge Opinions",
+          "type": "array"
+        },
+        "dissent_summary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dissent Summary"
+        },
+        "remediation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Remediation"
+        },
+        "applied_rules": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Applied Rules",
+          "type": "array"
+        },
+        "execution_log": {
+          "additionalProperties": true,
+          "title": "Execution Log",
+          "type": "object"
+        },
+        "security_violation_found": {
+          "default": false,
+          "title": "Security Violation Found",
+          "type": "boolean"
+        },
+        "re_evaluation_required": {
+          "default": false,
+          "title": "Re Evaluation Required",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "criterion_id",
+        "dimension_name",
+        "numeric_score",
+        "reasoning",
+        "relevance_confidence",
+        "judge_opinions"
+      ],
+      "title": "CriterionResult",
+      "type": "object"
+    },
+    "JudicialOpinion": {
+      "additionalProperties": false,
+      "description": "INTERNAL state model for a judge's verdict.",
+      "properties": {
+        "opinion_id": {
+          "title": "Opinion Id",
+          "type": "string"
+        },
+        "judge": {
+          "enum": [
+            "Prosecutor",
+            "Defense",
+            "TechLead"
+          ],
+          "title": "Judge",
+          "type": "string"
+        },
+        "criterion_id": {
+          "title": "Criterion Id",
+          "type": "string"
+        },
+        "score": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Score",
+          "type": "integer"
+        },
+        "argument": {
+          "title": "Argument",
+          "type": "string"
+        },
+        "cited_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Cited Evidence",
+          "type": "array"
+        },
+        "mitigations": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mitigations"
+        },
+        "charges": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Charges"
+        },
+        "remediation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Remediation"
+        }
+      },
+      "required": [
+        "opinion_id",
+        "judge",
+        "criterion_id",
+        "score",
+        "argument",
+        "cited_evidence"
+      ],
+      "title": "JudicialOpinion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Final aggregated output.",
+  "properties": {
+    "repo_name": {
+      "title": "Repo Name",
+      "type": "string"
+    },
+    "run_date": {
+      "title": "Run Date",
+      "type": "string"
+    },
+    "git_hash": {
+      "title": "Git Hash",
+      "type": "string"
+    },
+    "rubric_version": {
+      "title": "Rubric Version",
+      "type": "string"
+    },
+    "results": {
+      "additionalProperties": {
+        "$ref": "#/$defs/CriterionResult"
+      },
+      "title": "Results",
+      "type": "object"
+    },
+    "summary": {
+      "title": "Summary",
+      "type": "string"
+    },
+    "remediation_plan": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Remediation Plan"
+    },
+    "global_score": {
+      "maximum": 5.0,
+      "minimum": 0.0,
+      "title": "Global Score",
+      "type": "number"
+    }
+  },
+  "required": [
+    "repo_name",
+    "run_date",
+    "git_hash",
+    "rubric_version",
+    "results",
+    "summary",
+    "global_score"
+  ],
+  "title": "AuditReport",
+  "type": "object"
+}

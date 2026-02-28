@@ -23,6 +23,14 @@ jobs:
           dockerfile: Dockerfile
           failure-threshold: info
 
+      - name: Verify Output Schema conformance
+        run: |
+          uv run python -c "import json; from src.state import AuditReport; json.dump(AuditReport.model_json_schema(), open('schema.json', 'w', encoding='utf-8'), indent=2)"
+          if ! git diff --exit-code schema.json; then
+            echo "::error::Schema drift detected! Run the schema generation command and commit 'schema.json' to fix."
+            exit 1
+          fi
+
   security:
     runs-on: ubuntu-latest
     steps:
