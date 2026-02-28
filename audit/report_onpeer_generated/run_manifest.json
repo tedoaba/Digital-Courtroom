@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-02-28T14:29:30.531926+00:00",
+  "status": "STARTED",
+  "execution_rules": {
+    "strict_layer_sync": true,
+    "timeout_per_layer": 120,
+    "max_re_eval_cycles": 1
+  },
+  "data_trace": {
+    "correlation_id": "ee48a21d-ac18-4f55-9286-183a01b6cbd4",
+    "run_status": "STARTED",
+    "pipeline_integrity": "FAILED",
+    "consistency_report": {
+      "status": "pass",
+      "violations": [],
+      "nodes": [
+        "context_builder",
+        "repo_investigator",
+        "doc_analyst",
+        "vision_inspector",
+        "aggregator",
+        "evaluate_criterion",
+        "evaluate_batch_criterion",
+        "chief_justice",
+        "report_generator",
+        "error_handler",
+        "consistency_guard"
+      ],
+      "edges_count": 12
+    }
+  },
+  "errors": [
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty.",
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty.",
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty.",
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty.",
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty.",
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty.",
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty.",
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty.",
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty.",
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty.",
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty.",
+    "FORENSIC_SOURCE_MISSING: 'docs' source is missing or empty."
+  ]
+}
