@@ -24,7 +24,7 @@ def error_handler_node(state: AgentState) -> dict[str, Any]:
             "event": "orchestration_failure",
             "error_count": len(errors),
             "last_error": errors[-1] if errors else "Unknown error",
-        }
+        },
     )
 
     # Mark metadata as failed to impact manifest

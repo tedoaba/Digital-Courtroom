@@ -57,7 +57,7 @@ class LogBufferHandler(logging.Handler):
             # 2. Extract structured data directly from LogRecord attributes
             # StructuredLogger puts these in 'extra' which become record attributes
             event_raw = getattr(record, "event_type", "system_event")
-            correlation_id = getattr(record, "correlation_id", "unknown")
+            _correlation_id = getattr(record, "correlation_id", "unknown")
             payload = getattr(record, "payload", {})
 
             # Formatting
@@ -65,20 +65,8 @@ class LogBufferHandler(logging.Handler):
             severity = record.levelname
             event = event_raw.replace("_", " ").title()
 
-            sev_color = (
-                "green"
-                if severity == "INFO"
-                else "yellow"
-                if severity == "WARNING"
-                else "bold red"
-            )
-            event_color = (
-                "cyan"
-                if "node" in event.lower()
-                else "magenta"
-                if "opinion" in event.lower()
-                else "blue"
-            )
+            sev_color = "green" if severity == "INFO" else "yellow" if severity == "WARNING" else "bold red"
+            event_color = "cyan" if "node" in event.lower() else "magenta" if "opinion" in event.lower() else "blue"
 
             line = Text()
             line.append(f"[{ts}] ", style="dim")
@@ -156,9 +144,7 @@ class CourtroomDashboard:
     def make_log_pane(self) -> Panel:
         # Render log buffer as a group
         log_group = (
-            Group(*self.logs)
-            if self.logs
-            else Text("\n\n   Waiting for judicial proceedings...", style="italic dim")
+            Group(*self.logs) if self.logs else Text("\n\n   Waiting for judicial proceedings...", style="italic dim")
         )
         return Panel(
             log_group,
@@ -179,11 +165,7 @@ class CourtroomDashboard:
             elapsed = str(datetime.now() - self.start_time).split(".")[0]
 
         status_style = (
-            "bold green"
-            if self.status == "COMPLETED"
-            else "bold yellow"
-            if "FAILED" in self.status
-            else "bold blue"
+            "bold green" if self.status == "COMPLETED" else "bold yellow" if "FAILED" in self.status else "bold blue"
         )
 
         table.add_row("System Status", f"[{status_style}]{self.status}[/]")
@@ -212,7 +194,10 @@ class CourtroomDashboard:
 
 
 async def execute_swarm_with_ui(
-    repo_url: str, pdf_path: str, rubric_path: str, dashboard_ui: CourtroomDashboard
+    repo_url: str,
+    pdf_path: str,
+    rubric_path: str,
+    dashboard_ui: CourtroomDashboard,
 ):
     """Executes the swarm while aggressively intercepting all loggers."""
     correlation_id = str(uuid.uuid4())
@@ -287,6 +272,7 @@ async def execute_swarm_with_ui(
 async def run_audit(args):
     """Subcommand: audit run"""
     from pydantic import ValidationError
+
     from src.state import AuditRequest
 
     try:
@@ -298,12 +284,12 @@ async def run_audit(args):
     # Pre-flight check before opening the Live screen
     if not Path(validated_request.spec).exists():
         console.print(
-            f"[bold red]Error:[/bold red] Specification PDF not found at {validated_request.spec}"
+            f"[bold red]Error:[/bold red] Specification PDF not found at {validated_request.spec}",
         )
         sys.exit(1)
     if not Path(validated_request.rubric).exists():
         console.print(
-            f"[bold red]Error:[/bold red] Rubric JSON not found at {validated_request.rubric}"
+            f"[bold red]Error:[/bold red] Rubric JSON not found at {validated_request.rubric}",
         )
         sys.exit(1)
 
@@ -340,13 +326,14 @@ async def run_audit(args):
             sys.exit(3)
 
 
-def show_config(args):
+def show_config(_args):
     """Subcommand: config"""
     table = Table(title="Digital Courtroom Configuration", box=box.ROUNDED)
     table.add_column("Property", style="cyan")
     table.add_column("Value", style="magenta")
     table.add_row(
-        "Vault Key Present", "✅ Yes" if hardened_config.vault_key else "❌ No"
+        "Vault Key Present",
+        "✅ Yes" if hardened_config.vault_key else "❌ No",
     )
     table.add_row(
         "Models",

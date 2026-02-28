@@ -25,7 +25,7 @@ def log_queueing(agent: str, dimension: str, queue_depth: int) -> None:
             "agent": agent,
             "dimension": dimension,
             "queue_depth": queue_depth,
-        }
+        },
     )
 
 
@@ -37,7 +37,7 @@ def log_acquired(agent: str, dimension: str, active_slots: int) -> None:
             "agent": agent,
             "dimension": dimension,
             "active_slots": active_slots,
-        }
+        },
     )
 
 
@@ -49,7 +49,7 @@ def log_released(agent: str, dimension: str, active_slots: int) -> None:
             "agent": agent,
             "dimension": dimension,
             "active_slots": active_slots,
-        }
+        },
     )
 
 
@@ -112,5 +112,5 @@ def log_concurrency_limit(limit: int) -> None:
         {
             "event": "job_start",
             "active_concurrency_limit": limit,
-        }
+        },
     )

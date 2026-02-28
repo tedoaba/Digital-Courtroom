@@ -44,7 +44,7 @@ def extract_images_from_pdf(pdf_path: str) -> list[dict[str, Any]]:
                         "base64": encoded,
                         "page": page_index + 1,
                         "index": img_index,
-                    }
+                    },
                 )
         doc.close()
     except Exception:
@@ -82,7 +82,11 @@ def classify_diagram(image_base64: str) -> str:
         content=[
             {
                 "type": "text",
-                "text": "Analyze this architectural diagram from a software engineering perspective. Identify if it shows a LangGraph StateMachine with parallel branches (fan-out/fan-in) for Detectives and Judges. Describe the flow accurately.",
+                "text": (
+                    "Analyze this architectural diagram from a software engineering perspective. "
+                    "Identify if it shows a LangGraph StateMachine with parallel branches "
+                    "(fan-out/fan-in) for Detectives and Judges. Describe the flow accurately."
+                ),
             },
             {
                 "type": "image_url",
@@ -110,7 +114,7 @@ def _run_vision_classification(pdf_path: str) -> list[dict[str, Any]]:
                 "image_index": idx,
                 "page": img["page"],
                 "classification": cls,
-            }
+            },
         )
 
     return results
@@ -124,7 +128,7 @@ def run_vision_classification(pdf_path: str, timeout: int = 60) -> list[dict[str
             return future.result(timeout=timeout)
         except concurrent.futures.TimeoutError:
             raise TimeoutError(
-                f"Vision classification timed out after {timeout} seconds."
-            )
+                f"Vision classification timed out after {timeout} seconds.",
+            ) from None
         except Exception as e:
-            raise RuntimeError(f"Vision classification failed: {e!s}")
+            raise RuntimeError(f"Vision classification failed: {e!s}") from e

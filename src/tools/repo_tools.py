@@ -32,13 +32,15 @@ def clone_repository(
             text=True,
         )
     except subprocess.TimeoutExpired:
-        raise TimeoutError(f"Cloning {repo_url} timed out after {timeout} seconds.")
+        raise TimeoutError(f"Cloning {repo_url} timed out after {timeout} seconds.") from None
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Cloning failed: {e.stderr}")
+        raise RuntimeError(f"Cloning failed: {e.stderr}") from e
 
 
 def get_git_history(
-    repo_dir: str, limit: int = 50, sandbox: SandboxEnvironment | None = None
+    repo_dir: str,
+    limit: int = 50,
+    sandbox: SandboxEnvironment | None = None,
 ) -> list[Commit]:
     """Fetches the git commit history."""
     cmd = [
@@ -116,13 +118,10 @@ def analyze_ast_for_patterns(repo_dir: str) -> list[ASTFinding]:
                                             node_type="ClassDef",
                                             name=node.name,
                                             details={"base": base.id},
-                                        )
+                                        ),
                                     )
                         elif isinstance(node, ast.Call):
-                            if (
-                                isinstance(node.func, ast.Name)
-                                and node.func.id == "StateGraph"
-                            ):
+                            if isinstance(node.func, ast.Name) and node.func.id == "StateGraph":
                                 findings.append(
                                     ASTFinding(
                                         file=rel_path,
@@ -130,7 +129,7 @@ def analyze_ast_for_patterns(repo_dir: str) -> list[ASTFinding]:
                                         node_type="Call",
                                         name="StateGraph",
                                         details={},
-                                    )
+                                    ),
                                 )
                 except Exception:
                     pass
@@ -167,12 +166,9 @@ def check_tool_safety(repo_dir: str) -> list[ASTFinding]:
                                             node_type="Call",
                                             name="os.system",
                                             details={},
-                                        )
+                                        ),
                                     )
-                            elif (
-                                isinstance(node.func, ast.Name)
-                                and node.func.id == "eval"
-                            ):
+                            elif isinstance(node.func, ast.Name) and node.func.id == "eval":
                                 findings.append(
                                     ASTFinding(
                                         file=rel_path,
@@ -180,7 +176,7 @@ def check_tool_safety(repo_dir: str) -> list[ASTFinding]:
                                         node_type="Call",
                                         name="eval",
                                         details={},
-                                    )
+                                    ),
                                 )
                 except Exception:
                     pass

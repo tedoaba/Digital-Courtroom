@@ -23,7 +23,9 @@ class AuditRequest(StrictModel):
     """External Interface Schema for validating incoming CLI/API arguments."""
 
     repo: str = Field(
-        ..., pattern=r"^https?://", description="Must be a valid HTTP/HTTPS URL."
+        ...,
+        pattern=r"^https?://",
+        description="Must be a valid HTTP/HTTPS URL.",
     )
     spec: str = Field(..., description="Must be a valid path to the specification PDF.")
     rubric: str = Field(
@@ -150,11 +152,7 @@ class JudicialOpinion(StrictModel):
                     match = re.search(r"(\d+)", val)
                     if match:
                         val = int(match.group(1))
-                if (
-                    isinstance(val, (float, int))
-                    and float(val) <= 1.0
-                    and float(val) > 0
-                ):
+                if isinstance(val, (float, int)) and float(val) <= 1.0 and float(val) > 0:
                     normalized_data["score"] = int(round(float(val) * 4 + 1))
                 else:
                     normalized_data["score"] = int(float(val))

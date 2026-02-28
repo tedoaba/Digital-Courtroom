@@ -23,13 +23,14 @@ def extract_pdf_markdown(pdf_path: str, timeout: int = 60) -> str:
         try:
             return future.result(timeout=timeout)
         except concurrent.futures.TimeoutError:
-            raise TimeoutError(f"PDF extraction timed out after {timeout} seconds.")
+            raise TimeoutError(f"PDF extraction timed out after {timeout} seconds.") from None
         except Exception as e:
-            raise RuntimeError(f"PDF extraction failed: {e!s}")
+            raise RuntimeError(f"PDF extraction failed: {e!s}") from e
 
 
 def find_architectural_claims(
-    markdown_text: str, keywords: list[str] = None
+    markdown_text: str,
+    keywords: list[str] = None,
 ) -> list[dict[str, str]]:
     """Simple finding for claims around specific keywords."""
     if not keywords:
@@ -56,7 +57,7 @@ def find_architectural_claims(
                     "keyword": kw,
                     "chunk": chunk.strip()[:250],
                     "location": f"chunk_{idx}",
-                }
+                },
             )
 
     return findings

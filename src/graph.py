@@ -124,4 +124,4 @@ def create_graph() -> StateGraph:
 courtroom_swarm = create_graph().compile()
 
 if __name__ == "__main__":
-    print("Graph compiled successfully.")
+    logger.info("Graph compiled successfully.")

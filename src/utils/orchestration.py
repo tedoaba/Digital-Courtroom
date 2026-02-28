@@ -48,7 +48,7 @@ def timeout_wrapper(seconds: float):
                 # If the first arg is state, append an error
                 if args and isinstance(args[0], dict) and "errors" in args[0]:
                     args[0]["errors"].append(
-                        f"TIMEOUT: Node {func.__name__} exceeded {seconds}s limit."
+                        f"TIMEOUT: Node {func.__name__} exceeded {seconds}s limit.",
                     )
                 raise
 
@@ -124,9 +124,7 @@ class CircuitBreaker:
             resource_name=self.name,
             status=self.state,
             failure_count=self.failures,
-            last_failure_time=datetime.fromtimestamp(self.last_failure_time)
-            if self.last_failure_time
-            else None,
+            last_failure_time=datetime.fromtimestamp(self.last_failure_time) if self.last_failure_time else None,
         )
 
 
@@ -143,9 +141,7 @@ def trigger_rollback(last_valid_state: dict[str, Any], error: str) -> dict[str, 
 
 def detect_cascading_failure(errors: list[str]) -> bool:
     """FR-011: Check if core streams are failing."""
-    forensic_count = sum(
-        1 for e in errors if any(kw in e for kw in ["FORENSIC", "CRITICAL", "FATAL"])
-    )
+    forensic_count = sum(1 for e in errors if any(kw in e for kw in ["FORENSIC", "CRITICAL", "FATAL"]))
     return forensic_count >= 3
 
 
@@ -157,6 +153,11 @@ def get_circuit_breaker(name: str) -> CircuitBreaker:
     if name not in _cb_registry:
         _cb_registry[name] = CircuitBreaker(name)
     return _cb_registry[name]
+
+
+def reset_circuit_breakers() -> None:
+    """Reset all circuit breakers (primarily for testing)."""
+    _cb_registry.clear()
 
 
 class TokenBucketRateLimiter:
@@ -221,7 +222,8 @@ def sanitize_repo_name(url: str) -> str:
 
 
 def get_report_workspace(
-    repo_url: str, base_dir: str = "audit/reports"
+    repo_url: str,
+    base_dir: str = "audit/reports",
 ) -> pathlib.Path:
     """Creates a dedicated output directory for the audit run (FR-014)."""
     repo_name = sanitize_repo_name(repo_url)

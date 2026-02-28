@@ -77,8 +77,9 @@ class DashboardManager:
 
         layout["header"].update(
             Panel(
-                "Digital Courtroom — Ironclad Swarm Monitor", style="bold white on blue"
-            )
+                "Digital Courtroom — Ironclad Swarm Monitor",
+                style="bold white on blue",
+            ),
         )
 
         main_table = Table(box=box.SIMPLE)
@@ -91,12 +92,13 @@ class DashboardManager:
             style="bold yellow" if self.status.is_paused else "bold green",
         )
         main_table.add_row(
-            "Open Breakers", ", ".join(self.status.active_circuit_breakers) or "None"
+            "Open Breakers",
+            ", ".join(self.status.active_circuit_breakers) or "None",
         )
 
         layout["main"].update(Panel(main_table, title="Swarm State"))
         layout["footer"].update(
-            Panel("[p] Pause | [r] Resume | [c] Reset CB", style="dim italic")
+            Panel("[p] Pause | [r] Resume | [c] Reset CB", style="dim italic"),
         )
 
         return layout
@@ -104,7 +106,9 @@ class DashboardManager:
     def start(self):
         self._running = True
         self.live = Live(
-            self.generate_layout(), console=self.console, refresh_per_second=1
+            self.generate_layout(),
+            console=self.console,
+            refresh_per_second=1,
         )
         self.live.start()
         self._input_thread = threading.Thread(target=self._handle_input, daemon=True)

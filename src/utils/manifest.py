@@ -14,7 +14,9 @@ class ManifestManager:
 
     @staticmethod
     def save_manifest(
-        output_dir: str, state_metadata: dict[str, Any], errors: list[str]
+        output_dir: str,
+        state_metadata: dict[str, Any],
+        errors: list[str],
     ) -> str:
         """
         Saves the manifest to the specified directory.

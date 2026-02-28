@@ -33,7 +33,7 @@ def _analyze_file(filepath: Path) -> list[ASTFinding]:
                         node_type="ClassDef",
                         name=node.name,
                         details={"bases": bases},
-                    )
+                    ),
                 )
             elif isinstance(node, ast.FunctionDef):
                 findings.append(
@@ -43,14 +43,11 @@ def _analyze_file(filepath: Path) -> list[ASTFinding]:
                         node_type="FunctionDef",
                         name=node.name,
                         details={},
-                    )
+                    ),
                 )
             elif isinstance(node, ast.Call):
-                if (
-                    isinstance(node.func, ast.Name) and "StateGraph" in node.func.id
-                ) or (
-                    isinstance(node.func, ast.Attribute)
-                    and "StateGraph" in node.func.attr
+                if (isinstance(node.func, ast.Name) and "StateGraph" in node.func.id) or (
+                    isinstance(node.func, ast.Attribute) and "StateGraph" in node.func.attr
                 ):
                     findings.append(
                         ASTFinding(
@@ -59,7 +56,7 @@ def _analyze_file(filepath: Path) -> list[ASTFinding]:
                             node_type="Call",
                             name="StateGraph",
                             details={},
-                        )
+                        ),
                     )
     except SyntaxError as e:
         findings.append(
@@ -69,7 +66,7 @@ def _analyze_file(filepath: Path) -> list[ASTFinding]:
                 node_type="SyntaxError",
                 name="SyntaxError",
                 details={"msg": str(e)},
-            )
+            ),
         )
     except Exception:
         # Ignore other internal errors

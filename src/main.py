@@ -26,18 +26,25 @@ async def amain():
     parser.add_argument("--repo", required=True, help="GitHub Repository URL")
     parser.add_argument("--spec", required=True, help="Path to Specification PDF")
     parser.add_argument(
-        "--output", help="Output directory for reports", default="audit/reports/"
+        "--output",
+        help="Output directory for reports",
+        default="audit/reports/",
     )
     parser.add_argument(
-        "--rubric", help="Path to rubric JSON", default="rubric/week2_rubric.json"
+        "--rubric",
+        help="Path to rubric JSON",
+        default="rubric/week2_rubric.json",
     )
     parser.add_argument(
-        "--dashboard", action="store_true", help="Enable real-time TUI dashboard"
+        "--dashboard",
+        action="store_true",
+        help="Enable real-time TUI dashboard",
     )
 
     args = parser.parse_args()
 
     from pydantic import ValidationError
+
     from src.state import AuditRequest
 
     try:
@@ -49,7 +56,7 @@ async def amain():
     # FR-003: Hardening - Verify Vault key at startup
     if not hardened_config.vault_key:
         logger.warning(
-            "COURTROOM_VAULT_KEY is missing. Decryption of protected secrets will fail."
+            "COURTROOM_VAULT_KEY is missing. Decryption of protected secrets will fail.",
         )
 
     correlation_id = str(uuid.uuid4())

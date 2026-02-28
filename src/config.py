@@ -1,10 +1,10 @@
 import json
 from typing import Literal
-
 from urllib.parse import urlparse
 
 from pydantic import AliasChoices, Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 def sanitize_url(v: str) -> str:
     """Sanitizes a URL by stripping embedded credentials."""
@@ -21,28 +21,35 @@ class HardenedConfig(BaseSettings):
     """
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     # Configurable sets (usually passed as JSON strings in ENV)
     models: dict[str, str] = Field(
-        default_factory=dict, validation_alias="COURTROOM_MODELS"
+        default_factory=dict,
+        validation_alias="COURTROOM_MODELS",
     )
     endpoints: dict[str, str] = Field(
-        default_factory=dict, validation_alias="COURTROOM_ENDPOINTS"
+        default_factory=dict,
+        validation_alias="COURTROOM_ENDPOINTS",
     )
     timeouts: dict[str, int] = Field(
-        default_factory=dict, validation_alias="COURTROOM_TIMEOUTS"
+        default_factory=dict,
+        validation_alias="COURTROOM_TIMEOUTS",
     )
 
     # Vault / Security
     vault_key: SecretStr | None = Field(
-        default=None, validation_alias="COURTROOM_VAULT_KEY"
+        default=None,
+        validation_alias="COURTROOM_VAULT_KEY",
     )
     vault_secrets: dict[str, SecretStr] = Field(default_factory=dict)
-    
+
     ollama_base_url: str = Field(
-        default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL"
+        default="http://localhost:11434",
+        validation_alias="OLLAMA_BASE_URL",
     )
 
     @field_validator("ollama_base_url")
@@ -77,7 +84,7 @@ class HardenedConfig(BaseSettings):
         for name, timeout in v.items():
             if not (1 <= timeout <= 300):
                 raise ValueError(
-                    f"Timeout {name} must be between 1 and 300s, got {timeout}"
+                    f"Timeout {name} must be between 1 and 300s, got {timeout}",
                 )
         return v
 
@@ -86,7 +93,9 @@ class ObservabilitySettings(BaseSettings):
     """Settings for observability and tracing."""
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     # LangSmith Tracing
@@ -107,7 +116,9 @@ class DetectiveSettings(BaseSettings):
     """Settings for Layer 1 Detective nodes."""
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     # Global timeout for all external detective operations (FR-008)
@@ -118,14 +129,17 @@ class DetectiveSettings(BaseSettings):
 
     # Vision Config
     vision_provider: Literal["google", "ollama"] = Field(
-        default="google", validation_alias="VISION_PROVIDER"
+        default="google",
+        validation_alias="VISION_PROVIDER",
     )
     vision_model_id: str = Field(
-        default="gemini-2.0-flash", validation_alias="VISION_MODEL"
+        default="gemini-2.0-flash",
+        validation_alias="VISION_MODEL",
     )
 
     ollama_base_url: str = Field(
-        default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL"
+        default="http://localhost:11434",
+        validation_alias="OLLAMA_BASE_URL",
     )
 
     @field_validator("ollama_base_url")
@@ -143,13 +157,16 @@ class JudicialSettings(BaseSettings):
     """Settings for Layer 2 Judicial nodes."""
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     # Judicial LLM parameters
     llm_temperature: float = 0.0
     google_api_key: SecretStr | None = Field(
-        default=None, validation_alias=AliasChoices("GOOGLE_API_KEY", "GEMINI_API_KEY")
+        default=None,
+        validation_alias=AliasChoices("GOOGLE_API_KEY", "GEMINI_API_KEY"),
     )
 
     @property
@@ -159,20 +176,25 @@ class JudicialSettings(BaseSettings):
 
     # Model Selection (picked up from ENV such as PROSECUTOR_MODEL)
     judicial_provider: Literal["google", "ollama"] = Field(
-        default="ollama", validation_alias="JUDICIAL_PROVIDER"
+        default="ollama",
+        validation_alias="JUDICIAL_PROVIDER",
     )
     prosecutor_model_id: str = Field(
-        default="deepseek-v3.1:671b-cloud", validation_alias="PROSECUTOR_MODEL"
+        default="deepseek-v3.1:671b-cloud",
+        validation_alias="PROSECUTOR_MODEL",
     )
     defense_model_id: str = Field(
-        default="deepseek-v3.1:671b-cloud", validation_alias="DEFENSE_MODEL"
+        default="deepseek-v3.1:671b-cloud",
+        validation_alias="DEFENSE_MODEL",
     )
     techlead_model_id: str = Field(
-        default="deepseek-v3.1:671b-cloud", validation_alias="TECHLEAD_MODEL"
+        default="deepseek-v3.1:671b-cloud",
+        validation_alias="TECHLEAD_MODEL",
     )
 
     ollama_base_url: str = Field(
-        default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL"
+        default="http://localhost:11434",
+        validation_alias="OLLAMA_BASE_URL",
     )
 
     @field_validator("ollama_base_url")
@@ -195,7 +217,7 @@ class JudicialSettings(BaseSettings):
     # --- Bounded Concurrency Settings (012-bounded-agent-eval) ---
     root_node: str | None = None
 
-    # FR-001: Global semaphore limit for active LLM requests (range 1–50)
+    # FR-001: Global semaphore limit for active LLM requests (range 1-50)
     max_concurrent_llm_calls: int = 5
 
     # FR-002: Retry / Exponential Backoff
@@ -212,7 +234,10 @@ class JudicialSettings(BaseSettings):
 
     # (013-ironclad-hardening) Redundancy and Leader Election
     judicial_redundancy_factor: int = Field(
-        default=1, ge=1, le=5, validation_alias="JUDICIAL_REDUNDANCY_FACTOR"
+        default=1,
+        ge=1,
+        le=5,
+        validation_alias="JUDICIAL_REDUNDANCY_FACTOR",
     )
 
     @field_validator("max_concurrent_llm_calls")

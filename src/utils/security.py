@@ -65,7 +65,9 @@ class SandboxEnvironment(BaseModel):
     timeout_seconds: int = 60
 
     def execute_tool(
-        self, command: list[str], input_data: str | None = None
+        self,
+        command: list[str],
+        input_data: str | None = None,
     ) -> dict[str, Any]:
         """Execute command within limits using psutil monitoring."""
         if not self.root_path.exists():
@@ -161,7 +163,7 @@ class EvidenceChainManager:
         return True
 
 
-def verify_evidence_integrity(chain: list[EvidenceChain], current_content: str) -> bool:
+def verify_evidence_integrity(chain: list[EvidenceChain], _current_content: str) -> bool:
     """T031: Verify external evidence against cryptographic chain."""
     manager = EvidenceChainManager()
     manager.chain = chain
