@@ -27,12 +27,12 @@ def repo_investigator(state: AgentState) -> dict[str, Any]:
     correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
 
     logger.log_node_entry(
-        "repo_investigator", repo_url=repo_url, correlation_id=correlation_id
+        "repo_investigator",
+        repo_url=repo_url,
+        correlation_id=correlation_id,
     )
 
-    repo_dims = [
-        d for d in rubric_dimensions if d.get("target_artifact") == "github_repo"
-    ]
+    repo_dims = [d for d in rubric_dimensions if d.get("target_artifact") == "github_repo"]
     if not repo_dims:
         return {}
 
@@ -66,7 +66,7 @@ def repo_investigator(state: AgentState) -> dict[str, Any]:
                             rationale=str(e),
                             confidence=1.0,
                             timestamp=datetime.now(),
-                        )
+                        ),
                     )
                 return {"evidences": {"repo": evidences}, "errors": errors}
 
@@ -87,7 +87,7 @@ def repo_investigator(state: AgentState) -> dict[str, Any]:
                         rationale="Extracted from git history in sandbox",
                         confidence=1.0,
                         timestamp=datetime.now(),
-                    )
+                    ),
                 )
 
             for i, f in enumerate(ast_findings):
@@ -103,7 +103,7 @@ def repo_investigator(state: AgentState) -> dict[str, Any]:
                         rationale="Extracted from AST",
                         confidence=1.0,
                         timestamp=datetime.now(),
-                    )
+                    ),
                 )
 
             for i, f in enumerate(safety_findings):
@@ -119,7 +119,7 @@ def repo_investigator(state: AgentState) -> dict[str, Any]:
                         rationale="Security audit of detected patterns",
                         confidence=1.0,
                         timestamp=datetime.now(),
-                    )
+                    ),
                 )
 
     except Exception as e:
@@ -136,7 +136,7 @@ def repo_investigator(state: AgentState) -> dict[str, Any]:
                 rationale=str(e),
                 confidence=1.0,
                 timestamp=datetime.now(),
-            )
+            ),
         )
 
     duration = time.time() - start_time
@@ -158,11 +158,11 @@ def doc_analyst(state: AgentState) -> dict[str, Any]:
     correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
 
     logger.log_node_entry(
-        "doc_analyst", pdf_path=pdf_path, correlation_id=correlation_id
+        "doc_analyst",
+        pdf_path=pdf_path,
+        correlation_id=correlation_id,
     )
-    doc_dims = [
-        d for d in rubric_dimensions if d.get("target_artifact") == "pdf_report"
-    ]
+    doc_dims = [d for d in rubric_dimensions if d.get("target_artifact") == "pdf_report"]
     if not doc_dims:
         return {}
 
@@ -178,10 +178,11 @@ def doc_analyst(state: AgentState) -> dict[str, Any]:
     try:
         # doc_tools might need sandbox update if they run shell commands (like docling or pandoc)
         markdown_text = extract_pdf_markdown(
-            pdf_path, timeout=detective_settings.operation_timeout_seconds
+            pdf_path,
+            timeout=detective_settings.operation_timeout_seconds,
         )
         claims = find_architectural_claims(markdown_text)
-        paths = extract_file_paths(markdown_text)
+        _paths = extract_file_paths(markdown_text)
 
         for i, c in enumerate(claims):
             evidences.append(
@@ -196,7 +197,7 @@ def doc_analyst(state: AgentState) -> dict[str, Any]:
                     rationale="Structural claim identification",
                     confidence=0.9,
                     timestamp=datetime.now(),
-                )
+                ),
             )
 
     except Exception as e:
@@ -214,7 +215,7 @@ def doc_analyst(state: AgentState) -> dict[str, Any]:
                     rationale=str(e),
                     confidence=1.0,
                     timestamp=datetime.now(),
-                )
+                ),
             )
 
     duration = time.time() - start_time
@@ -236,11 +237,11 @@ def vision_inspector(state: AgentState) -> dict[str, Any]:
     correlation_id = state.get("metadata", {}).get("correlation_id", "unknown")
 
     logger.log_node_entry(
-        "vision_inspector", pdf_path=pdf_path, correlation_id=correlation_id
+        "vision_inspector",
+        pdf_path=pdf_path,
+        correlation_id=correlation_id,
     )
-    vision_dims = [
-        d for d in rubric_dimensions if d.get("target_artifact") == "pdf_images"
-    ]
+    vision_dims = [d for d in rubric_dimensions if d.get("target_artifact") == "pdf_images"]
     if not vision_dims:
         return {}
 
@@ -251,7 +252,8 @@ def vision_inspector(state: AgentState) -> dict[str, Any]:
 
     try:
         classifications = run_vision_classification(
-            pdf_path, timeout=detective_settings.operation_timeout_seconds
+            pdf_path,
+            timeout=detective_settings.operation_timeout_seconds,
         )
         for c in classifications:
             evidences.append(
@@ -266,7 +268,7 @@ def vision_inspector(state: AgentState) -> dict[str, Any]:
                     rationale="Visual classification of diagrams",
                     confidence=0.85,
                     timestamp=datetime.now(),
-                )
+                ),
             )
 
     except Exception as e:
@@ -284,7 +286,7 @@ def vision_inspector(state: AgentState) -> dict[str, Any]:
                     rationale=str(e),
                     confidence=1.0,
                     timestamp=datetime.now(),
-                )
+                ),
             )
 
     duration = time.time() - start_time

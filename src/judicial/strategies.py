@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from src.judicial.layer import BaseReasoningStrategy
 from src.state import Evidence, JudicialOpinion
 
@@ -6,7 +8,10 @@ class AdversarialStrategy(BaseReasoningStrategy):
     """(T035) Critical/Adversarial reasoning."""
 
     async def evaluate(
-        self, criterion_id: str, description: str, evidences: List[Evidence]
+        self,
+        criterion_id: str,
+        _description: str,
+        _evidences: list[Evidence],
     ) -> JudicialOpinion:
         # Simplified implementation for now
         return JudicialOpinion(
@@ -23,7 +28,10 @@ class OptimisticStrategy(BaseReasoningStrategy):
     """(T035) Reward Effort/Optimistic reasoning."""
 
     async def evaluate(
-        self, criterion_id: str, description: str, evidences: List[Evidence]
+        self,
+        criterion_id: str,
+        _description: str,
+        _evidences: list[Evidence],
     ) -> JudicialOpinion:
         return JudicialOpinion(
             opinion_id="opt_op",

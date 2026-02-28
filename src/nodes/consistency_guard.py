@@ -40,16 +40,8 @@ def analyze_graph_consistency() -> dict:
             # Find builder.add_edge calls
             if isinstance(node.func, ast.Attribute) and node.func.attr == "add_edge":
                 if len(node.args) >= 2:
-                    src = (
-                        node.args[0].value
-                        if isinstance(node.args[0], ast.Constant)
-                        else "dynamic"
-                    )
-                    dst = (
-                        node.args[1].value
-                        if isinstance(node.args[1], ast.Constant)
-                        else "dynamic"
-                    )
+                    src = node.args[0].value if isinstance(node.args[0], ast.Constant) else "dynamic"
+                    dst = node.args[1].value if isinstance(node.args[1], ast.Constant) else "dynamic"
                     edges_found.append((src, dst))
 
     # Basic Swarm Pattern Validation
@@ -87,15 +79,12 @@ def consistency_guard_node(state: AgentState) -> AgentState:
     if vision_findings:
         logger.info(f"Reconciling AST with {len(vision_findings)} vision findings...")
         for vf in vision_findings:
-            if (
-                "SMA" in (vf.content or "").upper()
-                or "STATE" in (vf.content or "").upper()
-            ):
+            if "SMA" in (vf.content or "").upper() or "STATE" in (vf.content or "").upper():
                 # If vision detected a state machine, verify AST also found one
                 if len(analysis.get("nodes", [])) < 5:
                     analysis["status"] = "fail"
                     analysis["violations"].append(
-                        "Vision detected StateMachine but AST verification shows insufficient node complexity."
+                        "Vision detected StateMachine but AST verification shows insufficient node complexity.",
                     )
 
     if "metadata" not in state:
@@ -104,9 +93,7 @@ def consistency_guard_node(state: AgentState) -> AgentState:
     state["metadata"]["consistency_report"] = analysis
 
     if analysis["status"] == "fail":
-        msg = (
-            f"Architectural Consistency Violation: {', '.join(analysis['violations'])}"
-        )
+        msg = f"Architectural Consistency Violation: {', '.join(analysis['violations'])}"
         logger.warning(msg)
         state["errors"].append(msg)
     else:

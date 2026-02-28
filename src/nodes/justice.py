@@ -38,13 +38,14 @@ def chief_justice_node(state: AgentState) -> AgentState:
     for criterion_id, ops in grouped_opinions.items():
         name = dimension_map.get(criterion_id, criterion_id)
         criterion_results[criterion_id] = synthesize_criterion(
-            criterion_id, name, ops, evidences
+            criterion_id,
+            name,
+            ops,
+            evidences,
         )
 
     # 3. Calculate Re-evaluation Needed (FR-005)
-    re_eval_needed = any(
-        res.re_evaluation_required for res in criterion_results.values()
-    )
+    re_eval_needed = any(res.re_evaluation_required for res in criterion_results.values())
 
     # 4. Limit cycles (max 1)
     current_re_eval_count = state.get("re_eval_count", 0)
@@ -124,9 +125,7 @@ def synthesize_criterion(
             leader = max(
                 group,
                 key=lambda op: (
-                    len(op.cited_evidence)
-                    if op.cited_evidence and op.cited_evidence[0] != "NO_EVIDENCE"
-                    else 0,
+                    len(op.cited_evidence) if op.cited_evidence and op.cited_evidence[0] != "NO_EVIDENCE" else 0,
                     op.score if "[PARTIAL_VALIDATION]" not in op.argument else -1,
                     len(op.argument),
                 ),
@@ -134,7 +133,7 @@ def synthesize_criterion(
             elected_opinions.append(leader)
             applied_rules.append(f"LEADER_ELECTION_{judge_type.upper()}")
             execution_log["events"].append(
-                f"Leader elected for {judge_type} from {len(group)} redundant instances."
+                f"Leader elected for {judge_type} from {len(group)} redundant instances.",
             )
 
     # Proceed with elected opinions for synthesis
@@ -163,7 +162,7 @@ def synthesize_criterion(
             score = max(1, score - 2)
             applied_rules.append("FACT_SUPREMACY_PENALTY")
             execution_log["penalties"].append(
-                f"{op.judge} penalized for invalid evidence citation: {', '.join(invalid_citations)}."
+                f"{op.judge} penalized for invalid evidence citation: {', '.join(invalid_citations)}.",
             )
             execution_log["synthesis_path"] = "FACT_SUPREMACY_OVERRIDE"
 
@@ -195,7 +194,7 @@ def synthesize_criterion(
         if ev.found and ev.evidence_class == EvidenceClass.SECURITY_VIOLATION:
             security_violation = True
             execution_log["events"].append(
-                f"Security override: verified violation {ev.evidence_id}"
+                f"Security override: verified violation {ev.evidence_id}",
             )
             break
 
@@ -218,7 +217,7 @@ def synthesize_criterion(
                     if any(kw in charge.lower() for kw in sec_keywords):
                         security_violation = True
                         execution_log["events"].append(
-                            f"Security override: Prosecutor signal in charges: {charge}"
+                            f"Security override: Prosecutor signal in charges: {charge}",
                         )
                         break
 
@@ -270,7 +269,7 @@ def synthesize_criterion(
         reasoning_parts.append(f"**Nuanced consensus** reached at {final_int}/5.")
     else:
         reasoning_parts.append(
-            f"**Significant judicial conflict detected** (Variance: {variance})."
+            f"**Significant judicial conflict detected** (Variance: {variance}).",
         )
 
     if p_op and p_op.score < 3 and p_op.charges:
@@ -281,18 +280,18 @@ def synthesize_criterion(
     if d_op and d_op.score > 3 and d_op.mitigations:
         mits_text = "; ".join([m.strip() for m in d_op.mitigations if m.strip()][:3])
         reasoning_parts.append(
-            f"Defense highlighted mitigating factors: _{mits_text}_."
+            f"Defense highlighted mitigating factors: _{mits_text}_.",
         )
 
     if security_violation:
         reasoning_parts.append(
-            "**CRITICAL**: Score capped due to verified security violations."
+            "**CRITICAL**: Score capped due to verified security violations.",
         )
 
     if t_op:
         focus = "stability" if t_op.score >= 3 else "risks"
         reasoning_parts.append(
-            f"Tech Lead weighted synthesis prioritized architectural {focus}."
+            f"Tech Lead weighted synthesis prioritized architectural {focus}.",
         )
 
     final_reasoning = " ".join(reasoning_parts)
@@ -305,9 +304,7 @@ def synthesize_criterion(
         relevance_confidence=1.0,
         judge_opinions=opinions,
         dissent_summary=dissent,
-        remediation="\n".join([f"- {r}" for r in unique_remediations])
-        if unique_remediations
-        else None,
+        remediation="\n".join([f"- {r}" for r in unique_remediations]) if unique_remediations else None,
         applied_rules=list(set(applied_rules)),
         execution_log=execution_log,
         security_violation_found=security_violation,
@@ -315,6 +312,6 @@ def synthesize_criterion(
     )
 
 
-def fallback_render(state: AgentState, error: Exception) -> AgentState:
+def fallback_render(state: AgentState, _error: Exception) -> AgentState:
     """FR-007: Generates a basic error report if the main generator fails."""
     return state

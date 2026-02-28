@@ -40,14 +40,31 @@ class JudicialBatchTask(TypedDict):
     correlation_id: str
 
 
-PROSECUTOR_PHILOSOPHY = """You apply a "Critical Lens" (Philosophy: "Trust No One. Assume Vibe Coding. Actively look for security vulnerabilities and code smells").
-Operate strictly as an adversary hunting anomalies. Target shortcuts, unhandled exceptions, hidden attack vectors, and brittle architecture. Demand perfection; interpret ambiguity automatically as fatal flaws. Expose hardcoded secrets or logical fallacies relentlessly."""
+PROSECUTOR_PHILOSOPHY = (
+    'You apply a "Critical Lens" (Philosophy: "Trust No One. '
+    'Assume Vibe Coding. Actively look for security vulnerabilities and code smells"). '
+    "Operate strictly as an adversary hunting anomalies. Target shortcuts, "
+    "unhandled exceptions, hidden attack vectors, and brittle architecture. "
+    "Demand perfection; interpret ambiguity automatically as fatal flaws. "
+    "Expose hardcoded secrets or logical fallacies relentlessly."
+)
 
-DEFENSE_PHILOSOPHY = """You apply an "Optimistic Lens" (Philosophy: "Reward Effort and Intent. Assume good faith and prioritize partial implementation over missing features").
-Highlight achievements. Emphasize constructive aspects, praising partial solutions while contextualizing technical debt reasonably. Defend pragmatic choices, assuming good faith behind each design decision. Support progression toward functionality."""
+DEFENSE_PHILOSOPHY = (
+    'You apply an "Optimistic Lens" (Philosophy: "Reward Effort and Intent. '
+    'Assume good faith and prioritize partial implementation over missing features"). '
+    "Highlight achievements. Emphasize constructive aspects, praising partial solutions "
+    "while contextualizing technical debt reasonably. Defend pragmatic choices, "
+    "assuming good faith behind each design decision. Support progression toward functionality."
+)
 
-TECHLEAD_PHILOSOPHY = """You apply a "Pragmatic Lens" (Philosophy: "Does it work? Is it maintainable? Focus on architectural stability and real-world viability").
-Assess deployability first. Balance theoretical purity alongside actual production constraints. Measure system resilience, ongoing maintenance burden, and efficient execution. Judge primarily whether solutions scale sustainably within current team boundaries."""
+TECHLEAD_PHILOSOPHY = (
+    'You apply a "Pragmatic Lens" (Philosophy: "Does it work? Is it maintainable? '
+    'Focus on architectural stability and real-world viability"). '
+    "Assess deployability first. Balance theoretical purity alongside actual "
+    "production constraints. Measure system resilience, ongoing maintenance burden, "
+    "and efficient execution. Judge primarily whether solutions scale sustainably "
+    "within current team boundaries."
+)
 
 
 def get_philosophy(judge_name: str) -> str:
@@ -90,16 +107,20 @@ async def _invoke_llm_with_validation(llm, messages, retries=0, schema=JudicialO
     except ValidationError as e:
         if retries < 2:
             schema_reminder = HumanMessage(
-                content=f"Your previous response failed schema validation. Please fix these errors and try again: {e}"
+                content=f"Your previous response failed schema validation. Please fix these errors and try again: {e}",
             )
             messages.append(schema_reminder)
             return await _invoke_llm_with_validation(
-                llm, messages, retries=retries + 1, schema=schema
+                llm,
+                messages,
+                retries=retries + 1,
+                schema=schema,
             )
         raise e
     except Exception as e:
         logger.error(
-            f"LLM invocation failed: {e!s}", payload={"messages_len": len(messages)}
+            f"LLM invocation failed: {e!s}",
+            payload={"messages_len": len(messages)},
         )
         raise e
 
@@ -125,7 +146,9 @@ async def evaluate_criterion(task: JudicialTask) -> dict[str, list[JudicialOpini
     evidence_text = _format_evidence(evidences)
 
     model_name = getattr(
-        judicial_settings, f"{judge.lower()}_model", judicial_settings.techlead_model
+        judicial_settings,
+        f"{judge.lower()}_model",
+        judicial_settings.techlead_model,
     )
 
     system_prompt = f"""You are the {judge} in a digital courtroom.
@@ -166,7 +189,9 @@ Ensure you return ONLY the JSON object. Do not add markdown wrappers around the 
             llm = get_ollama_llm(model_name)
         # Use JudicialOutcome for structured output parsing
         outcome = await _invoke_llm_with_validation(
-            llm, messages, schema=JudicialOutcome
+            llm,
+            messages,
+            schema=JudicialOutcome,
         )
 
         # Transform JudicialOutcome -> JudicialOpinion by injecting the ID
@@ -204,7 +229,7 @@ Ensure you return ONLY the JSON object. Do not add markdown wrappers around the 
         if score_match:
             try:
                 extracted_score = int(score_match.group(1))
-            except:
+            except ValueError:
                 pass
 
         arg_match = re.search(r"'argument':\s*'([^']*)'", err_msg)
@@ -225,7 +250,7 @@ Ensure you return ONLY the JSON object. Do not add markdown wrappers around the 
         return {
             "opinions": [fallback_opinion],
             "errors": [
-                f"Persistent failure for judge {judge} on criterion {criterion_id}: {err_msg}"
+                f"Persistent failure for judge {judge} on criterion {criterion_id}: {err_msg}",
             ],
         }
 
@@ -272,20 +297,23 @@ Each object in the 'opinions' list MUST have:
 - `argument`: Detailed rationale string
 - `cited_evidence`: List of `evidence_id` strings or `['NO_EVIDENCE']`
 
-Example: {{"opinions": [{{"criterion_id": "DIM1", "judge": "{judge}", "score": 4, "argument": "...", "cited_evidence": ["..."]}}, ...]}}
+Example: {{"opinions": [{{"criterion_id": "DIM1", "judge": "{judge}",
+"score": 4, "argument": "...", "cited_evidence": ["..."]}}]}}
 """
 
     messages = [
         SystemMessage(content=system_prompt),
         HumanMessage(
-            content="Evaluate all provided criteria and return a structured JSON list of opinions."
+            content="Evaluate all provided criteria and return a structured JSON list of opinions.",
         ),
     ]
 
     controller = get_concurrency_controller()
 
     model_name = getattr(
-        judicial_settings, f"{judge.lower()}_model", judicial_settings.techlead_model
+        judicial_settings,
+        f"{judge.lower()}_model",
+        judicial_settings.techlead_model,
     )
 
     async def llm_call():
@@ -308,7 +336,9 @@ Example: {{"opinions": [{{"criterion_id": "DIM1", "judge": "{judge}", "score": 4
                     setattr(self, k, v)
                 # Override timeout if batch specific timeout exists
                 self.llm_call_timeout = getattr(
-                    original, "batch_llm_call_timeout", 300.0
+                    original,
+                    "batch_llm_call_timeout",
+                    300.0,
                 )
 
         batch_settings = BatchSettingsWrapper(judicial_settings)
@@ -329,7 +359,7 @@ Example: {{"opinions": [{{"criterion_id": "DIM1", "judge": "{judge}", "score": 4
             ts = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
             op_id = f"{judge}_{outcome.criterion_id}_{ts}_{i}"
             received_opinions.append(
-                JudicialOpinion(opinion_id=op_id, **outcome.model_dump())
+                JudicialOpinion(opinion_id=op_id, **outcome.model_dump()),
             )
 
         received_ids = {op.criterion_id for op in received_opinions}
@@ -340,7 +370,7 @@ Example: {{"opinions": [{{"criterion_id": "DIM1", "judge": "{judge}", "score": 4
 
         if missing_dims:
             logger.warning(
-                f"Batch incomplete for {judge}. Missing {len(missing_dims)} IDs. Starting granular retries."
+                f"Batch incomplete for {judge}. Missing {len(missing_dims)} IDs. Starting granular retries.",
             )
             for dim in missing_dims:
                 # Trigger individual call for missing item
@@ -354,14 +384,16 @@ Example: {{"opinions": [{{"criterion_id": "DIM1", "judge": "{judge}", "score": 4
                 final_opinions.extend(res["opinions"])
 
         logger.log_opinion_rendered(
-            f"{judge} BATCH", correlation_id=correlation_id, count=len(final_opinions)
+            f"{judge} BATCH",
+            correlation_id=correlation_id,
+            count=len(final_opinions),
         )
         return {"opinions": final_opinions}
 
     except Exception as e:
         # FR-004 Fallback: If the whole batch fails, fall back to individual calls for the whole set
         logger.error(
-            f"Whole batch evaluation failed for {judge} due to {e}. Falling back to individual dimension calls."
+            f"Whole batch evaluation failed for {judge} due to {e}. Falling back to individual dimension calls.",
         )
         all_opinions = []
         for dim in dimensions:
@@ -388,7 +420,7 @@ def _format_evidence(evidences: dict) -> str:
         return "- NO_EVIDENCE: No evidence was found by detectives."
 
     text = ""
-    for cat, ev_list in evidences.items():
+    for _cat, ev_list in evidences.items():
         for e in ev_list:
             e_id = getattr(
                 e,
@@ -401,10 +433,14 @@ def _format_evidence(evidences: dict) -> str:
                 e.get("evidence_class") if isinstance(e, dict) else "unknown",
             )
             e_conf = getattr(
-                e, "confidence", e.get("confidence") if isinstance(e, dict) else 0.0
+                e,
+                "confidence",
+                e.get("confidence") if isinstance(e, dict) else 0.0,
             )
             e_content = getattr(
-                e, "content", e.get("content") if isinstance(e, dict) else ""
+                e,
+                "content",
+                e.get("content") if isinstance(e, dict) else "",
             )
             e_class_val = getattr(e_class, "value", e_class)
             text += f"- ID: {e_id} | Class: {e_class_val} | Confidence: {e_conf}\n  Content: {e_content}\n"

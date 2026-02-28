@@ -81,7 +81,7 @@ def aggregator_node(state: AgentState) -> dict:
                 seen_ids.add(item.evidence_id)
             else:
                 logger.warning(
-                    f"Deduplicating evidence {item.evidence_id} in source {source}"
+                    f"Deduplicating evidence {item.evidence_id} in source {source}",
                 )
         clean_evidences[source] = deduped
 
@@ -128,7 +128,7 @@ def aggregator_node(state: AgentState) -> dict:
                             rationale="SECURITY_VIOLATION: Path outside root or invalid format.",
                             confidence=1.0,
                             timestamp=datetime.now(UTC),
-                        )
+                        ),
                     )
                     hallu_ids.add(hallu_id)
                 continue
@@ -149,7 +149,7 @@ def aggregator_node(state: AgentState) -> dict:
                             rationale="Path cited in documentation does not exist in the repository manifest.",
                             confidence=1.0,
                             timestamp=datetime.now(UTC),
-                        )
+                        ),
                     )
                     hallu_ids.add(hallu_id)
 
@@ -158,9 +158,7 @@ def aggregator_node(state: AgentState) -> dict:
 
     # 4. Polish (FR-007, FR-008) - Summary log
     hallucination_count = sum(
-        1
-        for e in clean_evidences.get("docs", [])
-        if e.evidence_class == EvidenceClass.DOCUMENT_CLAIM and not e.found
+        1 for e in clean_evidences.get("docs", []) if e.evidence_class == EvidenceClass.DOCUMENT_CLAIM and not e.found
     )
 
     logger.info(

@@ -11,6 +11,9 @@ class BaseReasoningStrategy(ABC):
 
     @abstractmethod
     async def evaluate(
-        self, criterion_id: str, description: str, evidences: list[Evidence]
+        self,
+        criterion_id: str,
+        description: str,
+        evidences: list[Evidence],
     ) -> JudicialOpinion:
         pass

@@ -53,7 +53,8 @@ def report_generator_node(state: AgentState) -> dict[str, Any]:
         # 4. Initialize Workspace
         root = pathlib.Path(__file__).resolve().parent.parent.parent
         workspace = get_report_workspace(
-            repo_url, base_dir=str(root / "audit" / "reports")
+            repo_url,
+            base_dir=str(root / "audit" / "reports"),
         )
 
         # 5. Render Markdown
@@ -80,7 +81,7 @@ def report_generator_node(state: AgentState) -> dict[str, Any]:
                 if e_display.content and len(e_display.content) > 5000:
                     e_display = e_display.model_copy(
                         update={
-                            "content": e_display.content[:5000] + "\n\n[TRUNCATED]"
+                            "content": e_display.content[:5000] + "\n\n[TRUNCATED]",
                         },
                     )
                 display_evidences[src].append(e_display)
@@ -102,7 +103,9 @@ def report_generator_node(state: AgentState) -> dict[str, Any]:
 
         # 7. Save Manifest (T014)
         ManifestManager.save_manifest(
-            str(workspace), state.get("metadata", {}), state.get("errors", [])
+            str(workspace),
+            state.get("metadata", {}),
+            state.get("errors", []),
         )
 
         logger.log_verdict_delivered(
@@ -130,7 +133,8 @@ def fallback_save(state: AgentState, error: Exception) -> dict[str, Any]:
     try:
         root = pathlib.Path(__file__).resolve().parent.parent.parent
         workspace = get_report_workspace(
-            repo_url, base_dir=str(root / "audit" / "reports")
+            repo_url,
+            base_dir=str(root / "audit" / "reports"),
         )
         report_path = workspace / "report_ERROR.md"
 
@@ -144,7 +148,7 @@ def fallback_save(state: AgentState, error: Exception) -> dict[str, Any]:
             f.write(content)
 
         return {}
-    except:
+    except Exception:
         # If even this fails, dump to stdout as a last resort
-        print(f"FATAL: Could not even save error report. Error: {error}")
+        logger.error(f"FATAL: Could not even save error report. Error: {error}")
         return {}

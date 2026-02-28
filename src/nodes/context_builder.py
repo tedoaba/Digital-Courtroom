@@ -121,11 +121,7 @@ def build_context(state: dict[str, Any]) -> dict[str, Any]:
     Returns:
         Updated state dictionary with rubric data and initialized collections.
     """
-    correlation_id = (
-        state.get("metadata", {}).get("correlation_id")
-        or state.get("correlation_id")
-        or str(uuid.uuid4())
-    )
+    correlation_id = state.get("metadata", {}).get("correlation_id") or state.get("correlation_id") or str(uuid.uuid4())
 
     # FR-007: Preserve existing errors (append, never clear)
     errors: list[str] = list(state.get("errors", []))
@@ -180,9 +176,7 @@ def build_context(state: dict[str, Any]) -> dict[str, Any]:
     }
 
     # FR-006: Log exit event at INFO level (Const. XXII)
-    status = (
-        "failed" if errors and errors != list(state.get("errors", [])) else "success"
-    )
+    status = "failed" if errors and errors != list(state.get("errors", [])) else "success"
 
     # Get rubric version for logging
     rubric_version = "unknown"
