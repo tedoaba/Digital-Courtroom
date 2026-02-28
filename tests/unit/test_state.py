@@ -18,11 +18,11 @@ from src.state import (
 def test_strict_model_extra_fields():
     """Test that extra fields are forbidden in StrictModel."""
 
-    class MyModel(StrictModel):
+    class MyModelExtra(StrictModel):
         name: str
 
     with pytest.raises(ValidationError) as exc_info:
-        MyModel(name="test", extra="field")  # type: ignore
+        MyModelExtra(name="test", extra="field")  # type: ignore
 
     assert "extra inputs are not permitted" in str(exc_info.value).lower()
 
@@ -30,11 +30,11 @@ def test_strict_model_extra_fields():
 def test_strict_model_strict_types():
     """Test that type coercion is forbidden in StrictModel."""
 
-    class MyModel(StrictModel):
+    class MyModelType(StrictModel):
         count: int
 
     with pytest.raises(ValidationError) as exc_info:
-        MyModel(count="5")  # type: ignore
+        MyModelType(count="5")  # type: ignore
 
     assert "input should be a valid integer" in str(exc_info.value).lower()
 
@@ -42,10 +42,10 @@ def test_strict_model_strict_types():
 def test_strict_model_frozen():
     """Test that models are immutable (frozen)."""
 
-    class MyModel(StrictModel):
+    class MyModelFrozen(StrictModel):
         name: str
 
-    obj = MyModel(name="original")
+    obj = MyModelFrozen(name="original")
     with pytest.raises(ValidationError):
         obj.name = "changed"  # type: ignore
 

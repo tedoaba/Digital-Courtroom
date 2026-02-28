@@ -1,8 +1,17 @@
 import json
 from typing import Literal
 
+from urllib.parse import urlparse
+
 from pydantic import AliasChoices, Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+def sanitize_url(v: str) -> str:
+    """Sanitizes a URL by stripping embedded credentials."""
+    parsed = urlparse(v)
+    if parsed.username or parsed.password:
+        return parsed._replace(netloc=f"{parsed.hostname}:{parsed.port}" if parsed.port else parsed.hostname).geturl()
+    return v
 
 
 class HardenedConfig(BaseSettings):
@@ -35,6 +44,11 @@ class HardenedConfig(BaseSettings):
     ollama_base_url: str = Field(
         default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL"
     )
+
+    @field_validator("ollama_base_url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        return sanitize_url(v)
 
     @field_validator("models", "endpoints", "timeouts", mode="before")
     @classmethod
@@ -114,6 +128,11 @@ class DetectiveSettings(BaseSettings):
         default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL"
     )
 
+    @field_validator("ollama_base_url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        return sanitize_url(v)
+
     @property
     def vision_model(self) -> str:
         """Pull from hardened_config or fallback to default."""
@@ -155,6 +174,11 @@ class JudicialSettings(BaseSettings):
     ollama_base_url: str = Field(
         default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL"
     )
+
+    @field_validator("ollama_base_url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        return sanitize_url(v)
 
     @property
     def prosecutor_model(self) -> str:
