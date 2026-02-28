@@ -89,6 +89,42 @@ Generate a **Vault Key** for AES-256 encryption:
 python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
 
+## 🐳 Containerized Execution (Docker)
+
+For high-security production environments or CI/CD pipelines, you should execute the auditor via the hardened Docker container.
+
+### 1. Build the Image
+
+```bash
+make docker-build
+```
+
+### 2. Network Configuration (Ollama Users)
+
+If you are using a local Ollama instance for Vision or Judicial models, you must allow the container to reach your host machine:
+
+1.  **Update `.env`**: Set `OLLAMA_BASE_URL=http://host.docker.internal:11434`.
+2.  **Enable Host Access**: Set the Windows/Linux environment variable `OLLAMA_HOST=0.0.0.0` and restart the Ollama application.
+
+### 3. Running in Docker
+
+The Docker container automatically mounts your local folders:
+
+- **`reports/`** (Read-Only): Put your input PDF specs here.
+- **`audit/`** (Read-Write): Your generated reports will appear here on your host machine.
+
+#### **Standard Audit**
+
+```bash
+make docker-run REPO=<REPO_URL> SPEC=reports/<YOUR_SPEC>.pdf
+```
+
+#### **Interactive TUI Dashboard**
+
+```bash
+make docker-ui REPO=<REPO_URL> SPEC=reports/<YOUR_SPEC>.pdf
+```
+
 ### **Running the Auditor**
 
 #### 1. Standard Execution
