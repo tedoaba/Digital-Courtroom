@@ -37,11 +37,21 @@ def _validate_repo_url(url: str) -> str | None:
     """
     Validate the repository URL against the GitHub HTTPS pattern.
     """
-    try:
-        sanitize_repo_url(url)
-        return None
-    except ValueError as e:
-        return str(e)
+    if not url:
+        return "Invalid URL format: "
+
+    # FR-002: Strict GitHub HTTPS check
+    import re
+    github_pattern = r"^https://github\.com/[a-zA-Z0-9-._]+/[a-zA-Z0-9-._/]+$"
+    if not re.match(github_pattern, url):
+        return f"Invalid URL format: {url}"
+
+    # FR-003: Check for dangerous characters even if it matches the pattern (unlikely but safe)
+    dangerous_chars = [";", "&", "|", "`", "$", "<", ">", "?", "*", "!", "#"]
+    if any(c in url for c in dangerous_chars):
+        return f"Invalid URL format: {url}"
+
+    return None
 
 
 def _validate_pdf_path(pdf_path: str) -> str | None:

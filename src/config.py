@@ -218,7 +218,13 @@ class JudicialSettings(BaseSettings):
     root_node: str | None = None
 
     # FR-001: Global semaphore limit for active LLM requests (range 1-50)
-    max_concurrent_llm_calls: int = 5
+    max_concurrent_llm_calls: int = Field(
+        default=5,
+        validation_alias=AliasChoices(
+            "max_concurrent_llm_calls",
+            "MAX_CONCURRENT_LLM_CALLS",
+        ),
+    )
 
     # FR-002: Retry / Exponential Backoff
     retry_initial_delay: float = 1.0

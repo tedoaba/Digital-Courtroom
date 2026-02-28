@@ -174,7 +174,7 @@ class CriterionResult(StrictModel):
     numeric_score: int = Field(ge=1, le=5)
     reasoning: str
     relevance_confidence: float = Field(ge=0.0, le=1.0)
-    judge_opinions: list[JudicialOpinion]
+    judge_opinions: list[JudicialOpinion] = Field(default_factory=list)
     dissent_summary: str | None = None
     remediation: str | None = None
     applied_rules: list[str] = Field(default_factory=list)
